@@ -7,7 +7,7 @@
     "mixins": [
     ],
     "client": [
-        "MixinTitleScreen"
+      "com.marwinekk.armortrims.mixin.MixinTitleScreen"
     ],
     "server": [
     ],
