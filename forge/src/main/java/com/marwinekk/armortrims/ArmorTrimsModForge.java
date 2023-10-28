@@ -43,8 +43,8 @@ import com.marwinekk.armortrims.init.ArmorTrimsModMenus;
 import com.marwinekk.armortrims.init.ArmorTrimsModItems;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@Mod(CommonClass.MOD_ID)
-public class ArmorTrimsModForge extends CommonClass{
+@Mod(ArmorTrims.MOD_ID)
+public class ArmorTrimsModForge extends ArmorTrims {
 	public static final Logger LOGGER = LogManager.getLogger(ArmorTrimsModForge.class);
 	public ArmorTrimsModForge() {
 		MinecraftForge.EVENT_BUS.register(this);

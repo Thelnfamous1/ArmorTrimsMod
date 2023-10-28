@@ -1,6 +1,6 @@
 package com.marwinekk.armortrims.mixin;
 
-import com.marwinekk.armortrims.CommonClass;
+import com.marwinekk.armortrims.ArmorTrims;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ public class MixinTitleScreen {
     @Inject(at = @At("HEAD"), method = "init()V")
     private void init(CallbackInfo info) {
 
-        CommonClass.LOG.info("This line is printed by an example mod mixin from Forge!");
-        CommonClass.LOG.info("MC Version: {}", Minecraft.getInstance().getVersionType());
+        ArmorTrims.LOG.info("This line is printed by an example mod mixin from Forge!");
+        ArmorTrims.LOG.info("MC Version: {}", Minecraft.getInstance().getVersionType());
     }
 }
