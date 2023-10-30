@@ -12,13 +12,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.particles.ParticleTypes;
 
 import javax.annotation.Nullable;
 
-import com.marwinekk.armortrims.network.ArmorTrimsModVariables;
 import com.marwinekk.armortrims.ArmorTrimsModForge;
 
 @Mod.EventBusSubscriber
@@ -35,7 +33,7 @@ public class CombatIronProcedure {
 	}
 
 	private static void execute(@Nullable Event event, LevelAccessor world, Entity entity, Entity sourceentity) {
-		if (entity == null || sourceentity == null)
+	/*	if (entity == null || sourceentity == null)
 			return;
 		if (sourceentity instanceof Player && entity instanceof LivingEntity) {
 			if ((sourceentity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).cooldownIron) {
@@ -59,6 +57,6 @@ public class CombatIronProcedure {
 				if (!_entity.level().isClientSide())
 					_entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 1, true, true));
 			}
-		}
+		}*/
 	}
 }

@@ -18,7 +18,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.Packet;
 
-import com.marwinekk.armortrims.procedures.Pa2ProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
 public class Pa2Entity extends AbstractArrow implements ItemSupplier {
@@ -63,7 +62,6 @@ public class Pa2Entity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		Pa2ProjectileHitsBlockProcedure.execute(this.level(), blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ(), this);
 	}
 
 	@Override

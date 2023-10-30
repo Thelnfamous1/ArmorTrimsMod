@@ -1,56 +1,11 @@
 package com.marwinekk.armortrims.procedures;
 
-import net.minecraftforge.registries.ForgeRegistries;
-
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.Mth;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.CommandSource;
-
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Comparator;
-
-import com.marwinekk.armortrims.network.ArmorTrimsModVariables;
-import com.marwinekk.armortrims.init.ArmorTrimsModParticleTypes;
-import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
-import com.marwinekk.armortrims.entity.TNTArrowEntity;
-import com.marwinekk.armortrims.entity.PiercingArrowEntity;
-import com.marwinekk.armortrims.ArmorTrimsModForge;
 
 public class CombatOnKeyPressedProcedure {
 	public static void execute(LevelAccessor world, double x, double y, double z, Entity entity) {
-		if (entity == null)
+	/*	if (entity == null)
 			return;
 		if (!(entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).dragonegg) {
 			if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).canUseIron) {
@@ -630,6 +585,6 @@ public class CombatOnKeyPressedProcedure {
 						_player.displayClientMessage(Component.literal("\u00A7cYou can't use this yet!"), true);
 				}
 			}
-		}
+		}*/
 	}
 }

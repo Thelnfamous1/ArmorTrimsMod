@@ -9,8 +9,6 @@ import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 
-import com.marwinekk.armortrims.network.ArmorTrimsModVariables;
-
 @Mod.EventBusSubscriber
 public class TimerProcedure {
 	@SubscribeEvent

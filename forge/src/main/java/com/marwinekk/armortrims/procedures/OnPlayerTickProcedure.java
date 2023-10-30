@@ -2,18 +2,13 @@ package com.marwinekk.armortrims.procedures;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nullable;
-
 import java.util.Collections;
-
-import com.marwinekk.armortrims.network.ArmorTrimsModVariables;
 
 @Mod.EventBusSubscriber
 public class OnPlayerTickProcedure {
@@ -21,17 +16,12 @@ public class OnPlayerTickProcedure {
 	public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
 		if (event.getHand() != event.getEntity().getUsedItemHand())
 			return;
-		execute(event, event.getEntity());
+		execute(event.getEntity());
 	}
-
-	public static void execute(Entity entity) {
-		execute(null, entity);
-	}
-
-	private static void execute(@Nullable Event event, Entity entity) {
+	private static void execute(Entity entity) {
 		if (entity == null)
 			return;
-		if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).canUseCopper) {
+		if (true) {
 			if (entity instanceof ServerPlayer _serverPlayer)
 				_serverPlayer.awardRecipesByKey(new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop")});
 			if (entity instanceof ServerPlayer _serverPlayer)

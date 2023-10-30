@@ -3,8 +3,6 @@ package com.marwinekk.armortrims.entity;
 
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.api.distmarker.Dist;
 
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.Blocks;
@@ -18,7 +16,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.Packet;
 
-import com.marwinekk.armortrims.procedures.Pa3ProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
 public class Pa3Entity extends AbstractArrow implements ItemSupplier {
@@ -62,7 +59,6 @@ public class Pa3Entity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		Pa3ProjectileHitsBlockProcedure.execute(this.level(), blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ(), this);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package com.marwinekk.armortrims.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -13,7 +11,7 @@ public class Client {
     }
 
     public static void keybinds(RegisterKeyMappingsEvent event) {
-        event.register(ModKeybinds.BEACON_GUI);
+        event.register(ModKeybinds.SET_BONUS_ABILITY);
     }
 
     public static void clientTick(TickEvent.ClientTickEvent event) {
