@@ -16,6 +16,5 @@ public class ChestplateKeybindOnKeyPressedProcedure {
 				capability.syncPlayerVariables(entity);
 			});
 		}
-		DragonCombatProcedure.execute(world, x, y, z, entity);
 	}
 }

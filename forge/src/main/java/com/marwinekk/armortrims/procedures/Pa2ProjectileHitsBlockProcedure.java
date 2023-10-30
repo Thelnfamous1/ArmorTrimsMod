@@ -1,5 +1,6 @@
 package com.marwinekk.armortrims.procedures;
 
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import net.minecraft.world.phys.Vec3;
@@ -41,7 +42,7 @@ public class Pa2ProjectileHitsBlockProcedure {
 					Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 						return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 					}
-				}.compareDistOf(x, y, z)).findFirst().orElse(null)).getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).diamond
+				}.compareDistOf(x, y, z)).findFirst().orElse(null)).getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).canUseDiamond
 						&& !world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).isEmpty()) {
 					if (world instanceof ServerLevel projectileLevel) {
 						Projectile _entityToSpawn = new Object() {
@@ -60,28 +61,28 @@ public class Pa2ProjectileHitsBlockProcedure {
 							}
 						}.compareDistOf(x, y, z)).findFirst().orElse(null)), 2, 0);
 						_entityToSpawn.setPos(x, y, z);
-						_entityToSpawn.shoot((((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						_entityToSpawn.shoot((world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().x), (((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						}.compareDistOf(x, y, z)).findFirst().orElse(null).getLookAngle().x), (world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().y), (((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						}.compareDistOf(x, y, z)).findFirst().orElse(null).getLookAngle().y), (world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().z), 1, 0);
+						}.compareDistOf(x, y, z)).findFirst().orElse(null).getLookAngle().z), 1, 0);
 						projectileLevel.addFreshEntity(_entityToSpawn);
 					}
 				}
 			});
 			if (world instanceof Level _level) {
 				if (!_level.isClientSide()) {
-					_level.playSound(null, BlockPos.containing(x, y, z), ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.zombie.break_wooden_door")), SoundSource.NEUTRAL, 1, 1);
+					_level.playSound(null, BlockPos.containing(x, y, z), SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, SoundSource.NEUTRAL, 1, 1);
 				} else {
-					_level.playLocalSound(x, y, z, ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.zombie.break_wooden_door")), SoundSource.NEUTRAL, 1, 1, false);
+					_level.playLocalSound(x, y, z, SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, SoundSource.NEUTRAL, 1, 1, false);
 				}
 			}
 		}

@@ -31,7 +31,7 @@ public class OnPlayerTickProcedure {
 	private static void execute(@Nullable Event event, Entity entity) {
 		if (entity == null)
 			return;
-		if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).copper) {
+		if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).canUseCopper) {
 			if (entity instanceof ServerPlayer _serverPlayer)
 				_serverPlayer.awardRecipesByKey(new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop")});
 			if (entity instanceof ServerPlayer _serverPlayer)

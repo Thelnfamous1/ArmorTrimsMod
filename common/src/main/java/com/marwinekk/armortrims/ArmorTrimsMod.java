@@ -2,7 +2,7 @@ package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.platform.Services;
-import net.minecraft.client.gui.components.ImageButton;
+import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -26,8 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -60,16 +61,11 @@ public class ArmorTrimsMod {
 
     public static void tickServerPlayer(ServerPlayer player) {
         PlayerDuck playerDuck = (PlayerDuck) player;
-        Item[] set = getSet(player);
-        Item regularSetBonus = getRegularSetBonus(set);
-        playerDuck.applyRegularSetBonus(regularSetBonus);
         if (playerDuck.checkInventory()) {
             handleCheckInventory(player);
             playerDuck.setCheckInventory(false);
         }
-
         playerDuck.tickSetBonusEffects();
-
     }
 
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
@@ -79,7 +75,7 @@ public class ArmorTrimsMod {
                 return true;
                 //"tamed" brutes do not attack player
             } else if (attacker instanceof PiglinBrute piglinBrute) {
-                if (player.getUUID().equals(((OwnableEntity)piglinBrute).getOwnerUUID())) {
+                if (player.getUUID().equals(((OwnableEntity) piglinBrute).getOwnerUUID())) {
                     return true;
                 }
             }
@@ -99,22 +95,76 @@ public class ArmorTrimsMod {
     public static void handleCheckInventory(ServerPlayer player) {
         PlayerDuck playerDuck = (PlayerDuck) player;
 
-        playerDuck.setDragonEgg(false);
-        if (player.getInventory().items.stream().anyMatch(stack -> stack.is(Items.DRAGON_EGG))) {
-            playerDuck.setDragonEgg(true);
+
+        Set<Item> currentSet = lookupTrimMaterials(player);
+        Item regularSetBonus = getRegularSetBonus(currentSet);
+        boolean hasEgg = player.getInventory().items.stream().anyMatch(stack -> stack.is(Items.DRAGON_EGG));
+
+        Set<Item> oldSet = playerDuck.trimMaterials();
+        Item oldSetBonus = playerDuck.regularSetBonus();
+        boolean oldHasEgg = playerDuck.dragonEgg();
+
+        if (hasEgg != oldHasEgg) {
+            //now has egg, didn't before
+            if (hasEgg) {
+                if (!currentSet.contains(oldSetBonus)) {
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
+                }
+                Set<Item> runOn = new HashSet<>(currentSet);
+                runOn.remove(oldSetBonus);
+                for (Item item : runOn) {
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(item).onEquip.accept(player);
+                }
+            } else {
+                //had egg before, doesn't now
+                Set<Item> runOn = new HashSet<>(oldSet);
+                runOn.remove(regularSetBonus);
+
+                for (Item item : runOn) {
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(item).onRemove.accept(player);
+                }
+
+                if (!oldSet.contains(regularSetBonus)) {
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
+                }
+            }
+        } else {
+            if (hasEgg) {
+
+                Set<Item> newEffects = new HashSet<>(currentSet);
+                newEffects.removeAll(oldSet);
+                Set<Item> oldEffects = new HashSet<>(oldSet);
+                oldEffects.removeAll(currentSet);
+
+                oldEffects.stream().map(ArmorTrimAbilities.ARMOR_TRIM_REGISTRY::get).forEach(armorTrimModifier -> armorTrimModifier.onRemove.accept(player));
+                newEffects.stream().map(ArmorTrimAbilities.ARMOR_TRIM_REGISTRY::get).forEach(armorTrimModifier -> armorTrimModifier.onEquip.accept(player));
+
+            } else {
+                if (oldSetBonus != regularSetBonus) {
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
+                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
+                }
+            }
         }
+
+        playerDuck.setRegularSetBonus(regularSetBonus);
+        playerDuck.setTrimMaterials(currentSet);
+        playerDuck.setDragonEgg(hasEgg);
+
 
         boolean cook = playerDuck.hasSetBonus(Items.QUARTZ);
 
-        if (!cook)return;
+        if (!cook) return;
 
-        for (int i = 0; i < player.getInventory().items.size();i++) {
+        for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
             if (stack.is(ModTags.QUARTZ_SMELTABLE)) {
 
             }
         }
     }
+
+    public static final String POWER_TAG = "armor_trims:power";
 
     public static boolean attackEvent(LivingEntity livingEntity, DamageSource source) {
         if (livingEntity instanceof Player player) {
@@ -133,34 +183,32 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static final List<MobEffect> BEACON_EFFECTS = List.of(MobEffects.MOVEMENT_SPEED,MobEffects.DIG_SPEED,MobEffects.DAMAGE_RESISTANCE,
-            MobEffects.JUMP,MobEffects.DAMAGE_BOOST,MobEffects.HERO_OF_THE_VILLAGE);
+    public static final List<MobEffect> BEACON_EFFECTS = List.of(MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED, MobEffects.DAMAGE_RESISTANCE,
+            MobEffects.JUMP, MobEffects.DAMAGE_BOOST, MobEffects.HERO_OF_THE_VILLAGE);
 
     private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
 
-    public static Item[] getSet(LivingEntity living) {
-        Item[] items = new Item[ARMOR_SLOTS.length];
-        for (int i = 0; i < ARMOR_SLOTS.length; i++) {
-            EquipmentSlot slot = ARMOR_SLOTS[i];
-            items[i] = getTrimItem(living.level(),living.getItemBySlot(slot));
+    public static Set<Item> lookupTrimMaterials(LivingEntity living) {
+        Set<Item> items = new HashSet<>();
+        for (EquipmentSlot slot : ARMOR_SLOTS) {
+            Item item = getTrimItem(living.level(), living.getItemBySlot(slot));
+            if (item != null) {
+                items.add(item);
+            }
         }
         return items;
     }
 
     @Nullable
-    public static Item getRegularSetBonus(Item[] set) {
-        Item first = set[0];
-        if (first == null) return null;
-        for (int i = 1; i < set.length; i++) {
-            Item item = set[i];
-            if (item != first) return null;
-        }
-        return first;
+    public static Item getRegularSetBonus(Set<Item> set) {
+        if (set.size() != 1) return null;
+        return set.iterator().next();
     }
+
     public static int countTrim(LivingEntity pLivingEntity, Item trim) {
         int i = 0;
-        for(ItemStack itemstack : pLivingEntity.getArmorSlots())
+        for (ItemStack itemstack : pLivingEntity.getArmorSlots())
             if (getTrimItem(pLivingEntity.level(), itemstack) == trim) i++;
 
         return i;
@@ -168,7 +216,7 @@ public class ArmorTrimsMod {
 
     @Nullable
     public static ArmorTrim getTrim(@Nullable Level level, ItemStack stack) {
-        return level == null ? null : ArmorTrim.getTrim(level.registryAccess(),stack).orElse(null);
+        return level == null ? null : ArmorTrim.getTrim(level.registryAccess(), stack).orElse(null);
     }
 
     @Nullable
@@ -179,15 +227,42 @@ public class ArmorTrimsMod {
 
     @Nullable
     public static Item getTrimItem(@Nullable Level level, ItemStack stack) {
-        TrimMaterial trimMaterial = getTrimMaterial(level,stack);
+        TrimMaterial trimMaterial = getTrimMaterial(level, stack);
         return trimMaterial == null ? null : trimMaterial.ingredient().value();
     }
 
-    public static void addOneEffectRemoveOther(ServerPlayer player,MobEffect mobEffect) {
+    public static void addOneEffectRemoveOther(ServerPlayer player, MobEffect mobEffect) {
         player.addEffect(new MobEffectInstance(mobEffect, -1, 0, true, false));
         PlayerDuck playerDuck = (PlayerDuck) player;
         MobEffect old = playerDuck.beaconEffect();
         player.removeEffect(old);
         playerDuck.setBeaconEffect(mobEffect);
     }
+
+    //Whats the SMP about?
+    //
+    //The SMP is based on different armor trims colors and their powers
+    //
+    // todo Iron: You take no fall damage and no drowning. When activating combat mode, you have a punch that makes players fly 50 blocks in the air.
+    //
+    // Lapis: Every 10 minutes you gain a level. When activating combat mode, you get a +1 on all your enchants, for example sharpness V turns to sharpness VI
+    //
+    // Gold: You gain an extra 2 hearts. When activating combat mode, you get 5-6 piglin brutes that attack the nearest players
+    //
+    // Amethyst: Mobs can't attack you at all. When activating combat mode, you get 2 witches that splash you with healing and regen, and they also give other players slowness and weakness
+    //
+    // Diamond: Get Unbreaking 4 on all armor. When activating combat mode, you get 3 arrows that have the damage of a power 8 bow shot
+    //
+    // Netherite: Permanent fire resistance and lava gives regeneration 2.
+    //
+    //  todo When activating combat mode, you have a punch that withers a player for 5 seconds and resets every hit.
+    //
+    // Copper: Copper acts as iron and you can craft anything iron-related using copper. When activating combat mode, you have the ability to summon 10 lighting strikes anywhere you look.
+    //
+    // Quartz: Auto smelt ores and food. When activating combat mode, you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
+    //
+    // todo Emerald: You can give yourself beacon effects any time. When activating combat mode, you have a 15-second period where if you were to die, you have a totem that saves you.
+    //
+    // todo Red: Get Blast Resistance 4 on all armor. When activating combat mode, you have 3 homing arrows that explode and deal a lot of damage to players
+
 }

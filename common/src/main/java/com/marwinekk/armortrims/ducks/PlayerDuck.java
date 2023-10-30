@@ -1,6 +1,7 @@
 package com.marwinekk.armortrims.ducks;
 
-import com.marwinekk.armortrims.util.ArmorTrimTicks;
+import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -25,10 +26,10 @@ public interface PlayerDuck {
     default void tickSetBonusEffects() {
         if (dragonEgg()) {
             for (Item item : trimMaterials()) {
-                ArmorTrimTicks.TRIM_SET_TICKS.getOrDefault(item,player -> {}).accept(self());
+                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) self());
             }
         } else {
-            ArmorTrimTicks.TRIM_SET_TICKS.getOrDefault(regularSetBonus(),player -> {}).accept(self());
+            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) self());
         }
     }
 
@@ -39,7 +40,7 @@ public interface PlayerDuck {
     boolean checkInventory();
     void setCheckInventory(boolean checkInventory);
 
-    void applyRegularSetBonus(Item item);
+    void setRegularSetBonus(Item item);
     void setDragonEgg(boolean dragonegg);
 
 }

@@ -48,7 +48,7 @@ public class PlayerMixin implements PlayerDuck {
     }
 
     @Override
-    public void applyRegularSetBonus(Item item) {
+    public void setRegularSetBonus(Item item) {
         this.setBonus = item;
     }
 

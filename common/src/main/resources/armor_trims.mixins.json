@@ -1,20 +1,22 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "com.marwinekk.armortrims.mixin",
-    "refmap": "${mod_id}.refmap.json",
-    "compatibilityLevel": "JAVA_17",
-    "mixins": [
-        "BruteMixin",
-        "InventoryMixin"
-    ],
-    "client": [
-        "PlayerMixin"
-    ],
-    "server": [
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.marwinekk.armortrims.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ArrowMixin",
+    "BruteMixin",
+    "InventoryMixin",
+    "WitchMixin"
+  ],
+  "client": [
+    "PlayerMixin"
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
 

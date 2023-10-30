@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.UUID;
 
 @Mixin(PiglinBrute.class)
-public class BruteMixin extends Mob implements OwnableEntity, PiglinBruteDuck {
+public class BruteMixin extends Mob implements PiglinBruteDuck {
 
     @Nullable
     private UUID ownerUUID;

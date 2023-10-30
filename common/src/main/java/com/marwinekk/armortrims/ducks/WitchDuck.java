@@ -4,8 +4,7 @@ import net.minecraft.world.entity.OwnableEntity;
 
 import java.util.UUID;
 
-public interface PiglinBruteDuck extends OwnableEntity {
-
+public interface WitchDuck extends OwnableEntity {
     void setOwnerUUID(UUID ownerUUID);
 
 }

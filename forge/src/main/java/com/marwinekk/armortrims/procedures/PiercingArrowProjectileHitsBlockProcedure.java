@@ -41,7 +41,7 @@ public class PiercingArrowProjectileHitsBlockProcedure {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).diamond) {
+						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).canUseDiamond) {
 					if (world instanceof ServerLevel projectileLevel) {
 						Projectile _entityToSpawn = new Object() {
 							public Projectile getArrow(Level level, Entity shooter, float damage, int knockback) {

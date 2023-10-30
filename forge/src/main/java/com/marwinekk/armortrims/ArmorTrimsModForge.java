@@ -13,12 +13,14 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
-import com.marwinekk.armortrims.network.BeaconGUIMessage;
 import com.marwinekk.armortrims.network.MenuBeaconButtonMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -27,7 +29,6 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,7 +54,6 @@ import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 public class ArmorTrimsModForge extends ArmorTrimsMod {
 	public static final Logger LOGGER = LogManager.getLogger(ArmorTrimsModForge.class);
 	public ArmorTrimsModForge() {
-		MinecraftForge.EVENT_BUS.register(this);
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(ModDatagen::start);
 		bus.addListener(this::setup);
@@ -63,12 +63,22 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		ArmorTrimsModParticleTypes.REGISTRY.register(bus);
 
 		ArmorTrimsModMenus.REGISTRY.register(bus);
+
+		if (FMLEnvironment.dist.isClient()) {
+			bus.addListener(Client::keybinds);
+			bus.addListener(this::setupClient);
+		}
+	}
+
+	private void setupClient(FMLClientSetupEvent event) {
+		Client.setup();
 	}
 
 	private void setup(FMLCommonSetupEvent event) {
 		ArmorTrimsModForge.addNetworkMessage(MenuBeaconButtonMessage.class, MenuBeaconButtonMessage::buffer, MenuBeaconButtonMessage::new, MenuBeaconButtonMessage::handler);
-		ArmorTrimsModForge.addNetworkMessage(BeaconGUIMessage.class, BeaconGUIMessage::buffer, BeaconGUIMessage::new, BeaconGUIMessage::handler);
 
+		MinecraftForge.EVENT_BUS.addListener(this::playerTick);
+		MinecraftForge.EVENT_BUS.addListener(this::serverTick);
 	}
 
 	private static final String PROTOCOL_VERSION = "1";
@@ -86,7 +96,6 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
 	}
 
-	@SubscribeEvent
 	public void playerTick(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
 			if (event.side == LogicalSide.SERVER) {
@@ -95,8 +104,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		}
 	}
 
-	@SubscribeEvent
-	public void tick(TickEvent.ServerTickEvent event) {
+	public void serverTick(TickEvent.ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
 			List<AbstractMap.SimpleEntry<Runnable, Integer>> actions = new ArrayList<>();
 			workQueue.forEach(work -> {

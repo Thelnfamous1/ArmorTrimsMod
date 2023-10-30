@@ -16,6 +16,5 @@ public class LeggingsKeybindOnKeyPressedProcedure {
 				capability.syncPlayerVariables(entity);
 			});
 		}
-		DragonCombatProcedure.execute(world, x, y, z, entity);
 	}
 }
