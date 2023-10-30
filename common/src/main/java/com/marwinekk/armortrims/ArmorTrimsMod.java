@@ -22,6 +22,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.armortrim.TrimMaterial;
 import net.minecraft.world.level.Level;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +96,9 @@ public class ArmorTrimsMod {
     public static void handleCheckInventory(ServerPlayer player) {
         PlayerDuck playerDuck = (PlayerDuck) player;
 
-
-        Set<Item> currentSet = lookupTrimMaterials(player);
-        Item regularSetBonus = getRegularSetBonus(currentSet);
+        Pair<Set<Item>,Boolean> currentSetPair = lookupTrimMaterials(player);
+        Set<Item> currentSet = currentSetPair.getLeft();
+        Item regularSetBonus = currentSetPair.getRight() ? getRegularSetBonus(currentSet) : null;
         boolean hasEgg = player.getInventory().items.stream().anyMatch(stack -> stack.is(Items.DRAGON_EGG));
 
         Set<Item> oldSet = playerDuck.trimMaterials();
@@ -108,7 +109,7 @@ public class ArmorTrimsMod {
             //now has egg, didn't before
             if (hasEgg) {
                 if (!currentSet.contains(oldSetBonus)) {
-                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
+                    if (oldSetBonus != null) ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
                 }
                 Set<Item> runOn = new HashSet<>(currentSet);
                 runOn.remove(oldSetBonus);
@@ -125,7 +126,7 @@ public class ArmorTrimsMod {
                 }
 
                 if (!oldSet.contains(regularSetBonus)) {
-                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
+                    if (regularSetBonus != null) ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
                 }
             }
         } else {
@@ -141,8 +142,8 @@ public class ArmorTrimsMod {
 
             } else {
                 if (oldSetBonus != regularSetBonus) {
-                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
-                    ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
+                    if (oldSetBonus!= null) ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(player);
+                    if (regularSetBonus != null) ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(regularSetBonus).onEquip.accept(player);
                 }
             }
         }
@@ -177,10 +178,7 @@ public class ArmorTrimsMod {
     public static void onInventoryChange(Inventory inventory, int slot, ItemStack stack) {
         Player player = inventory.player;
         PlayerDuck playerDuck = (PlayerDuck) player;
-
-        if (playerDuck.hasSetBonus(Items.QUARTZ) && stack.is(ModTags.QUARTZ_SMELTABLE)) {
-            playerDuck.setCheckInventory(true);
-        }
+        playerDuck.setCheckInventory(true);
     }
 
     public static final List<MobEffect> BEACON_EFFECTS = List.of(MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED, MobEffects.DAMAGE_RESISTANCE,
@@ -189,15 +187,18 @@ public class ArmorTrimsMod {
     private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
 
-    public static Set<Item> lookupTrimMaterials(LivingEntity living) {
+    public static Pair<Set<Item>,Boolean> lookupTrimMaterials(LivingEntity living) {
         Set<Item> items = new HashSet<>();
+        boolean complete = true;
         for (EquipmentSlot slot : ARMOR_SLOTS) {
             Item item = getTrimItem(living.level(), living.getItemBySlot(slot));
             if (item != null) {
                 items.add(item);
+            }else {
+                complete = false;
             }
         }
-        return items;
+        return Pair.of(items,complete && items.size() == 1);
     }
 
     @Nullable

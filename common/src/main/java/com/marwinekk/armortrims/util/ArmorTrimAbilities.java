@@ -75,6 +75,10 @@ public class ArmorTrimAbilities {
 
     static void removeAttributeModifier(ServerPlayer player,Attribute attribute) {
         player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
+
+        if (player.getHealth() > player.getMaxHealth()) {
+            player.setHealth(player.getMaxHealth());
+        }
     }
 
     static void summonFriendlyPiglinBrutes(ServerPlayer player) {
