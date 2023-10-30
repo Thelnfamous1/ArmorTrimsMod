@@ -6,13 +6,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import org.spongepowered.asm.mixin.Mixin;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Mixin(Player.class)
 public class PlayerMixin implements PlayerDuck {
 
     private transient Item setBonus;
-    transient Set<Item> trimMaterials;
+    transient Set<Item> trimMaterials = new HashSet<>();
     private transient boolean dragonEgg;
     private transient boolean checkInventory;
     private transient MobEffect beaconEffect;

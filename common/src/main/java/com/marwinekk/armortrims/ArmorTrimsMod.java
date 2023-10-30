@@ -1,9 +1,11 @@
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.client.ArmorTrimsModClient;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -13,9 +15,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -27,9 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -40,6 +43,8 @@ public class ArmorTrimsMod {
     public static final String MOD_ID = "armor_trims";
     public static final String MOD_NAME = "ArmorTrimsMod";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
+
+    public static MinecraftServer server;
 
     // The loader specific projects are able to import and use any code from the common project. This allows you to
     // write the majority of your code here and load it from your loader specific projects. This example has some
@@ -69,6 +74,14 @@ public class ArmorTrimsMod {
         playerDuck.tickSetBonusEffects();
     }
 
+    public static void serverStarted(MinecraftServer server) {
+        ArmorTrimsMod.server = server;
+    }
+
+    public static void serverStopped(MinecraftServer server) {
+        ArmorTrimsMod.server = null;
+    }
+
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
         if (victim instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
@@ -84,13 +97,24 @@ public class ArmorTrimsMod {
         return false;
     }
 
+
+    //this is needed because the client thread calls getAttributes, but a direct call to mc.world would crash servers
+    public static Level getWorld() {
+        if (server == null) {
+            return ArmorTrimsModClient.getClientWorld();
+        } else {
+            return server.getLevel(Level.OVERWORLD);
+        }
+    }
+
     public static boolean onFallDamage(LivingEntity livingEntity) {
 
         return false;
     }
 
     public static void serverPlayerLogin(ServerPlayer player) {
-
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        playerDuck.setCheckInventory(true);
     }
 
     public static void handleCheckInventory(ServerPlayer player) {
@@ -260,7 +284,7 @@ public class ArmorTrimsMod {
     //
     // Copper: Copper acts as iron and you can craft anything iron-related using copper. When activating combat mode, you have the ability to summon 10 lighting strikes anywhere you look.
     //
-    // Quartz: Auto smelt ores and food. When activating combat mode, you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
+    // todo Quartz: Auto smelt ores and food. When activating combat mode, you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
     //
     // todo Emerald: You can give yourself beacon effects any time. When activating combat mode, you have a 15-second period where if you were to die, you have a totem that saves you.
     //

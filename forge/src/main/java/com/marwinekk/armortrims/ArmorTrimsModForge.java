@@ -13,14 +13,33 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.client.ArmorTrimsModClient;
 import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
 import com.marwinekk.armortrims.network.MenuBeaconButtonMessage;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.event.ItemAttributeModifierEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -79,6 +98,11 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 
 		MinecraftForge.EVENT_BUS.addListener(this::playerTick);
 		MinecraftForge.EVENT_BUS.addListener(this::serverTick);
+		MinecraftForge.EVENT_BUS.addListener(this::attributes);
+		MinecraftForge.EVENT_BUS.addListener(this::serverStartedF);
+		MinecraftForge.EVENT_BUS.addListener(this::serverStoppedF);
+		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST,this::toss);
+		MinecraftForge.EVENT_BUS.addListener(this::serverLogin);
 	}
 
 	private static final String PROTOCOL_VERSION = "1";
@@ -102,6 +126,26 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 				tickServerPlayer((ServerPlayer) event.player);
 			}
 		}
+	}
+
+	public void attributes(ItemAttributeModifierEvent e) {
+
+	}
+
+	private void serverStartedF(ServerStartedEvent event) {
+		serverStarted(event.getServer());
+	}
+	private void serverStoppedF(ServerStoppedEvent event) {
+		serverStopped(event.getServer());
+	}
+
+	private void toss(ItemTossEvent event) {
+		Player player = event.getPlayer();
+		onInventoryChange(player.getInventory(),0,event.getEntity().getItem());
+	}
+
+	private void serverLogin(PlayerEvent.PlayerLoggedInEvent event) {
+		serverPlayerLogin((ServerPlayer) event.getEntity());
 	}
 
 	public void serverTick(TickEvent.ServerTickEvent event) {

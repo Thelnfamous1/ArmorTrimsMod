@@ -70,6 +70,7 @@ public class ArmorTrimAbilities {
     static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
 
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
+        player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
         player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod",amount,operation));
     }
 
