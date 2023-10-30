@@ -5,6 +5,7 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -15,12 +16,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -71,7 +69,7 @@ public class ArmorTrimsMod {
             handleCheckInventory(player);
             playerDuck.setCheckInventory(false);
         }
-        playerDuck.tickSetBonusEffects();
+        playerDuck.tickAbilities();
     }
 
     public static void serverStarted(MinecraftServer server) {
@@ -87,12 +85,13 @@ public class ArmorTrimsMod {
             PlayerDuck playerDuck = (PlayerDuck) player;
             if (playerDuck.hasSetBonus(Items.AMETHYST_SHARD)) {
                 return true;
+                //this doesn't actually work
                 //"tamed" brutes do not attack player
-            } else if (attacker instanceof PiglinBrute piglinBrute) {
-                if (player.getUUID().equals(((OwnableEntity) piglinBrute).getOwnerUUID())) {
+            } //else if (attacker instanceof PiglinBrute piglinBrute) {
+              //  if (player.getUUID().equals(((OwnableEntity) piglinBrute).getOwnerUUID())) {
                     return true;
-                }
-            }
+             //   }
+           // }
         }
         return false;
     }
@@ -242,6 +241,29 @@ public class ArmorTrimsMod {
     @Nullable
     public static ArmorTrim getTrim(@Nullable Level level, ItemStack stack) {
         return level == null ? null : ArmorTrim.getTrim(level.registryAccess(), stack).orElse(null);
+    }
+
+
+
+    public static void activateCombatAbility(ServerPlayer player, @Nullable EquipmentSlot slot) {
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        int cooldown = playerDuck.abilityCooldown(slot);
+        if (cooldown > 0) {
+            player.sendSystemMessage(Component.translatable("Can't use "+(slot != null ? slot : "set") +" trim ability yet"),true);
+            return;
+        }
+
+        if(!playerDuck.dragonEgg() && slot != null) {
+            player.sendSystemMessage(Component.translatable("No dragon egg"));
+            return;
+        }
+
+        Item trimItem = slot != null ? getTrimItem(player.level(),player.getItemBySlot(slot)) : playerDuck.regularSetBonus();
+
+        if (trimItem != null) {
+            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(trimItem).activateCombatAbility.accept(player);
+            playerDuck.setAbilityCooldown(slot,20 * 6);
+        }
     }
 
     @Nullable

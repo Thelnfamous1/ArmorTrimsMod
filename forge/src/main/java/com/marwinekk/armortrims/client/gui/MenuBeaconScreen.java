@@ -1,9 +1,8 @@
 package com.marwinekk.armortrims.client.gui;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
-import com.marwinekk.armortrims.ArmorTrimsModForge;
-import com.marwinekk.armortrims.network.MenuBeaconButtonMessage;
-import com.marwinekk.armortrims.world.inventory.MenuBeaconMenu;
+import com.marwinekk.armortrims.network.C2SMobEffectPacket;
+import com.marwinekk.armortrims.network.PacketHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -11,9 +10,10 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.lwjgl.glfw.GLFW;
 
-public class MenuBeaconScreen extends AbstractContainerScreen<MenuBeaconMenu> {
+public class MenuBeaconScreen extends AbstractContainerScreen {
 
 
     ImageButton imagebutton_speed;
@@ -23,7 +23,7 @@ public class MenuBeaconScreen extends AbstractContainerScreen<MenuBeaconMenu> {
     ImageButton imagebutton_strength;
     ImageButton imagebutton_hero_of_the_village;
 
-    public MenuBeaconScreen(MenuBeaconMenu container, Inventory inventory, Component text) {
+    public MenuBeaconScreen(AbstractContainerMenu container, Inventory inventory, Component text) {
         super(container, inventory, text);
         this.imageWidth = 201;
         this.imageHeight = 33;
@@ -87,6 +87,6 @@ public class MenuBeaconScreen extends AbstractContainerScreen<MenuBeaconMenu> {
     }
 
     void sendEffect(int id) {
-        ArmorTrimsModForge.PACKET_HANDLER.sendToServer(new MenuBeaconButtonMessage(ArmorTrimsMod.BEACON_EFFECTS.get(id)));
+        PacketHandler.PACKET_HANDLER.sendToServer(new C2SMobEffectPacket(ArmorTrimsMod.BEACON_EFFECTS.get(id)));
     }
 }

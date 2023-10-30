@@ -12,7 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Mixin(Player.class)
@@ -23,10 +25,15 @@ public class PlayerMixin implements PlayerDuck {
     private transient boolean dragonEgg;
     private transient boolean checkInventory;
     private transient MobEffect beaconEffect;
+    private final Map<EquipmentSlot,Integer> abilityCooldowns = new HashMap<>();
 
     @Inject(method = "setItemSlot",at = @At("RETURN"))
     private void armorInventoryChanged(EquipmentSlot $$0, ItemStack $$1, CallbackInfo ci) {
         ArmorTrimsMod.onInventoryChange(self().getInventory());
+    }
+
+    public Map<EquipmentSlot, Integer> abilityCooldowns() {
+        return abilityCooldowns;
     }
 
     @Override
@@ -72,6 +79,14 @@ public class PlayerMixin implements PlayerDuck {
     @Override
     public boolean checkInventory() {
         return checkInventory;
+    }
+
+    public void setAbilityCooldown(EquipmentSlot slot, int abilityCooldown) {
+        this.abilityCooldowns.put(slot,abilityCooldown);
+    }
+
+    public int abilityCooldown(EquipmentSlot slot) {
+        return abilityCooldowns.getOrDefault(slot,0);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.marwinekk.armortrims.platform.services;
 
+import net.minecraft.world.entity.EquipmentSlot;
+
 public interface IPlatformHelper {
 
     /**
@@ -33,4 +35,7 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    void sendAbilityPacket(EquipmentSlot slot);
+
 }

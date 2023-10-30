@@ -3,11 +3,13 @@ package com.marwinekk.armortrims.util;
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -15,6 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -28,10 +31,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ArmorTrimAbilities {
@@ -85,10 +85,13 @@ public class ArmorTrimAbilities {
     static void summonFriendlyPiglinBrutes(ServerPlayer player) {
         Level level = player.level();
         for (int i = 0; i < 5;i++) {
-            PiglinBrute piglinBrute = EntityType.PIGLIN_BRUTE.create(level);
+
+            PiglinBrute piglinBrute = EntityType.PIGLIN_BRUTE.spawn(
+                    (ServerLevel)level, Items.PIGLIN_SPAWN_EGG.getDefaultInstance(),
+                    player, player.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
+
             PiglinBruteDuck piglinBruteDuck = (PiglinBruteDuck) piglinBrute;
             piglinBruteDuck.setOwnerUUID(player.getUUID());
-            level.addFreshEntity(piglinBrute);
         }
     }
 
@@ -96,6 +99,7 @@ public class ArmorTrimAbilities {
         Level level = player.level();
         for (int i = 0; i < 5;i++) {
             Witch witch = EntityType.WITCH.create(level);
+            witch.moveTo(player.getPosition(0));
             WitchDuck witchDuck = (WitchDuck) witch;
             witchDuck.setOwnerUUID(player.getUUID());
             level.addFreshEntity(witch);

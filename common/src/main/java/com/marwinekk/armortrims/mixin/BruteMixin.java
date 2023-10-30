@@ -3,6 +3,7 @@ package com.marwinekk.armortrims.mixin;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
@@ -36,6 +37,11 @@ public class BruteMixin extends Mob implements PiglinBruteDuck {
         if ($$0.hasUUID("owner")) {
             ownerUUID = $$0.getUUID("owner");
         }
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity livingEntity) {
+        return !livingEntity.getUUID().equals(ownerUUID) && super.canAttack(livingEntity);
     }
 
     @Nullable

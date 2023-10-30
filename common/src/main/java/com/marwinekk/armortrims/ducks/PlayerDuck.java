@@ -3,9 +3,11 @@ package com.marwinekk.armortrims.ducks;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface PlayerDuck {
@@ -23,7 +25,17 @@ public interface PlayerDuck {
     MobEffect beaconEffect();
     void setBeaconEffect(MobEffect beaconEffect);
 
-    default void tickSetBonusEffects() {
+    int abilityCooldown(EquipmentSlot slot);
+    void setAbilityCooldown(EquipmentSlot slot,int cooldown);
+
+    Map<EquipmentSlot,Integer> abilityCooldowns();
+
+    default void tickAbilities() {
+
+        for (Map.Entry<EquipmentSlot,Integer> entry : abilityCooldowns().entrySet()) {
+            setAbilityCooldown(entry.getKey(),abilityCooldown(entry.getKey()) - 1);
+        }
+
         if (dragonEgg()) {
             for (Item item : trimMaterials()) {
                 ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) self());
