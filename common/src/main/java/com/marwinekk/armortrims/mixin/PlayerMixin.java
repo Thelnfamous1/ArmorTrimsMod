@@ -1,10 +1,16 @@
 package com.marwinekk.armortrims.mixin;
 
+import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +23,11 @@ public class PlayerMixin implements PlayerDuck {
     private transient boolean dragonEgg;
     private transient boolean checkInventory;
     private transient MobEffect beaconEffect;
+
+    @Inject(method = "setItemSlot",at = @At("RETURN"))
+    private void armorInventoryChanged(EquipmentSlot $$0, ItemStack $$1, CallbackInfo ci) {
+        ArmorTrimsMod.onInventoryChange(self().getInventory());
+    }
 
     @Override
     public MobEffect beaconEffect() {

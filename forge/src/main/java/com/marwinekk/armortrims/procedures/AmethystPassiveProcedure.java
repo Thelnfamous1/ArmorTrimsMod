@@ -12,7 +12,7 @@ public class AmethystPassiveProcedure {
 	public static void onEntityTarget(LivingChangeTargetEvent event) {
 		LivingEntity victim = event.getOriginalTarget();
 		if(ArmorTrimsMod.changeTarget(victim,event.getEntity())) {
-			event.setCanceled(true);
+			event.setNewTarget(null);
 		}
 	}
 }

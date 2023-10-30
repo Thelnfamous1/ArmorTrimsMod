@@ -10,7 +10,7 @@ import com.marwinekk.armortrims.client.model.Modelminiguy;
 
 public class MiniGuyRenderer extends MobRenderer<MiniGuyEntity, Modelminiguy<MiniGuyEntity>> {
 	public MiniGuyRenderer(EntityRendererProvider.Context context) {
-		super(context, new Modelminiguy(context.bakeLayer(Modelminiguy.LAYER_LOCATION)), 0.5f);
+		super(context, new Modelminiguy<>(context.bakeLayer(Modelminiguy.LAYER_LOCATION)), 0.5f);
 	}
 
 	@Override

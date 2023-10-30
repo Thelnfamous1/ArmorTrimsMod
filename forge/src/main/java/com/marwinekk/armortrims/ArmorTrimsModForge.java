@@ -13,33 +13,21 @@
  */
 package com.marwinekk.armortrims;
 
-import com.marwinekk.armortrims.client.ArmorTrimsModClient;
 import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
 import com.marwinekk.armortrims.network.MenuBeaconButtonMessage;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -141,7 +129,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 
 	private void toss(ItemTossEvent event) {
 		Player player = event.getPlayer();
-		onInventoryChange(player.getInventory(),0,event.getEntity().getItem());
+		onInventoryChange(player.getInventory());
 	}
 
 	private void serverLogin(PlayerEvent.PlayerLoggedInEvent event) {

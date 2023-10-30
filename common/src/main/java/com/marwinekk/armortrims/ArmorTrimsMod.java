@@ -199,7 +199,7 @@ public class ArmorTrimsMod {
         return false;
     }
 
-    public static void onInventoryChange(Inventory inventory, int slot, ItemStack stack) {
+    public static void onInventoryChange(Inventory inventory) {
         Player player = inventory.player;
         PlayerDuck playerDuck = (PlayerDuck) player;
         playerDuck.setCheckInventory(true);
