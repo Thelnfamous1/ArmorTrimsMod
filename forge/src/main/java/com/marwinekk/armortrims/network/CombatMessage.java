@@ -36,9 +36,7 @@ public class CombatMessage {
 
 	public static void handler(CombatMessage message, Supplier<NetworkEvent.Context> contextSupplier) {
 		NetworkEvent.Context context = contextSupplier.get();
-		context.enqueueWork(() -> {
-			pressAction(context.getSender(), message.type, message.pressedms);
-		});
+		context.enqueueWork(() -> pressAction(context.getSender(), message.type, message.pressedms));
 		context.setPacketHandled(true);
 	}
 

@@ -1,19 +1,14 @@
 
 package com.marwinekk.armortrims.client.screens;
 
-import org.checkerframework.checker.units.qual.h;
-
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.api.distmarker.Dist;
-
-import net.minecraft.world.level.Level;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.client.Minecraft;
-
 import com.marwinekk.armortrims.procedures.CooldownProcedure;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderGuiEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber({Dist.CLIENT})
 public class ShowAbilitiesOverlay {
@@ -22,20 +17,7 @@ public class ShowAbilitiesOverlay {
 		int w = event.getWindow().getGuiScaledWidth();
 		int h = event.getWindow().getGuiScaledHeight();
 		int posX = w / 2;
-		int posY = h / 2;
-		Level world = null;
-		double x = 0;
-		double y = 0;
-		double z = 0;
 		Player entity = Minecraft.getInstance().player;
-		if (entity != null) {
-			world = entity.level();
-			x = entity.getX();
-			y = entity.getY();
-			z = entity.getZ();
-		}
-		if (true) {
-			event.getGuiGraphics().drawString(Minecraft.getInstance().font, CooldownProcedure.execute(entity), posX + 10, h + -50, -1);
-		}
+		event.getGuiGraphics().drawString(Minecraft.getInstance().font, CooldownProcedure.execute(entity), posX + 10, h + -50, -1);
 	}
 }

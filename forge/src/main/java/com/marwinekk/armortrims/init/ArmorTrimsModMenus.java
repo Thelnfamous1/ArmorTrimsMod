@@ -4,6 +4,7 @@
  */
 package com.marwinekk.armortrims.init;
 
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,5 +17,5 @@ import com.marwinekk.armortrims.ArmorTrimsModForge;
 
 public class ArmorTrimsModMenus {
 	public static final DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ArmorTrimsModForge.MOD_ID);
-	public static final RegistryObject<MenuType<MenuBeaconMenu>> MENU_BEACON = REGISTRY.register("menu_beacon", () -> IForgeMenuType.create(MenuBeaconMenu::new));
+	public static final RegistryObject<MenuType<MenuBeaconMenu>> MENU_BEACON = REGISTRY.register("menu_beacon", () -> new MenuType<>(MenuBeaconMenu::new, FeatureFlags.VANILLA_SET));
 }

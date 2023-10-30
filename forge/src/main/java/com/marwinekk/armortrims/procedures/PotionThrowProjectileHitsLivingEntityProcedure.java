@@ -18,13 +18,18 @@ public class PotionThrowProjectileHitsLivingEntityProcedure {
 				if (entity instanceof LivingEntity _entity && !_entity.level().isClientSide())
 					_entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 0));
 			}
-		} else if (entity == (sourceentity instanceof TamableAnimal _tamEnt ? (Entity) _tamEnt.getOwner() : null)) {
-			if (Math.random() < 0.5) {
-				if (entity instanceof LivingEntity _entity && !_entity.level().isClientSide())
-					_entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 1));
-			} else {
-				if (entity instanceof LivingEntity _entity && !_entity.level().isClientSide())
-					_entity.addEffect(new MobEffectInstance(MobEffects.HEAL, 40, 0));
+		} else {
+			TamableAnimal _tamEnt = (TamableAnimal) sourceentity;
+			if (entity == _tamEnt.getOwner()) {
+				if (Math.random() < 0.5) {
+					LivingEntity _entity = (LivingEntity) entity;
+					if (!_entity.level().isClientSide())
+						_entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 1));
+				} else {
+					LivingEntity _entity = (LivingEntity) entity;
+					if (!_entity.level().isClientSide())
+						_entity.addEffect(new MobEffectInstance(MobEffects.HEAL, 40, 0));
+				}
 			}
 		}
 	}

@@ -21,7 +21,6 @@ import net.minecraft.network.protocol.Packet;
 import com.marwinekk.armortrims.procedures.Pa2ProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class Pa2Entity extends AbstractArrow implements ItemSupplier {
 	public Pa2Entity(PlayMessages.SpawnEntity packet, Level world) {
 		super(ArmorTrimsModEntities.PA_2.get(), world);

@@ -66,10 +66,9 @@ public class DragonCombatProcedure {
 							});
 						}
 						{
-							Entity _ent = entity;
-							if (!_ent.level().isClientSide() && _ent.getServer() != null) {
-								_ent.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, _ent.position(), _ent.getRotationVector(), _ent.level() instanceof ServerLevel ? (ServerLevel) _ent.level() : null, 4,
-										_ent.getName().getString(), _ent.getDisplayName(), _ent.level().getServer(), _ent), "attribute @s minecraft:generic.knockback_resistance base set 1");
+							if (!entity.level().isClientSide() && entity.getServer() != null) {
+								entity.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, entity.position(), entity.getRotationVector(), entity.level() instanceof ServerLevel ? (ServerLevel) entity.level() : null, 4,
+										entity.getName().getString(), entity.getDisplayName(), entity.level().getServer(), entity), "attribute @s minecraft:generic.knockback_resistance base set 1");
 							}
 						}
 						{
@@ -81,10 +80,9 @@ public class DragonCombatProcedure {
 						}
 						ArmorTrimsModForge.queueServerWork(300, () -> {
 							{
-								Entity _ent = entity;
-								if (!_ent.level().isClientSide() && _ent.getServer() != null) {
-									_ent.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, _ent.position(), _ent.getRotationVector(), _ent.level() instanceof ServerLevel ? (ServerLevel) _ent.level() : null,
-											4, _ent.getName().getString(), _ent.getDisplayName(), _ent.level().getServer(), _ent), "attribute @s minecraft:generic.knockback_resistance base set 0");
+								if (!entity.level().isClientSide() && entity.getServer() != null) {
+									entity.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, entity.position(), entity.getRotationVector(), entity.level() instanceof ServerLevel ? (ServerLevel) entity.level() : null,
+											4, entity.getName().getString(), entity.getDisplayName(), entity.level().getServer(), entity), "attribute @s minecraft:generic.knockback_resistance base set 0");
 								}
 							}
 							{

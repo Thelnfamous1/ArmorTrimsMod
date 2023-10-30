@@ -1,5 +1,7 @@
 package com.marwinekk.armortrims.procedures;
 
+import com.marwinekk.armortrims.ArmorTrimsMod;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -15,22 +17,9 @@ import com.marwinekk.armortrims.network.ArmorTrimsModVariables;
 public class PassiveIronProcedure {
 	@SubscribeEvent
 	public static void onEntityFall(LivingFallEvent event) {
-		if (event != null && event.getEntity() != null) {
-			execute(event, event.getEntity());
-		}
-	}
-
-	public static void execute(Entity entity) {
-		execute(null, entity);
-	}
-
-	private static void execute(@Nullable Event event, Entity entity) {
-		if (entity == null)
-			return;
-		if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).iron) {
-			if (event != null && event.isCancelable()) {
-				event.setCanceled(true);
-			}
+		LivingEntity livingEntity = event.getEntity();
+		if (ArmorTrimsMod.onFallDamage(livingEntity)) {
+			event.setCanceled(true);
 		}
 	}
 }

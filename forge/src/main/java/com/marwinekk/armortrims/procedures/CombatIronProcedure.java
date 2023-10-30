@@ -37,15 +37,15 @@ public class CombatIronProcedure {
 	private static void execute(@Nullable Event event, LevelAccessor world, Entity entity, Entity sourceentity) {
 		if (entity == null || sourceentity == null)
 			return;
-		if (sourceentity instanceof Player && (entity instanceof LivingEntity || entity instanceof Player || entity instanceof ServerPlayer)) {
+		if (sourceentity instanceof Player && entity instanceof LivingEntity) {
 			if ((sourceentity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).cooldownIron) {
-				if (entity instanceof Player || entity instanceof ServerPlayer) {
+				if (entity instanceof Player) {
 					ArmorTrimsModForge.queueServerWork(2, () -> {
 						entity.setDeltaMovement(new Vec3(0, 3, 0));
 						if (world instanceof ServerLevel _level)
 							_level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, (entity.getX()), (entity.getY() + 0.5), (entity.getZ()), 50, 0.15, 0.15, 0.15, 0.1);
 					});
-				} else if (entity instanceof LivingEntity) {
+				} else {
 					ArmorTrimsModForge.queueServerWork(2, () -> {
 						entity.setDeltaMovement(new Vec3(0, 3, 0));
 						if (world instanceof ServerLevel _level)
@@ -53,9 +53,10 @@ public class CombatIronProcedure {
 					});
 				}
 			} else if ((sourceentity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).cooldownNetherite) {
-				if (entity instanceof LivingEntity _entity && !_entity.level().isClientSide())
+				LivingEntity _entity = (LivingEntity) entity;
+				if (!_entity.level().isClientSide())
 					_entity.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 1, true, true));
-				if (entity instanceof LivingEntity _entity && !_entity.level().isClientSide())
+				if (!_entity.level().isClientSide())
 					_entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 1, true, true));
 			}
 		}

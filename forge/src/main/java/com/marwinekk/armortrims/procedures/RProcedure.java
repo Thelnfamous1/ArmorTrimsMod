@@ -9,15 +9,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffects;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(Dist.CLIENT)
 public class RProcedure {
-	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public static void onRenderPlayer(RenderLivingEvent.Pre event) {
 		LivingEntity entity = event.getEntity();
-		if (entity == null)
-			return;
-		if (entity instanceof LivingEntity && entity.hasEffect(MobEffects.INVISIBILITY)) {
+		if (entity.hasEffect(MobEffects.INVISIBILITY)) {
 			event.setCanceled(true);
 		}
 	}

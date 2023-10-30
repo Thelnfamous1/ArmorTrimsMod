@@ -1,6 +1,6 @@
 package com.marwinekk.armortrims.platform;
 
-import com.marwinekk.armortrims.ArmorTrims;
+import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
@@ -24,7 +24,7 @@ public class Services {
         final T loadedService = ServiceLoader.load(clazz)
                 .findFirst()
                 .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
-        ArmorTrims.LOG.debug("Loaded {} for service {}", loadedService, clazz);
+        ArmorTrimsMod.LOG.debug("Loaded {} for service {}", loadedService, clazz);
         return loadedService;
     }
 }

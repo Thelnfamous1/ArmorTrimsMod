@@ -9,7 +9,7 @@ public class TNTArrowProjectileHitsLivingEntityProcedure {
 	public static void execute(LevelAccessor world, double x, double y, double z, Entity entity) {
 		if (entity == null)
 			return;
-		if (entity instanceof LivingEntity _livEnt ? _livEnt.isBlocking() : false) {
+		if (entity instanceof LivingEntity _livEnt && _livEnt.isBlocking()) {
 			if (world instanceof Level _level && !_level.isClientSide())
 				_level.explode(null, x, y, z, 1, Level.ExplosionInteraction.TNT);
 		} else {

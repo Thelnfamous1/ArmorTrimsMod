@@ -24,6 +24,9 @@ public class PiercingArrowProjectileHitsBlockProcedure {
 	public static void execute(LevelAccessor world, double x, double y, double z, Entity immediatesourceentity) {
 		if (immediatesourceentity == null)
 			return;
+
+
+
 		if (!((world.getBlockState(BlockPos.containing(x, y, z))).getBlock() == Blocks.BEDROCK || (world.getBlockState(BlockPos.containing(x, y, z))).getBlock() == Blocks.OBSIDIAN
 				|| (world.getBlockState(BlockPos.containing(x, y, z))).getBlock() == Blocks.END_PORTAL || (world.getBlockState(BlockPos.containing(x, y, z))).getBlock() == Blocks.END_PORTAL_FRAME
 				|| (world.getBlockState(BlockPos.containing(x, y, z))).getBlock() == Blocks.NETHER_PORTAL)) {
@@ -50,25 +53,25 @@ public class PiercingArrowProjectileHitsBlockProcedure {
 								entityToSpawn.setCritArrow(true);
 								return entityToSpawn;
 							}
-						}.getArrow(projectileLevel, ((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						}.getArrow(projectileLevel, ((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().min(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)), 2, 0);
+						}.compareDistOf(x, y, z)).orElse(null)), 2, 0);
 						_entityToSpawn.setPos(x, y, z);
-						_entityToSpawn.shoot((((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						_entityToSpawn.shoot((world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().min(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().x), (((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						}.compareDistOf(x, y, z)).orElse(null).getLookAngle().x), (world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().y), (((Entity) world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
+						}.compareDistOf(x, y, z)).findFirst().orElse(null).getLookAngle().y), (world.getEntitiesOfClass(Player.class, AABB.ofSize(new Vec3(x, y, z), 256, 256, 256), e -> true).stream().sorted(new Object() {
 							Comparator<Entity> compareDistOf(double _x, double _y, double _z) {
 								return Comparator.comparingDouble(_entcnd -> _entcnd.distanceToSqr(_x, _y, _z));
 							}
-						}.compareDistOf(x, y, z)).findFirst().orElse(null)).getLookAngle().z), 2, 0);
+						}.compareDistOf(x, y, z)).findFirst().orElse(null).getLookAngle().z), 2, 0);
 						projectileLevel.addFreshEntity(_entityToSpawn);
 					}
 				}

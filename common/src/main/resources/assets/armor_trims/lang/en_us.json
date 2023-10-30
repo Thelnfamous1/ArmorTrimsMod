@@ -1,0 +1,17 @@
+{
+  "item.armor_trims.pa_3": "Piercing Arrow",
+  "item.armor_trims.pa_2": "Piercing Arrow",
+  "key.armor_trims.beacon_gui": "Beacon GUI",
+  "item.armor_trims.potion_throw": "Potion Throw",
+  "key.armor_trims.combat": "Combat",
+  "key.armor_trims.boots_keybind": "Boots Trim Ability",
+  "item.armor_trims.piercing_arrow": "Piercing Arrow",
+  "entity.armor_trims.ally_witch": "Ally Witch",
+  "item.armor_trims.tnt_arrow": "TNT Arrow",
+  "key.armor_trims.chestplate_keybind": "Chestplate Trim Ability",
+  "key.armor_trims.leggings_keybind": "Leggings Trim Ability",
+  "entity.armor_trims.mini_guy": "Mini Guy",
+  "key.categories.trims": "Armor Trims",
+  "key.armor_trims.helmet_keybind": "Helmet Trim Ability",
+  "entity.armor_trims.brute": "Brute"
+}

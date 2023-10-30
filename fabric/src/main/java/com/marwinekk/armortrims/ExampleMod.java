@@ -12,7 +12,7 @@ public class ExampleMod implements ModInitializer {
         // project.
 
         // Use Fabric to bootstrap the Common mod.
-        ArmorTrims.LOG.info("Hello Fabric world!");
-        ArmorTrims.init();
+        ArmorTrimsMod.LOG.info("Hello Fabric world!");
+        ArmorTrimsMod.init();
     }
 }

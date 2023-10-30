@@ -1,6 +1,9 @@
 
 package com.marwinekk.armortrims.entity;
 
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.network.NetworkHooks;
@@ -21,11 +24,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.Packet;
 
-import com.marwinekk.armortrims.procedures.PotionThrowWhileProjectileFlyingTickProcedure;
 import com.marwinekk.armortrims.procedures.PotionThrowProjectileHitsLivingEntityProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class PotionThrowEntity extends AbstractArrow implements ItemSupplier {
 	public PotionThrowEntity(PlayMessages.SpawnEntity packet, Level world) {
 		super(ArmorTrimsModEntities.POTION_THROW.get(), world);
@@ -74,7 +75,11 @@ public class PotionThrowEntity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void tick() {
 		super.tick();
-		PotionThrowWhileProjectileFlyingTickProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ());
+
+		if (!level().isClientSide) {
+			((ServerLevel)level()).sendParticles(ParticleTypes.ENTITY_EFFECT, getX(), getY(), getZ(), 25, 0.15, 0.15, 0.15, 0.1);
+		}
+
 		if (this.inGround)
 			this.discard();
 	}
@@ -87,7 +92,7 @@ public class PotionThrowEntity extends AbstractArrow implements ItemSupplier {
 		entityarrow.setBaseDamage(damage);
 		entityarrow.setKnockback(knockback);
 		world.addFreshEntity(entityarrow);
-		world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.witch.throw")), SoundSource.PLAYERS, 1, 1f / (random.nextFloat() * 0.5f + 1) + (power / 2));
+		world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.WITCH_THROW, SoundSource.PLAYERS, 1, 1f / (random.nextFloat() * 0.5f + 1) + (power / 2));
 		return entityarrow;
 	}
 
@@ -102,7 +107,7 @@ public class PotionThrowEntity extends AbstractArrow implements ItemSupplier {
 		entityarrow.setKnockback(0);
 		entityarrow.setCritArrow(true);
 		entity.level().addFreshEntity(entityarrow);
-		entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.witch.throw")), SoundSource.PLAYERS, 1, 1f / (RandomSource.create().nextFloat() * 0.5f + 1));
+		entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(),SoundEvents.WITCH_THROW, SoundSource.PLAYERS, 1, 1f / (RandomSource.create().nextFloat() * 0.5f + 1));
 		return entityarrow;
 	}
 }

@@ -13,6 +13,12 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.datagen.ModDatagen;
+import com.marwinekk.armortrims.network.BeaconGUIMessage;
+import com.marwinekk.armortrims.network.MenuBeaconButtonMessage;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -43,19 +49,26 @@ import com.marwinekk.armortrims.init.ArmorTrimsModMenus;
 import com.marwinekk.armortrims.init.ArmorTrimsModItems;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@Mod(ArmorTrims.MOD_ID)
-public class ArmorTrimsModForge extends ArmorTrims {
+@Mod(ArmorTrimsMod.MOD_ID)
+public class ArmorTrimsModForge extends ArmorTrimsMod {
 	public static final Logger LOGGER = LogManager.getLogger(ArmorTrimsModForge.class);
 	public ArmorTrimsModForge() {
 		MinecraftForge.EVENT_BUS.register(this);
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-
+		bus.addListener(ModDatagen::start);
+		bus.addListener(this::setup);
 		ArmorTrimsModItems.REGISTRY.register(bus);
 		ArmorTrimsModEntities.REGISTRY.register(bus);
 
 		ArmorTrimsModParticleTypes.REGISTRY.register(bus);
 
 		ArmorTrimsModMenus.REGISTRY.register(bus);
+	}
+
+	private void setup(FMLCommonSetupEvent event) {
+		ArmorTrimsModForge.addNetworkMessage(MenuBeaconButtonMessage.class, MenuBeaconButtonMessage::buffer, MenuBeaconButtonMessage::new, MenuBeaconButtonMessage::handler);
+		ArmorTrimsModForge.addNetworkMessage(BeaconGUIMessage.class, BeaconGUIMessage::buffer, BeaconGUIMessage::new, BeaconGUIMessage::handler);
+
 	}
 
 	private static final String PROTOCOL_VERSION = "1";
@@ -71,6 +84,15 @@ public class ArmorTrimsModForge extends ArmorTrims {
 
 	public static void queueServerWork(int tick, Runnable action) {
 		workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
+	}
+
+	@SubscribeEvent
+	public void playerTick(TickEvent.PlayerTickEvent event) {
+		if (event.phase == TickEvent.Phase.START) {
+			if (event.side == LogicalSide.SERVER) {
+				tickServerPlayer((ServerPlayer) event.player);
+			}
+		}
 	}
 
 	@SubscribeEvent

@@ -46,7 +46,7 @@ public class ArmorTrimsModKeyMappings {
 			super.setDown(isDown);
 			if (isDownOld != isDown && isDown) {
 				ArmorTrimsModForge.PACKET_HANDLER.sendToServer(new BeaconGUIMessage(0, 0));
-				BeaconGUIMessage.pressAction(Minecraft.getInstance().player, 0, 0);
+				BeaconGUIMessage.pressAction(Minecraft.getInstance().player, 0);
 			}
 			isDownOld = isDown;
 		}
@@ -58,8 +58,8 @@ public class ArmorTrimsModKeyMappings {
 		public void setDown(boolean isDown) {
 			super.setDown(isDown);
 			if (isDownOld != isDown && isDown) {
-				ArmorTrimsModForge.PACKET_HANDLER.sendToServer(new HelmetKeybindMessage(0, 0));
-				HelmetKeybindMessage.pressAction(Minecraft.getInstance().player, 0, 0);
+				ArmorTrimsModForge.PACKET_HANDLER.sendToServer(new HelmetKeybindMessage(0));
+				HelmetKeybindMessage.pressAction(Minecraft.getInstance().player, 0);
 			}
 			isDownOld = isDown;
 		}

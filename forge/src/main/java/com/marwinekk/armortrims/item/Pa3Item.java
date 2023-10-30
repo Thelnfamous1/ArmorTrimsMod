@@ -39,14 +39,9 @@ public class Pa3Item extends Item {
 	@Override
 	public void releaseUsing(ItemStack itemstack, Level world, LivingEntity entityLiving, int timeLeft) {
 		if (!world.isClientSide() && entityLiving instanceof ServerPlayer entity) {
-			double x = entity.getX();
-			double y = entity.getY();
-			double z = entity.getZ();
-			if (true) {
-				Pa3Entity entityarrow = Pa3Entity.shoot(world, entity, world.getRandom(), 1f, 5, 5);
-				itemstack.hurtAndBreak(1, entity, e -> e.broadcastBreakEvent(entity.getUsedItemHand()));
-				entityarrow.pickup = AbstractArrow.Pickup.DISALLOWED;
-			}
+			Pa3Entity entityarrow = Pa3Entity.shoot(world, entity, world.getRandom(), 1f, 5, 5);
+			itemstack.hurtAndBreak(1, entity, e -> e.broadcastBreakEvent(entity.getUsedItemHand()));
+			entityarrow.pickup = AbstractArrow.Pickup.DISALLOWED;
 		}
 	}
 }

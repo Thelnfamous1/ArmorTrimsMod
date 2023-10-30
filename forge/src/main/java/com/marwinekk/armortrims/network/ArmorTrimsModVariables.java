@@ -66,16 +66,6 @@ public class ArmorTrimsModVariables {
 			event.getOriginal().revive();
 			PlayerVariables original = event.getOriginal().getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables());
 			PlayerVariables clone = event.getEntity().getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables());
-			clone.iron = original.iron;
-			clone.lapis = original.lapis;
-			clone.gold = original.gold;
-			clone.diamond = original.diamond;
-			clone.amethyst = original.amethyst;
-			clone.netherite = original.netherite;
-			clone.redstone = original.redstone;
-			clone.copper = original.copper;
-			clone.quartz = original.quartz;
-			clone.emerald = original.emerald;
 			clone.canUseIron = original.canUseIron;
 			clone.canUseLapis = original.canUseLapis;
 			clone.canUseGold = original.canUseGold;
@@ -135,16 +125,6 @@ public class ArmorTrimsModVariables {
 	}
 
 	public static class PlayerVariables {
-		public boolean iron = false;
-		public boolean lapis = false;
-		public boolean gold = false;
-		public boolean diamond = false;
-		public boolean amethyst = false;
-		public boolean netherite = false;
-		public boolean redstone = false;
-		public boolean copper = false;
-		public boolean quartz = false;
-		public boolean emerald = false;
 		public boolean canUseIron = true;
 		public boolean canUseLapis = true;
 		public boolean canUseGold = true;
@@ -176,16 +156,6 @@ public class ArmorTrimsModVariables {
 
 		public Tag writeNBT() {
 			CompoundTag nbt = new CompoundTag();
-			nbt.putBoolean("iron", iron);
-			nbt.putBoolean("lapis", lapis);
-			nbt.putBoolean("gold", gold);
-			nbt.putBoolean("diamond", diamond);
-			nbt.putBoolean("amethyst", amethyst);
-			nbt.putBoolean("netherite", netherite);
-			nbt.putBoolean("redstone", redstone);
-			nbt.putBoolean("copper", copper);
-			nbt.putBoolean("quartz", quartz);
-			nbt.putBoolean("emerald", emerald);
 			nbt.putBoolean("canUseIron", canUseIron);
 			nbt.putBoolean("canUseLapis", canUseLapis);
 			nbt.putBoolean("canUseGold", canUseGold);
@@ -214,16 +184,6 @@ public class ArmorTrimsModVariables {
 
 		public void readNBT(Tag Tag) {
 			CompoundTag nbt = (CompoundTag) Tag;
-			iron = nbt.getBoolean("iron");
-			lapis = nbt.getBoolean("lapis");
-			gold = nbt.getBoolean("gold");
-			diamond = nbt.getBoolean("diamond");
-			amethyst = nbt.getBoolean("amethyst");
-			netherite = nbt.getBoolean("netherite");
-			redstone = nbt.getBoolean("redstone");
-			copper = nbt.getBoolean("copper");
-			quartz = nbt.getBoolean("quartz");
-			emerald = nbt.getBoolean("emerald");
 			canUseIron = nbt.getBoolean("canUseIron");
 			canUseLapis = nbt.getBoolean("canUseLapis");
 			canUseGold = nbt.getBoolean("canUseGold");
@@ -271,16 +231,6 @@ public class ArmorTrimsModVariables {
 			context.enqueueWork(() -> {
 				if (!context.getDirection().getReceptionSide().isServer()) {
 					PlayerVariables variables = Minecraft.getInstance().player.getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables());
-					variables.iron = message.data.iron;
-					variables.lapis = message.data.lapis;
-					variables.gold = message.data.gold;
-					variables.diamond = message.data.diamond;
-					variables.amethyst = message.data.amethyst;
-					variables.netherite = message.data.netherite;
-					variables.redstone = message.data.redstone;
-					variables.copper = message.data.copper;
-					variables.quartz = message.data.quartz;
-					variables.emerald = message.data.emerald;
 					variables.canUseIron = message.data.canUseIron;
 					variables.canUseLapis = message.data.canUseLapis;
 					variables.canUseGold = message.data.canUseGold;

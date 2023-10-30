@@ -9,7 +9,7 @@ public class CooldownProcedure {
 		if (entity == null)
 			return "";
 		String string = "";
-		if ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).dragonegg == false) {
+		if (!(entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).dragonegg) {
 			string = "" + ((entity.getCapability(ArmorTrimsModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new ArmorTrimsModVariables.PlayerVariables())).timer == 0
 					? " "
 					: "\u00A7c\u00A7lAbility Unavailable " + "\u00A7r\u00A7fCooldown: \u00A7r\u00A73"

@@ -1,6 +1,7 @@
 
 package com.marwinekk.armortrims.entity;
 
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.network.NetworkHooks;
@@ -24,7 +25,6 @@ import net.minecraft.network.protocol.Packet;
 
 import com.marwinekk.armortrims.procedures.TNTArrowWhileProjectileFlyingTickProcedure;
 import com.marwinekk.armortrims.procedures.TNTArrowProjectileHitsLivingEntityProcedure;
-import com.marwinekk.armortrims.procedures.TNTArrowProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
@@ -76,7 +76,11 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		TNTArrowProjectileHitsBlockProcedure.execute(this.level(), blockHitResult.getBlockPos().getX(), blockHitResult.getBlockPos().getY(), blockHitResult.getBlockPos().getZ());
+
+		if (!level().isClientSide) {
+			Vec3 hitPos = blockHitResult.getLocation();
+			level().explode(null, hitPos.x, hitPos.y, hitPos.z, 3, Level.ExplosionInteraction.TNT);
+		}
 	}
 
 	@Override

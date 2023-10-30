@@ -23,16 +23,12 @@ import com.marwinekk.armortrims.entity.Pa3Entity;
 import com.marwinekk.armortrims.entity.Pa2Entity;
 import com.marwinekk.armortrims.entity.MiniGuyEntity;
 import com.marwinekk.armortrims.entity.CloneEntity;
-import com.marwinekk.armortrims.entity.BruteEntity;
 import com.marwinekk.armortrims.ArmorTrimsModForge;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ArmorTrimsModEntities {
 	public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, ArmorTrimsModForge.MOD_ID);
-	public static final RegistryObject<EntityType<BruteEntity>> BRUTE = register("brute",
-			EntityType.Builder.<BruteEntity>of(BruteEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(BruteEntity::new)
 
-					.sized(0.6f, 1.95f));
 	public static final RegistryObject<EntityType<CloneEntity>> ALLY_WITCH = register("ally_witch",
 			EntityType.Builder.<CloneEntity>of(CloneEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(CloneEntity::new)
 
@@ -59,7 +55,6 @@ public class ArmorTrimsModEntities {
 	@SubscribeEvent
 	public static void init(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
-			BruteEntity.init();
 			CloneEntity.init();
 			MiniGuyEntity.init();
 		});
@@ -67,7 +62,6 @@ public class ArmorTrimsModEntities {
 
 	@SubscribeEvent
 	public static void registerAttributes(EntityAttributeCreationEvent event) {
-		event.put(BRUTE.get(), BruteEntity.createAttributes().build());
 		event.put(ALLY_WITCH.get(), CloneEntity.createAttributes().build());
 		event.put(MINI_GUY.get(), MiniGuyEntity.createAttributes().build());
 	}

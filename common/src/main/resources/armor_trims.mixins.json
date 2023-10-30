@@ -5,9 +5,11 @@
     "refmap": "${mod_id}.refmap.json",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
+        "BruteMixin",
+        "InventoryMixin"
     ],
     "client": [
-      "MixinMinecraft"
+        "PlayerMixin"
     ],
     "server": [
     ],

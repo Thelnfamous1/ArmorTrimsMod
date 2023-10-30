@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "012",
+    " 4 ",
+    "678"
+  ],
+  "key": {
+    "0": {
+      "item": "minecraft:copper_block"
+    },
+    "1": {
+      "item": "minecraft:copper_block"
+    },
+    "2": {
+      "item": "minecraft:copper_block"
+    },
+    "4": {
+      "item": "minecraft:copper_ingot"
+    },
+    "6": {
+      "item": "minecraft:copper_ingot"
+    },
+    "7": {
+      "item": "minecraft:copper_ingot"
+    },
+    "8": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "item": "minecraft:anvil",
+    "count": 1
+  }
+}

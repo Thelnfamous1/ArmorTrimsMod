@@ -21,7 +21,6 @@ import net.minecraft.network.protocol.Packet;
 import com.marwinekk.armortrims.procedures.PiercingArrowProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class PiercingArrowEntity extends AbstractArrow implements ItemSupplier {
 	public PiercingArrowEntity(PlayMessages.SpawnEntity packet, Level world) {
 		super(ArmorTrimsModEntities.PIERCING_ARROW.get(), world);

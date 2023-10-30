@@ -21,7 +21,6 @@ import net.minecraft.network.protocol.Packet;
 import com.marwinekk.armortrims.procedures.Pa3ProjectileHitsBlockProcedure;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class Pa3Entity extends AbstractArrow implements ItemSupplier {
 	public Pa3Entity(PlayMessages.SpawnEntity packet, Level world) {
 		super(ArmorTrimsModEntities.PA_3.get(), world);
@@ -45,7 +44,6 @@ public class Pa3Entity extends AbstractArrow implements ItemSupplier {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public ItemStack getItem() {
 		return new ItemStack(Blocks.AIR);
 	}
