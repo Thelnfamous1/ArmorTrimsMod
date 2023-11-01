@@ -2,6 +2,7 @@ package com.marwinekk.armortrims.util;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
+import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -95,9 +97,13 @@ public class ArmorTrimAbilities {
         }
     }
 
+    public static void ironFist(ServerPlayer player) {
+
+    }
+
     static void summonFriendlyWitch(ServerPlayer player) {
         Level level = player.level();
-        for (int i = 0; i < 5;i++) {
+        for (int i = 0; i < 2;i++) {
             Witch witch = EntityType.WITCH.create(level);
             witch.moveTo(player.getPosition(0));
             WitchDuck witchDuck = (WitchDuck) witch;

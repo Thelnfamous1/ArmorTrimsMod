@@ -27,13 +27,21 @@ public interface PlayerDuck {
 
     int abilityCooldown(EquipmentSlot slot);
     void setAbilityCooldown(EquipmentSlot slot,int cooldown);
-
     Map<EquipmentSlot,Integer> abilityCooldowns();
+
+    int abilityTimer(EquipmentSlot slot);
+    void setAbilityTimer(EquipmentSlot slot,int timer);
+    Map<EquipmentSlot,Integer> abilityTimers();
+
 
     default void tickAbilities() {
 
         for (Map.Entry<EquipmentSlot,Integer> entry : abilityCooldowns().entrySet()) {
             setAbilityCooldown(entry.getKey(),abilityCooldown(entry.getKey()) - 1);
+        }
+
+        for (Map.Entry<EquipmentSlot,Integer> entry : abilityTimers().entrySet()) {
+            setAbilityTimer(entry.getKey(),abilityTimer(entry.getKey()) - 1);
         }
 
         if (dragonEgg()) {

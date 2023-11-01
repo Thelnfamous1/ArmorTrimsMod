@@ -2,6 +2,7 @@ package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.client.ArmorTrimsModClient;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
+import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,8 +16,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -84,14 +83,13 @@ public class ArmorTrimsMod {
         if (victim instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
             if (playerDuck.hasSetBonus(Items.AMETHYST_SHARD)) {
+                //allow the witch to "attack" friendly players
+                if (attacker instanceof WitchDuck witchDuck && victim.getUUID().equals(witchDuck.getOwnerUUID())) {
+                    return false;
+                }
+
                 return true;
-                //this doesn't actually work
-                //"tamed" brutes do not attack player
-            } //else if (attacker instanceof PiglinBrute piglinBrute) {
-              //  if (player.getUUID().equals(((OwnableEntity) piglinBrute).getOwnerUUID())) {
-                    return true;
-             //   }
-           // }
+            }
         }
         return false;
     }
@@ -198,10 +196,11 @@ public class ArmorTrimsMod {
         return false;
     }
 
-    public static void onInventoryChange(Inventory inventory) {
+    public static void onInventoryChange(Inventory inventory, EquipmentSlot slot) {
         Player player = inventory.player;
         PlayerDuck playerDuck = (PlayerDuck) player;
         playerDuck.setCheckInventory(true);
+        playerDuck.setAbilityTimer(slot,0);
     }
 
     public static final List<MobEffect> BEACON_EFFECTS = List.of(MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED, MobEffects.DAMAGE_RESISTANCE,
@@ -290,7 +289,8 @@ public class ArmorTrimsMod {
     //
     //The SMP is based on different armor trims colors and their powers
     //
-    // todo Iron: You take no fall damage and no drowning. When activating combat mode, you have a punch that makes players fly 50 blocks in the air.
+    // Iron: You take no fall damage and no drowning.
+    // todo When activating combat mode, you have a punch that makes players fly 50 blocks in the air.
     //
     // Lapis: Every 10 minutes you gain a level. When activating combat mode, you get a +1 on all your enchants, for example sharpness V turns to sharpness VI
     //
@@ -304,12 +304,13 @@ public class ArmorTrimsMod {
     //
     //  todo When activating combat mode, you have a punch that withers a player for 5 seconds and resets every hit.
     //
-    // Copper: Copper acts as iron and you can craft anything iron-related using copper. When activating combat mode, you have the ability to summon 10 lighting strikes anywhere you look.
+    // todo: Copper: Copper acts as iron and you can craft anything iron-related using copper. When activating combat mode, you have the ability to summon 10 lighting strikes anywhere you look.
     //
     // todo Quartz: Auto smelt ores and food. When activating combat mode, you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
     //
     // todo Emerald: You can give yourself beacon effects any time. When activating combat mode, you have a 15-second period where if you were to die, you have a totem that saves you.
     //
-    // todo Red: Get Blast Resistance 4 on all armor. When activating combat mode, you have 3 homing arrows that explode and deal a lot of damage to players
+    // Red: Get Blast Resistance 4 on all armor.
+    //  todo When activating combat mode, you have 3 homing arrows that explode and deal a lot of damage to players
 
 }

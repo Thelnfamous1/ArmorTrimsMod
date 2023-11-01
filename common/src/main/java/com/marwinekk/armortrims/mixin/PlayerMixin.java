@@ -26,14 +26,21 @@ public class PlayerMixin implements PlayerDuck {
     private transient boolean checkInventory;
     private transient MobEffect beaconEffect;
     private final Map<EquipmentSlot,Integer> abilityCooldowns = new HashMap<>();
+    private final Map<EquipmentSlot,Integer> abilityTimers = new HashMap<>();
+
 
     @Inject(method = "setItemSlot",at = @At("RETURN"))
     private void armorInventoryChanged(EquipmentSlot $$0, ItemStack $$1, CallbackInfo ci) {
-        ArmorTrimsMod.onInventoryChange(self().getInventory());
+        ArmorTrimsMod.onInventoryChange(self().getInventory(),$$0);
     }
 
     public Map<EquipmentSlot, Integer> abilityCooldowns() {
         return abilityCooldowns;
+    }
+
+    @Override
+    public Map<EquipmentSlot, Integer> abilityTimers() {
+        return abilityTimers;
     }
 
     @Override
@@ -87,6 +94,16 @@ public class PlayerMixin implements PlayerDuck {
 
     public int abilityCooldown(EquipmentSlot slot) {
         return abilityCooldowns.getOrDefault(slot,0);
+    }
+
+    @Override
+    public int abilityTimer(EquipmentSlot slot) {
+        return abilityTimers.getOrDefault(slot,0);
+    }
+
+    @Override
+    public void setAbilityTimer(EquipmentSlot slot, int timer) {
+        abilityTimers.put(slot,timer);
     }
 
     @Override

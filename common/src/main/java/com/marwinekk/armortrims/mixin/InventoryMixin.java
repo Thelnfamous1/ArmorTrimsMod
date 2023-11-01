@@ -12,6 +12,6 @@ public class InventoryMixin {
 
     @Inject(method = "setItem",at = @At("RETURN"))
     private void onInventoryChange(CallbackInfo ci) {
-        ArmorTrimsMod.onInventoryChange((Inventory) (Object)this);
+        ArmorTrimsMod.onInventoryChange((Inventory) (Object)this,null);
     }
 }

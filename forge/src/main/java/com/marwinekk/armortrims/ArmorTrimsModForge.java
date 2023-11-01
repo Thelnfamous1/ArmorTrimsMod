@@ -107,7 +107,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 
 	private void toss(ItemTossEvent event) {
 		Player player = event.getPlayer();
-		onInventoryChange(player.getInventory());
+		onInventoryChange(player.getInventory(), null);
 	}
 
 	private void serverLogin(PlayerEvent.PlayerLoggedInEvent event) {
