@@ -10,6 +10,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
@@ -24,6 +26,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
@@ -224,14 +229,29 @@ public class ArmorTrimsMod {
 
         boolean cook = playerDuck.hasSetBonus(Items.QUARTZ);
 
-        if (!cook) return;
+        if (player.level().isClientSide || !cook) return;
+
+        List<ItemStack> cooked = new ArrayList<>();
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
             if (stack.is(ModTags.QUARTZ_SMELTABLE)) {
-
+                RecipeManager recipemanager = player.level().getRecipeManager();
+                SimpleContainer simpleContainer = new SimpleContainer(stack);
+                Optional<SmeltingRecipe> optional = recipemanager.getRecipeFor(RecipeType.SMELTING,simpleContainer,player.level());
+                if (optional.isPresent()) {
+                    SmeltingRecipe smeltingRecipe = optional.get();
+                    ItemStack result = smeltingRecipe.assemble(simpleContainer,player.level().registryAccess());
+                    cooked.add(result);
+                    stack.setCount(0);
+                }
             }
         }
+
+        for (ItemStack stack : cooked) {
+            player.getInventory().add(stack);
+        }
+
     }
 
     public static final String POWER_TAG = "armor_trims:power";
@@ -328,11 +348,32 @@ public class ArmorTrimsMod {
     }
 
     public static void addOneEffectRemoveOther(ServerPlayer player, MobEffect mobEffect) {
-        player.addEffect(new MobEffectInstance(mobEffect, -1, 0, true, false));
         PlayerDuck playerDuck = (PlayerDuck) player;
-        MobEffect old = playerDuck.beaconEffect();
-        player.removeEffect(old);
-        playerDuck.setBeaconEffect(mobEffect);
+        if (playerDuck.hasSetBonus(Items.EMERALD)) {
+            player.addEffect(new MobEffectInstance(mobEffect, -1, 0, true, false));
+            MobEffect old = playerDuck.beaconEffect();
+            player.removeEffect(old);
+            playerDuck.setBeaconEffect(mobEffect);
+        } else {
+            player.sendSystemMessage(Component.literal("Cannot apply beacon effects without emerald trim"));
+        }
+    }
+
+    public static void giveTotemToDyingPlayer(LivingEntity living) {
+        if (living instanceof Player player) {
+            PlayerDuck playerDuck = (PlayerDuck) player;
+            for (EquipmentSlot slot : slots) {
+                Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
+                int timer = playerDuck.abilityTimer(slot);
+                if (trim == Items.EMERALD && timer > 0) {
+                    if (!living.getItemInHand(InteractionHand.OFF_HAND).isEmpty()) {
+                        ((Player) living).drop(living.getItemInHand(InteractionHand.OFF_HAND),true);
+                    }
+                    living.setItemSlot(EquipmentSlot.OFFHAND,Items.TOTEM_OF_UNDYING.getDefaultInstance());
+                    return;
+                }
+            }
+        }
     }
 
     //Whats the SMP about?

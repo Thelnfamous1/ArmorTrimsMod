@@ -1,8 +1,10 @@
 package com.marwinekk.armortrims.platform;
 
 import com.marwinekk.armortrims.network.C2SKeybindPacket;
+import com.marwinekk.armortrims.network.C2SMobEffectPacket;
 import com.marwinekk.armortrims.network.PacketHandler;
 import com.marwinekk.armortrims.platform.services.IPlatformHelper;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -31,5 +33,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public void sendAbilityPacket(@Nullable EquipmentSlot slot) {
         PacketHandler.CHANNEL.sendToServer(new C2SKeybindPacket(slot));
+    }
+
+    @Override
+    public void sendMobEffectPacket(MobEffect effect) {
+        PacketHandler.CHANNEL.sendToServer(new C2SMobEffectPacket(effect));
     }
 }

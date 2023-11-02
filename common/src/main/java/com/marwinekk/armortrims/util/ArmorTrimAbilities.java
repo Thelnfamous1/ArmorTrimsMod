@@ -67,7 +67,8 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE,new ArmorTrimAbility(player -> applyEnchantToArmor(player,Enchantments.BLAST_PROTECTION,4),
                 NULL, NULL, NULL));
 
-        ARMOR_TRIM_REGISTRY.put(Items.EMERALD,new ArmorTrimAbility(NULL,NULL,NULL,NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.EMERALD,new ArmorTrimAbility(NULL,NULL,
+                player -> messagePlayer(player,Component.translatable("Totem Save Activated")),NULL,20 * 15));
     }
 
     static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");

@@ -1,5 +1,6 @@
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
@@ -56,7 +57,7 @@ public class BeaconEffectScreen extends Screen {
         }
 
         public void onPress() {
-
+            Services.PLATFORM.sendMobEffectPacket(effect);
         }
 
         protected void renderIcon(GuiGraphics pGuiGraphics) {
