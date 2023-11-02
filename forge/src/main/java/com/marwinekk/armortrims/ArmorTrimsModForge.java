@@ -18,9 +18,8 @@ import com.marwinekk.armortrims.datagen.ModDatagen;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.init.ArmorTrimsModItems;
-import com.marwinekk.armortrims.init.ArmorTrimsModParticleTypes;
 import com.marwinekk.armortrims.network.PacketHandler;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +30,7 @@ import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -58,8 +58,6 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		ArmorTrimsModItems.REGISTRY.register(bus);
 		ArmorTrimsModEntities.REGISTRY.register(bus);
 
-		ArmorTrimsModParticleTypes.REGISTRY.register(bus);
-
 		if (FMLEnvironment.dist.isClient()) {
 			bus.addListener(Client::keybinds);
 			bus.addListener(this::setupClient);
@@ -81,6 +79,13 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		MinecraftForge.EVENT_BUS.addListener(this::serverLogin);
 		MinecraftForge.EVENT_BUS.addListener(this::onDamage);
 		MinecraftForge.EVENT_BUS.addListener(this::knockback);
+		MinecraftForge.EVENT_BUS.addListener(this::handleVisibility);
+	}
+
+	private void handleVisibility(LivingEvent.LivingVisibilityEvent event) {
+		if (event.getEntity().hasEffect(MobEffects.INVISIBILITY)) {
+			event.modifyVisibility(0);
+		}
 	}
 
 	private void knockback(LivingKnockBackEvent event) {

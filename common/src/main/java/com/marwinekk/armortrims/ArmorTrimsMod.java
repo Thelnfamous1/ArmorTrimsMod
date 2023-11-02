@@ -29,6 +29,7 @@ import net.minecraft.world.item.armortrim.TrimMaterial;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,18 +56,21 @@ public class ArmorTrimsMod {
     // code that gets invoked by the entry point of the loader specific projects.
     public static void init() {
 
-        LOG.info("Hello from Common init on {}! we are currently in a {} environment!", Services.PLATFORM.getPlatformName(), Services.PLATFORM.getEnvironmentName());
-        LOG.info("The ID for diamonds is {}", BuiltInRegistries.ITEM.getKey(Items.DIAMOND));
-
         // It is common for all supported loaders to provide a similar feature that can not be used directly in the
         // common code. A popular way to get around this is using Java's built-in service loader feature to create
         // your own abstraction layer. You can learn more about this in our provided services class. In this example
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
-        if (Services.PLATFORM.isModLoaded("examplemod")) {
+    }
 
-            LOG.info("Hello to examplemod");
-        }
+    public static void serverStarted(MinecraftServer server) {
+        ArmorTrimsMod.server = server;
+        GameRules.BooleanValue gameRule =server.getLevel(Level.OVERWORLD).getGameRules().getRule(GameRules.RULE_LIMITED_CRAFTING);
+        gameRule.set(true,server);
+    }
+
+    public static void serverStopped(MinecraftServer server) {
+        ArmorTrimsMod.server = null;
     }
 
     public static void tickPlayer(Player player) {
@@ -80,13 +84,7 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static void serverStarted(MinecraftServer server) {
-        ArmorTrimsMod.server = server;
-    }
 
-    public static void serverStopped(MinecraftServer server) {
-        ArmorTrimsMod.server = null;
-    }
 
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
         if (victim instanceof Player player) {
@@ -329,7 +327,7 @@ public class ArmorTrimsMod {
         if (trimItem != null) {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(trimItem);
             armorTrimAbility.activateCombatAbility.accept(player);
-            playerDuck.setAbilityCooldown(slot, 20 * 10);
+            playerDuck.setAbilityCooldown(slot, armorTrimAbility.cooldown);
             playerDuck.setAbilityTimer(slot, armorTrimAbility.activeTicks);
             LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
         }
@@ -397,9 +395,13 @@ public class ArmorTrimsMod {
     //
     // todo: Copper: Copper acts as iron and you can craft anything iron-related using copper. When activating combat mode, you have the ability to summon 10 lighting strikes anywhere you look.
     //
-    // todo Quartz: Auto smelt ores and food. When activating combat mode, you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
+    // Quartz: Auto smelt ores and food. When activating combat mode,
     //
-    // todo Emerald: You can give yourself beacon effects any time. When activating combat mode, you have a 15-second period where if you were to die, you have a totem that saves you.
+    // todo you have a smoke cloud that appears around you and you become completely invisible to all players around you. It also makes every entity around you glow
+    //
+    //  Emerald: You can give yourself beacon effects any time.
+    //
+    //  When activating combat mode, you have a 15-second period where if you were to die, you have a totem that saves you.
     //
     // Red: Get Blast Resistance 4 on all armor.
     //  todo When activating combat mode, you have 3 homing arrows that explode and deal a lot of damage to players
