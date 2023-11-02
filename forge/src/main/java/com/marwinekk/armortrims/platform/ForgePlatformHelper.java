@@ -30,6 +30,6 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public void sendAbilityPacket(@Nullable EquipmentSlot slot) {
-        PacketHandler.PACKET_HANDLER.sendToServer(new C2SKeybindPacket(slot));
+        PacketHandler.CHANNEL.sendToServer(new C2SKeybindPacket(slot));
     }
 }

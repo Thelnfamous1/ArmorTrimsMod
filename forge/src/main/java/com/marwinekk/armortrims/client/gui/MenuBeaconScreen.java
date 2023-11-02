@@ -87,6 +87,6 @@ public class MenuBeaconScreen extends AbstractContainerScreen {
     }
 
     void sendEffect(int id) {
-        PacketHandler.PACKET_HANDLER.sendToServer(new C2SMobEffectPacket(ArmorTrimsMod.BEACON_EFFECTS.get(id)));
+        PacketHandler.CHANNEL.sendToServer(new C2SMobEffectPacket(ArmorTrimsMod.BEACON_EFFECTS.get(id)));
     }
 }

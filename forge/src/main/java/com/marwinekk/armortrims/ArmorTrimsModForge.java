@@ -15,41 +15,42 @@ package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
+import com.marwinekk.armortrims.ducks.PlayerDuck;
+import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
+import com.marwinekk.armortrims.init.ArmorTrimsModItems;
+import com.marwinekk.armortrims.init.ArmorTrimsModParticleTypes;
 import com.marwinekk.armortrims.network.PacketHandler;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.List;
-import java.util.Collection;
-import java.util.ArrayList;
 import java.util.AbstractMap;
-
-import com.marwinekk.armortrims.init.ArmorTrimsModParticleTypes;
-import com.marwinekk.armortrims.init.ArmorTrimsModItems;
-import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Mod(ArmorTrimsMod.MOD_ID)
 public class ArmorTrimsModForge extends ArmorTrimsMod {
-	public static final Logger LOGGER = LogManager.getLogger(ArmorTrimsModForge.class);
 	public ArmorTrimsModForge() {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(ModDatagen::start);
@@ -78,6 +79,29 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		MinecraftForge.EVENT_BUS.addListener(this::serverStoppedF);
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST,this::toss);
 		MinecraftForge.EVENT_BUS.addListener(this::serverLogin);
+		MinecraftForge.EVENT_BUS.addListener(this::onDamage);
+		MinecraftForge.EVENT_BUS.addListener(this::knockback);
+	}
+
+	private void knockback(LivingKnockBackEvent event) {
+		LivingEntity livingEntity = event.getEntity();
+
+
+		LivingEntity lastAttacker = livingEntity.getLastAttacker();
+		if (lastAttacker instanceof Player player) {
+			PlayerDuck playerDuck = (PlayerDuck) player;
+			for (EquipmentSlot slot : slots) {
+				Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
+				int timer = playerDuck.abilityTimer(slot);
+				if (trim == Items.IRON_INGOT && timer > 0) {
+					event.setStrength(5);
+				//	livingEntity.addDeltaMovement(new Vec3(0,4,0));
+					return;
+				}
+			}
+		}
+
+		//onKnockback(livingEntity);
 	}
 
 	private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();
@@ -88,10 +112,12 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 
 	public void playerTick(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
-			if (event.side == LogicalSide.SERVER) {
-				tickServerPlayer((ServerPlayer) event.player);
-			}
+			tickPlayer(event.player);
 		}
+	}
+
+	private void onDamage(LivingDamageEvent event) {
+		onDamaged(event.getEntity(),event.getSource());
 	}
 
 	public void attributes(ItemAttributeModifierEvent e) {
@@ -111,7 +137,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 	}
 
 	private void serverLogin(PlayerEvent.PlayerLoggedInEvent event) {
-		serverPlayerLogin((ServerPlayer) event.getEntity());
+		playerLogin(event.getEntity());
 	}
 
 	public void serverTick(TickEvent.ServerTickEvent event) {

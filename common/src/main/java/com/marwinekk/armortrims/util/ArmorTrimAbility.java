@@ -11,11 +11,20 @@ public class ArmorTrimAbility {
     public final Consumer<ServerPlayer> activateCombatAbility;
     public final Consumer<ServerPlayer> onRemove;
 
+    public final int activeTicks;
+
+
     public ArmorTrimAbility(Consumer<ServerPlayer> onEquip, Consumer<ServerPlayer> onServerPlayerTick,
                             Consumer<ServerPlayer> activateCombatAbility, Consumer<ServerPlayer> onRemove) {
+        this(onEquip,onServerPlayerTick,activateCombatAbility,onRemove,0);
+    }
+
+    public ArmorTrimAbility(Consumer<ServerPlayer> onEquip, Consumer<ServerPlayer> onServerPlayerTick,
+                            Consumer<ServerPlayer> activateCombatAbility, Consumer<ServerPlayer> onRemove, int activeTicks) {
         this.onEquip = onEquip;
         this.onServerPlayerTick = onServerPlayerTick;
         this.activateCombatAbility = activateCombatAbility;
         this.onRemove = onRemove;
+        this.activeTicks = activeTicks;
     }
 }

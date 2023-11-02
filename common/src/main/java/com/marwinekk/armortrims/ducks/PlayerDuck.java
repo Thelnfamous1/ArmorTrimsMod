@@ -1,6 +1,7 @@
 package com.marwinekk.armortrims.ducks;
 
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -34,14 +35,23 @@ public interface PlayerDuck {
     Map<EquipmentSlot,Integer> abilityTimers();
 
 
-    default void tickAbilities() {
+    default void tickServer() {
 
         for (Map.Entry<EquipmentSlot,Integer> entry : abilityCooldowns().entrySet()) {
-            setAbilityCooldown(entry.getKey(),abilityCooldown(entry.getKey()) - 1);
+            EquipmentSlot slot = entry.getKey();
+            int v = entry.getValue();
+            if (v > 0) {
+                setAbilityCooldown(slot, v - 1);
+            }
         }
 
         for (Map.Entry<EquipmentSlot,Integer> entry : abilityTimers().entrySet()) {
-            setAbilityTimer(entry.getKey(),abilityTimer(entry.getKey()) - 1);
+            EquipmentSlot slot = entry.getKey();
+            int v = entry.getValue();
+            if (v > 0) {
+                setAbilityTimer(slot, v - 1);
+                self().sendSystemMessage(Component.literal("slot: " + slot + " " + v));
+            }
         }
 
         if (dragonEgg()) {

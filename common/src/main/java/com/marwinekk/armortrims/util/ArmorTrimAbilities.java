@@ -2,11 +2,8 @@ package com.marwinekk.armortrims.util;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
-import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
-import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -24,7 +21,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -44,7 +40,7 @@ public class ArmorTrimAbilities {
 
     static  {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
-                new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)), NULL, NULL));
+                new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),ArmorTrimAbilities::ironFist, NULL,20 * 5));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI,new ArmorTrimAbility(NULL, player -> {
             if (player.level().getGameTime() % (20 * 60 * 10) == 0) {
@@ -53,20 +49,25 @@ public class ArmorTrimAbilities {
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL));
+
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT,new ArmorTrimAbility(NULL, player -> {
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 9, true, false));
             if (player.isInLava()) {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
-        }, NULL, NULL));
+        }, player -> messagePlayer(player,Component.translatable("Wither Touch Active")), NULL,100));
+
         ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT,new ArmorTrimAbility(player -> addAttributeModifier(
                 player, Attributes.MAX_HEALTH,4, AttributeModifier.Operation.ADDITION),
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
                 player -> removeAttributeModifier(player,Attributes.MAX_HEALTH)));
+
         ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD,new ArmorTrimAbility(NULL,NULL, ArmorTrimAbilities::summonFriendlyWitch,NULL));
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND,new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor,NULL, ArmorTrimAbilities::givePower8Arrows,NULL));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE,new ArmorTrimAbility(player -> applyEnchantToArmor(player,Enchantments.BLAST_PROTECTION,4),
                 NULL, NULL, NULL));
+
+        ARMOR_TRIM_REGISTRY.put(Items.EMERALD,new ArmorTrimAbility(NULL,NULL,NULL,NULL));
     }
 
     static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
@@ -98,7 +99,11 @@ public class ArmorTrimAbilities {
     }
 
     public static void ironFist(ServerPlayer player) {
+        messagePlayer(player,Component.translatable("Iron Fists Active"));
+    }
 
+    public static void messagePlayer(ServerPlayer player,Component message) {
+        player.sendSystemMessage(message,true);
     }
 
     static void summonFriendlyWitch(ServerPlayer player) {
