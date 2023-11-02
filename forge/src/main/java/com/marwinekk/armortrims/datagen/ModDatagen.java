@@ -16,7 +16,7 @@ public class ModDatagen {
         PackOutput packOutput = dataGenerator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        BlockTagsProvider blockTagsProvider = new ModBlockItemTagsProvider(packOutput,lookupProvider,existingFileHelper);
+        BlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(packOutput,lookupProvider,existingFileHelper);
         dataGenerator.addProvider(event.includeServer(),blockTagsProvider);
         dataGenerator.addProvider(event.includeServer(),new ItemTagsProvider(packOutput,lookupProvider,blockTagsProvider.contentsGetter(),existingFileHelper));
     }

@@ -29,6 +29,6 @@ public class ItemTagsProvider extends net.minecraft.data.tags.ItemTagsProvider {
                 food.add(item);
             }
         }
-     //   tag(ModTags.QUARTZ_SMELTABLE).addTag(Tags.Items.ORES).add(food.toArray(new Item[0]));
+        tag(ModTags.QUARTZ_SMELTABLE).addTag(Tags.Items.ORES).add(food.toArray(new Item[0]));
     }
 }
