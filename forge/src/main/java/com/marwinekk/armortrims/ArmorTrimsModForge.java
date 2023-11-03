@@ -16,9 +16,9 @@ package com.marwinekk.armortrims;
 import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
-import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
-import com.marwinekk.armortrims.init.ArmorTrimsModItems;
 import com.marwinekk.armortrims.network.PacketHandler;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,6 +41,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -54,8 +55,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(ModDatagen::start);
 		bus.addListener(this::setup);
-		ArmorTrimsModItems.REGISTRY.register(bus);
-		ArmorTrimsModEntities.REGISTRY.register(bus);
+		bus.addListener(this::register);
 
 		if (FMLEnvironment.dist.isClient()) {
 			bus.addListener(Client::keybinds);
@@ -82,6 +82,10 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		MinecraftForge.EVENT_BUS.addListener(this::onEntityFall);
 		MinecraftForge.EVENT_BUS.addListener(this::onEntityTarget);
 		MinecraftForge.EVENT_BUS.addListener(this::onEntityAttacked);
+	}
+
+	private void register(RegisterEvent event) {
+		event.register(Registries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"tnt_arrow"),() -> ArmorTrimsModEntities.TNT_ARROW);
 	}
 
 	private void handleVisibility(LivingEvent.LivingVisibilityEvent event) {
@@ -124,7 +128,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 				int timer = playerDuck.abilityTimer(slot);
 				if (trim == Items.IRON_INGOT && timer > 0) {
 					event.setStrength(5);
-				//	livingEntity.addDeltaMovement(new Vec3(0,4,0));
+					//	livingEntity.addDeltaMovement(new Vec3(0,4,0));
 					return;
 				}
 			}
@@ -156,6 +160,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 	private void serverStartedF(ServerStartedEvent event) {
 		serverStarted(event.getServer());
 	}
+
 	private void serverStoppedF(ServerStoppedEvent event) {
 		serverStopped(event.getServer());
 	}

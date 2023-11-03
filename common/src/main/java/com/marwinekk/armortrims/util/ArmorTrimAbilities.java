@@ -76,7 +76,7 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL));
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, NULL));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
-                NULL, BI_NULL, NULL));
+                NULL, ArmorTrimAbilities::giveHomingArrows, NULL));
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), NULL, 20 * 15, 20 * 30));
@@ -204,6 +204,14 @@ public class ArmorTrimAbilities {
     static void givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
         ItemStack stack = new ItemStack(Items.ARROW, 3);
         stack.getOrCreateTag().putInt(ArmorTrimsMod.POWER_TAG, 8);
+        stack.setHoverName(Component.literal("Arrow +8 Power"));
+        player.getInventory().add(stack);
+    }
+
+    static void giveHomingArrows(ServerPlayer player,EquipmentSlot slot) {
+        ItemStack stack = new ItemStack(Items.ARROW, 3);
+        stack.getOrCreateTag().putBoolean(ArmorTrimsMod.TNT_TAG,true);
+        stack.setHoverName(Component.literal("TNT Arrow"));
         player.getInventory().add(stack);
     }
 

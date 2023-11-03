@@ -23,6 +23,7 @@ abstract class ArrowMixin extends AbstractArrow {
         if (stack.hasTag()) {
             int power = stack.getTag().getInt(ArmorTrimsMod.POWER_TAG);
             setBaseDamage(getBaseDamage() + power * .5);
+
         }
     }
 }
