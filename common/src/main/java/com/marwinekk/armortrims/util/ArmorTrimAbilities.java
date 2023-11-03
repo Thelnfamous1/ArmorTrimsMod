@@ -2,6 +2,7 @@ package com.marwinekk.armortrims.util;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
+import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
@@ -79,7 +80,7 @@ public class ArmorTrimAbilities {
 
         ARMOR_TRIM_REGISTRY.put(Items.QUARTZ,new ArmorTrimAbility(NULL,NULL,ArmorTrimAbilities::smokeCloud,NULL,20 * 15,20 * 30));
 
-        ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT,new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes,NULL,NULL,ArmorTrimAbilities::revokeCopperRecipes));
+        ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT,new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes,NULL,ArmorTrimAbilities::lightningStrike,ArmorTrimAbilities::revokeCopperRecipes,0,0));
     }
 
     static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
@@ -87,6 +88,19 @@ public class ArmorTrimAbilities {
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
         player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
         player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod",amount,operation));
+    }
+
+    static void lightningStrike(ServerPlayer player) {
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        int strikes = playerDuck.lightningStrikesLeft();
+        if(strikes <= 0) {
+
+        }else {
+            playerDuck.setLightningStrikesLeft(strikes - 1);
+            if (strikes == 1) {
+              //  playerDuck.setAbilityCooldown();
+            }
+        }
     }
 
     static void removeAttributeModifier(ServerPlayer player,Attribute attribute) {
@@ -99,13 +113,14 @@ public class ArmorTrimAbilities {
 
     public static void smokeCloud(ServerPlayer player) {
         Vec3 center = player.getPosition(0);
-        int segments = 10;
+        int segments = 24;
+        double r = 2;
         ServerLevel serverLevel = player.serverLevel();
         for (int i = 0; i < segments; i++) {
             double degrees = i * 360d/segments;
-            double x = Math.cos(Math.toRadians(degrees));
-            double z = Math.sin(Math.toRadians(degrees));
-            for (int j = 0 ; j <16; j++) {
+            double x = r * Math.cos(Math.toRadians(degrees));
+            double z = r * Math.sin(Math.toRadians(degrees));
+            for (int j = 0 ; j <32; j++) {
                 serverLevel.sendParticles(ParticleTypes.POOF, center.x + x, center.y + j/8d, center.z + z, 0, 0, 0, 0, 0);
             }
         }

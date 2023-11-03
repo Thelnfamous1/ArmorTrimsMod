@@ -28,10 +28,21 @@ public class PlayerMixin implements PlayerDuck {
     private final Map<EquipmentSlot,Integer> abilityCooldowns = new HashMap<>();
     private final Map<EquipmentSlot,Integer> abilityTimers = new HashMap<>();
 
+    private int lightningStrikesLeft;
+
+    @Override
+    public int lightningStrikesLeft() {
+        return lightningStrikesLeft;
+    }
+
+    @Override
+    public void setLightningStrikesLeft(int lightningStrikesLeft) {
+        this.lightningStrikesLeft = lightningStrikesLeft;
+    }
 
     @Inject(method = "setItemSlot",at = @At("RETURN"))
     private void armorInventoryChanged(EquipmentSlot $$0, ItemStack $$1, CallbackInfo ci) {
-        ArmorTrimsMod.onInventoryChange(self().getInventory(),$$0);
+        ArmorTrimsMod.onInventoryChange($elf().getInventory(),$$0);
     }
 
     public Map<EquipmentSlot, Integer> abilityCooldowns() {

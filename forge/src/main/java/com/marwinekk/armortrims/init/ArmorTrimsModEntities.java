@@ -45,9 +45,7 @@ public class ArmorTrimsModEntities {
 
 	@SubscribeEvent
 	public static void init(FMLCommonSetupEvent event) {
-		event.enqueueWork(() -> {
-			MiniGuyEntity.init();
-		});
+		event.enqueueWork(MiniGuyEntity::init);
 	}
 
 	@SubscribeEvent

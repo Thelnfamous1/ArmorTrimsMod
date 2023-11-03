@@ -29,6 +29,7 @@ public class ArmorTrimsModClient {
         while (ModKeybinds.BOOTS_BONUS_ABILITY.consumeClick()) {
             Services.PLATFORM.sendAbilityPacket(EquipmentSlot.FEET);
         }
+
         while (ModKeybinds.BEACON_SCREEN.consumeClick()) {
             if (((PlayerDuck)Minecraft.getInstance().player).hasSetBonus(Items.EMERALD)) {
                 Minecraft.getInstance().setScreen(new BeaconEffectScreen(Component.empty()));
@@ -36,9 +37,8 @@ public class ArmorTrimsModClient {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("Cannot use beacon effects without emerald trim",true));
             }
         }
-    }
 
-    public static void loginClient() {
+
 
     }
 

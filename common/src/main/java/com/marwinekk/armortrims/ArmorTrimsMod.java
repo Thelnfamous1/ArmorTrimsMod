@@ -253,6 +253,7 @@ public class ArmorTrimsMod {
     }
 
     public static final String POWER_TAG = "armor_trims:power";
+    public static final String TNT_TAG = "armor_trims:tnt";
 
     public static boolean attackEvent(LivingEntity livingEntity, DamageSource source) {
         if (livingEntity instanceof Player player) {

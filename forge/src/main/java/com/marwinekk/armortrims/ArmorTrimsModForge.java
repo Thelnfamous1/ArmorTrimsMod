@@ -19,6 +19,7 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.init.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.init.ArmorTrimsModItems;
 import com.marwinekk.armortrims.network.PacketHandler;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,9 +30,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -80,11 +79,36 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		MinecraftForge.EVENT_BUS.addListener(this::onDamage);
 		MinecraftForge.EVENT_BUS.addListener(this::knockback);
 		MinecraftForge.EVENT_BUS.addListener(this::handleVisibility);
+		MinecraftForge.EVENT_BUS.addListener(this::onEntityFall);
+		MinecraftForge.EVENT_BUS.addListener(this::onEntityTarget);
+		MinecraftForge.EVENT_BUS.addListener(this::onEntityAttacked);
 	}
 
 	private void handleVisibility(LivingEvent.LivingVisibilityEvent event) {
 		if (event.getEntity().hasEffect(MobEffects.INVISIBILITY)) {
 			event.modifyVisibility(0);
+		}
+	}
+
+	public void onEntityAttacked(LivingAttackEvent event) {
+		LivingEntity livingEntity = event.getEntity();
+		DamageSource source = event.getSource();
+		if (ArmorTrimsMod.attackEvent(livingEntity,source)) {
+			event.setCanceled(true);
+		}
+	}
+
+	public void onEntityFall(LivingFallEvent event) {
+		LivingEntity livingEntity = event.getEntity();
+		if (ArmorTrimsMod.onFallDamage(livingEntity)) {
+			event.setCanceled(true);
+		}
+	}
+
+	public void onEntityTarget(LivingChangeTargetEvent event) {
+		LivingEntity victim = event.getOriginalTarget();
+		if(ArmorTrimsMod.changeTarget(victim,event.getEntity())) {
+			event.setNewTarget(null);
 		}
 	}
 

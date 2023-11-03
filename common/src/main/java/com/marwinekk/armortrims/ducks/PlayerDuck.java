@@ -13,11 +13,14 @@ import java.util.Set;
 
 public interface PlayerDuck {
 
-    default Player self() {
+    default Player $elf() {
         return (Player) this;
     }
 
     Item regularSetBonus();
+
+    int lightningStrikesLeft();
+    void setLightningStrikesLeft(int strikesLeft);
 
     Set<Item> trimMaterials();
     void setTrimMaterials(Set<Item> item);
@@ -50,16 +53,16 @@ public interface PlayerDuck {
             int v = entry.getValue();
             if (v > 0) {
                 setAbilityTimer(slot, v - 1);
-                self().sendSystemMessage(Component.literal("slot: " + slot + " " + v));
+                $elf().sendSystemMessage(Component.literal("slot: " + slot + " " + v));
             }
         }
 
         if (dragonEgg()) {
             for (Item item : trimMaterials()) {
-                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) self());
+                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) $elf());
             }
         } else {
-            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) self());
+            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) $elf());
         }
     }
 

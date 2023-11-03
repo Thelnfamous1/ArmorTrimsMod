@@ -20,12 +20,7 @@ public class Client {
     }
 
     public static void keybinds(RegisterKeyMappingsEvent event) {
-        event.register(ModKeybinds.SET_BONUS_ABILITY);
-        event.register(ModKeybinds.HELMET_BONUS_ABILITY);
-        event.register(ModKeybinds.CHESTPLATE_BONUS_ABILITY);
-        event.register(ModKeybinds.LEGGINGS_BONUS_ABILITY);
-        event.register(ModKeybinds.BOOTS_BONUS_ABILITY);
-        event.register(ModKeybinds.BEACON_SCREEN);
+        ModKeybinds.allKeybinds().forEach(event::register);
     }
 
     public static void clientTick(TickEvent.ClientTickEvent event) {
