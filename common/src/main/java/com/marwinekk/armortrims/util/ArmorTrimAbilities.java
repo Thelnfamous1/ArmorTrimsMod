@@ -17,10 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -33,24 +30,30 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ArmorTrimAbilities {
 
     public static final Map<Item, ArmorTrimAbility> ARMOR_TRIM_REGISTRY = new HashMap<>();
-    static final Consumer<ServerPlayer> NULL = player -> {};
-    public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL,NULL, NULL, NULL);
+    static final Consumer<ServerPlayer> NULL = player -> {
+    };
+    static final BiConsumer<ServerPlayer, EquipmentSlot> BI_NULL = (player, slot) -> {
+    };
 
-    static  {
+    public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL, NULL, BI_NULL, NULL);
+
+    static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
                 new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),
-                        ArmorTrimAbilities::ironFist, NULL,20 * 5, 20));
+                        ArmorTrimAbilities::ironFist, NULL, 20 * 5, 20));
         //give 1 xp level every 10 minutes
-        ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI,new ArmorTrimAbility(NULL, player -> {
+        ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
             if (player.level().getGameTime() % (20 * 60 * 10) == 0) {
                 player.giveExperienceLevels(1);
                 player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.NEUTRAL, 1, 1);
@@ -58,52 +61,61 @@ public class ArmorTrimAbilities {
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL));
 
-        ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT,new ArmorTrimAbility(NULL, player -> {
+        ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 9, true, false));
             if (player.isInLava()) {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
-        }, player -> messagePlayer(player,Component.translatable("Wither Touch Active")), NULL,100, 20 * 30));
+        }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 100, 20 * 30));
 
-        ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT,new ArmorTrimAbility(player -> addAttributeModifier(
-                player, Attributes.MAX_HEALTH,4, AttributeModifier.Operation.ADDITION),
+        ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT, new ArmorTrimAbility(player -> addAttributeModifier(
+                player, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADDITION),
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
-                player -> removeAttributeModifier(player,Attributes.MAX_HEALTH)));
+                player -> removeAttributeModifier(player, Attributes.MAX_HEALTH)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD,new ArmorTrimAbility(NULL,NULL, ArmorTrimAbilities::summonFriendlyWitch,NULL));
-        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND,new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor,NULL, ArmorTrimAbilities::givePower8Arrows,NULL));
-        ARMOR_TRIM_REGISTRY.put(Items.REDSTONE,new ArmorTrimAbility(player -> applyEnchantToArmor(player,Enchantments.BLAST_PROTECTION,4),
-                NULL, NULL, NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
+                NULL, BI_NULL, NULL));
 
-        ARMOR_TRIM_REGISTRY.put(Items.EMERALD,new ArmorTrimAbility(NULL,NULL,
-                player -> messagePlayer(player,Component.translatable("Totem Save Activated")),NULL,20 * 15, 20 * 30));
+        ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
+                (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), NULL, 20 * 15, 20 * 30));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ,new ArmorTrimAbility(NULL,NULL,ArmorTrimAbilities::smokeCloud,NULL,20 * 15,20 * 30));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 30));
 
-        ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT,new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes,NULL,ArmorTrimAbilities::lightningStrike,ArmorTrimAbilities::revokeCopperRecipes,0,0));
+        ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
 
     static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
 
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
         player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
-        player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod",amount,operation));
+        player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod", amount, operation));
     }
 
-    static void lightningStrike(ServerPlayer player) {
+    static void lightningStrike(ServerPlayer player, EquipmentSlot slot) {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int strikes = playerDuck.lightningStrikesLeft();
-        if(strikes <= 0) {
+        if (strikes <= 0) {
+            strikes = 10;
+        }
+        playerDuck.setLightningStrikesLeft(strikes - 1);
+        if (strikes == 1) {
+            playerDuck.setAbilityCooldown(slot, 20 * 30);
+        }
 
-        }else {
-            playerDuck.setLightningStrikesLeft(strikes - 1);
-            if (strikes == 1) {
-              //  playerDuck.setAbilityCooldown();
-            }
+        LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(player.level());
+        if (lightningbolt != null) {
+            HitResult pick = player.pick(20, 0, false);
+            Vec3 pos = pick.getLocation();
+            lightningbolt.moveTo(pos);
+            lightningbolt.setCause(player);
+            player.level().addFreshEntity(lightningbolt);
+            lightningbolt.playSound(SoundEvents.TRIDENT_THUNDER, 5, 1);
         }
     }
 
-    static void removeAttributeModifier(ServerPlayer player,Attribute attribute) {
+    static void removeAttributeModifier(ServerPlayer player, Attribute attribute) {
         player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
 
         if (player.getHealth() > player.getMaxHealth()) {
@@ -111,17 +123,17 @@ public class ArmorTrimAbilities {
         }
     }
 
-    public static void smokeCloud(ServerPlayer player) {
+    public static void smokeCloud(ServerPlayer player, EquipmentSlot slot) {
         Vec3 center = player.getPosition(0);
         int segments = 24;
         double r = 2;
         ServerLevel serverLevel = player.serverLevel();
         for (int i = 0; i < segments; i++) {
-            double degrees = i * 360d/segments;
+            double degrees = i * 360d / segments;
             double x = r * Math.cos(Math.toRadians(degrees));
             double z = r * Math.sin(Math.toRadians(degrees));
-            for (int j = 0 ; j <32; j++) {
-                serverLevel.sendParticles(ParticleTypes.POOF, center.x + x, center.y + j/8d, center.z + z, 0, 0, 0, 0, 0);
+            for (int j = 0; j < 32; j++) {
+                serverLevel.sendParticles(ParticleTypes.POOF, center.x + x, center.y + j / 8d, center.z + z, 0, 0, 0, 0, 0);
             }
         }
 
@@ -130,15 +142,15 @@ public class ArmorTrimAbilities {
         for (Entity entity : entities) {
             entity.setGlowingTag(true);
         }
-        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,20 * 15,0,false,false));
+        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20 * 15, 0, false, false));
     }
 
-    static void summonFriendlyPiglinBrutes(ServerPlayer player) {
+    static void summonFriendlyPiglinBrutes(ServerPlayer player, EquipmentSlot slot) {
         Level level = player.level();
-        for (int i = 0; i < 5;i++) {
+        for (int i = 0; i < 5; i++) {
 
             PiglinBrute piglinBrute = EntityType.PIGLIN_BRUTE.spawn(
-                    (ServerLevel)level, Items.PIGLIN_SPAWN_EGG.getDefaultInstance(),
+                    (ServerLevel) level, Items.PIGLIN_SPAWN_EGG.getDefaultInstance(),
                     player, player.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
 
             PiglinBruteDuck piglinBruteDuck = (PiglinBruteDuck) piglinBrute;
@@ -146,17 +158,17 @@ public class ArmorTrimAbilities {
         }
     }
 
-    public static void ironFist(ServerPlayer player) {
-        messagePlayer(player,Component.translatable("Iron Fists Active"));
+    public static void ironFist(ServerPlayer player, EquipmentSlot slot) {
+        messagePlayer(player, Component.translatable("Iron Fists Active"));
     }
 
-    public static void messagePlayer(ServerPlayer player,Component message) {
-        player.sendSystemMessage(message,true);
+    public static void messagePlayer(ServerPlayer player, Component message) {
+        player.sendSystemMessage(message, true);
     }
 
-    static void summonFriendlyWitch(ServerPlayer player) {
+    static void summonFriendlyWitch(ServerPlayer player, EquipmentSlot slot) {
         Level level = player.level();
-        for (int i = 0; i < 2;i++) {
+        for (int i = 0; i < 2; i++) {
             Witch witch = EntityType.WITCH.create(level);
             witch.moveTo(player.getPosition(0));
             WitchDuck witchDuck = (WitchDuck) witch;
@@ -165,33 +177,33 @@ public class ArmorTrimAbilities {
         }
     }
 
-    static void applyEnchantToArmor(ServerPlayer player, Enchantment enchantment,int level) {
+    static void applyEnchantToArmor(ServerPlayer player, Enchantment enchantment, int level) {
         NonNullList<ItemStack> armors = player.getInventory().armor;
         for (ItemStack stack : armors) {
-            stack.enchant(enchantment,level);
+            stack.enchant(enchantment, level);
         }
     }
 
     static void applyUnbreakingOnAllArmor(ServerPlayer player) {
-        applyEnchantToArmor(player,Enchantments.UNBREAKING,4);
+        applyEnchantToArmor(player, Enchantments.UNBREAKING, 4);
     }
 
-    static void plus1ToAllEnchants(ServerPlayer player) {
+    static void plus1ToAllEnchants(ServerPlayer player, EquipmentSlot slot1) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack stack = player.getItemBySlot(slot);
             if (!stack.getEnchantmentTags().isEmpty()) {
                 ListTag listTag = stack.getEnchantmentTags();
-                for(int i = 0; i < listTag.size(); ++i) {
+                for (int i = 0; i < listTag.size(); ++i) {
                     CompoundTag tagCompound = listTag.getCompound(i);
-                    EnchantmentHelper.setEnchantmentLevel(tagCompound,EnchantmentHelper.getEnchantmentLevel(tagCompound) +1);
+                    EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + 1);
                 }
             }
         }
     }
 
-    static void givePower8Arrows(ServerPlayer player) {
-        ItemStack stack = new ItemStack(Items.ARROW,3);
-        stack.getOrCreateTag().putInt(ArmorTrimsMod.POWER_TAG,8);
+    static void givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
+        ItemStack stack = new ItemStack(Items.ARROW, 3);
+        stack.getOrCreateTag().putInt(ArmorTrimsMod.POWER_TAG, 8);
         player.getInventory().add(stack);
     }
 
