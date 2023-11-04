@@ -17,6 +17,8 @@ import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.network.PacketHandler;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
@@ -49,14 +51,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-@Mod(ArmorTrimsMod.MOD_ID)
-public class ArmorTrimsModForge extends ArmorTrimsMod {
-	public ArmorTrimsModForge() {
+public class ArmorTrimsModFabric extends ArmorTrimsMod {
+	public ArmorTrimsModFabric() {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(ModDatagen::start);
 		bus.addListener(this::setup);
-		bus.addListener(this::register);
 
+		this.register();
 		if (FMLEnvironment.dist.isClient()) {
 			bus.addListener(Client::keybinds);
 			bus.addListener(this::setupClient);
@@ -85,8 +86,8 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		MinecraftForge.EVENT_BUS.addListener(this::onEntityAttacked);
 	}
 
-	private void register(RegisterEvent event) {
-		event.register(Registries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"tnt_arrow"),() -> ArmorTrimsModEntities.TNT_ARROW);
+	private void register() {
+		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"tnt_arrow"),ArmorTrimsModEntities.TNT_ARROW);
 	}
 
 	private void handleVisibility(LivingEvent.LivingVisibilityEvent event) {

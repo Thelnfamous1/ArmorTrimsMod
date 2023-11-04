@@ -16,7 +16,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-          "com.marwinekk.armortrims.ExampleMod"
+          "com.marwinekk.armortrims.ArmorTrimsModFabric"
+        ],
+        "client": [
+            "com.marwinekk.armortrims.client.Client"
         ]
     },
     "mixins": [
@@ -28,9 +31,6 @@
         "fabric": "*",
         "minecraft": "1.20",
         "java": ">=17"
-    },
-    "suggests": {
-        "another-mod": "*"
     }
 }
   

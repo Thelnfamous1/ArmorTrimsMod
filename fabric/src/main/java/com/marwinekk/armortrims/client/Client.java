@@ -3,6 +3,7 @@ package com.marwinekk.armortrims.client;
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.client.renderer.TNTArrowRenderer;
+import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -14,7 +15,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-public class Client {
+public class Client implements ClientModInitializer {
 
     public static void setup() {
         MinecraftForge.EVENT_BUS.addListener(Client::clientTick);
