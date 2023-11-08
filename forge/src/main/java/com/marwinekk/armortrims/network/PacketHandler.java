@@ -22,7 +22,6 @@ public class PacketHandler {
     public static void registerPackets() {
         addNetworkMessage(C2SMobEffectPacket.class, C2SMobEffectPacket::encode, C2SMobEffectPacket::new, C2SMobEffectPacket::handle);
         addNetworkMessage(C2SKeybindPacket.class, C2SKeybindPacket::encode, C2SKeybindPacket::new, C2SKeybindPacket::handle);
-        addNetworkMessage(S2CBeaconScreenPacket.class, S2CBeaconScreenPacket::encode, S2CBeaconScreenPacket::new, S2CBeaconScreenPacket::handle);
     }
 
     public static <MSG> void sendToClient(MSG packet, ServerPlayer player) {

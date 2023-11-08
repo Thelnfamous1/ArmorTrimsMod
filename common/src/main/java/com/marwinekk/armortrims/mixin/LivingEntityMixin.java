@@ -4,6 +4,7 @@ import com.marwinekk.armortrims.ArmorTrimsMod;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -16,7 +17,7 @@ public class LivingEntityMixin {
         ArmorTrimsMod.giveTotemToDyingPlayer($elf());
     }
 
-    LivingEntity $elf() {
+    @Unique private LivingEntity $elf() {
         return (LivingEntity) (Object)this;
     }
 }

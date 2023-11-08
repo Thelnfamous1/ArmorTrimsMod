@@ -118,24 +118,8 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 	}
 
 	private void knockback(LivingKnockBackEvent event) {
-		LivingEntity livingEntity = event.getEntity();
-
-
-		LivingEntity lastAttacker = livingEntity.getLastAttacker();
-		if (lastAttacker instanceof Player player) {
-			PlayerDuck playerDuck = (PlayerDuck) player;
-			for (EquipmentSlot slot : slots) {
-				Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
-				int timer = playerDuck.abilityTimer(slot);
-				if (trim == Items.IRON_INGOT && timer > 0) {
-					event.setStrength(5);
-					//	livingEntity.addDeltaMovement(new Vec3(0,4,0));
-					return;
-				}
-			}
-		}
-
-		//onKnockback(livingEntity);
+		float newStrength = onKnockback(event.getOriginalStrength(),event.getEntity());
+		event.setStrength(newStrength);
 	}
 
 	private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();

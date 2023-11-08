@@ -4,16 +4,14 @@ import com.marwinekk.armortrims.BeaconEffectScreen;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.platform.Services;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.BeaconScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class ArmorTrimsModClient {
 
-    public static void clientTick() {
+    public static void clientTick(Minecraft client) {
         while (ModKeybinds.SET_BONUS_ABILITY.consumeClick()) {
             Services.PLATFORM.sendAbilityPacket(null);
         }
@@ -31,10 +29,10 @@ public class ArmorTrimsModClient {
         }
 
         while (ModKeybinds.BEACON_SCREEN.consumeClick()) {
-            if (((PlayerDuck)Minecraft.getInstance().player).hasSetBonus(Items.EMERALD)) {
-                Minecraft.getInstance().setScreen(new BeaconEffectScreen(Component.empty()));
-            }else {
-                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("Cannot use beacon effects without emerald trim",true));
+            if (((PlayerDuck)client.player).hasSetBonus(Items.EMERALD)) {
+                client.setScreen(new BeaconEffectScreen(Component.empty()));
+            } else {
+                client.player.sendSystemMessage(Component.translatable("Cannot use beacon effects without emerald trim",true));
             }
         }
 

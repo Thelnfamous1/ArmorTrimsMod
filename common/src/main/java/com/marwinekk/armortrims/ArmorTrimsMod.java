@@ -112,7 +112,12 @@ public class ArmorTrimsMod {
     }
 
     public static boolean onFallDamage(LivingEntity livingEntity) {
-
+        if (livingEntity instanceof Player player) {
+            PlayerDuck playerDuck = (PlayerDuck) player;
+            if (playerDuck.hasSetBonus(Items.IRON_INGOT)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -136,20 +141,21 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static void onKnockback(LivingEntity entity) {
-        LivingEntity lastAttacker = entity.getLastAttacker();
-        if (lastAttacker instanceof Player player) {
-            PlayerDuck playerDuck = (PlayerDuck) player;
-            for (EquipmentSlot slot : slots) {
-                Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
-                int timer = playerDuck.abilityTimer(slot);
-                if (trim == Items.IRON_INGOT && timer > 0) {
-                    entity.addDeltaMovement(new Vec3(0, 4, 0));
-                    return;
+    public static float onKnockback(double original,LivingEntity livingEntity) {
+            LivingEntity lastAttacker = livingEntity.getLastAttacker();
+            if (lastAttacker instanceof Player player) {
+                PlayerDuck playerDuck = (PlayerDuck) player;
+                for (EquipmentSlot slot : slots) {
+                    Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
+                    int timer = playerDuck.abilityTimer(slot);
+                    if (trim == Items.IRON_INGOT && timer > 0) {
+                        //	livingEntity.addDeltaMovement(new Vec3(0,4,0));
+                        return 5;
+                    }
                 }
             }
+            return (float) original;
         }
-    }
 
     public static void playerLogin(Player player) {
         PlayerDuck playerDuck = (PlayerDuck) player;

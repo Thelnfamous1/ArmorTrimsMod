@@ -3,6 +3,7 @@ package com.marwinekk.armortrims.client;
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.client.renderer.TNTArrowRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -11,8 +12,6 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 public class Client {
 
@@ -32,7 +31,7 @@ public class Client {
 
     public static void clientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ArmorTrimsModClient.clientTick();
+            ArmorTrimsModClient.clientTick(Minecraft.getInstance());
         }
     }
 

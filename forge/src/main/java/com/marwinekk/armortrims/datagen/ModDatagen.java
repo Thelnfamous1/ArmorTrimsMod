@@ -19,5 +19,6 @@ public class ModDatagen {
         BlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(packOutput,lookupProvider,existingFileHelper);
         dataGenerator.addProvider(event.includeServer(),blockTagsProvider);
         dataGenerator.addProvider(event.includeServer(),new ItemTagsProvider(packOutput,lookupProvider,blockTagsProvider.contentsGetter(),existingFileHelper));
+        dataGenerator.addProvider(event.includeClient(),new ModLangProvider(packOutput));
     }
 }
