@@ -73,7 +73,7 @@ public class ArmorTrimAbilities {
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
                 player -> removeAttributeModifier(player, Attributes.MAX_HEALTH)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL,0,20 * 60));
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, NULL));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
                 NULL, ArmorTrimAbilities::giveHomingArrows, NULL));

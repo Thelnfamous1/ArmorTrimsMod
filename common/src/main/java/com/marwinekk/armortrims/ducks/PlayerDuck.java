@@ -1,12 +1,14 @@
 package com.marwinekk.armortrims.ducks;
 
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,11 @@ public interface PlayerDuck {
 
     Item regularSetBonus();
 
+
+    CompoundTag getArmorTrimsData();
+    void setArmorTrimsData(CompoundTag tag);
+
+
     int lightningStrikesLeft();
     void setLightningStrikesLeft(int strikesLeft);
 
@@ -29,9 +36,23 @@ public interface PlayerDuck {
     MobEffect beaconEffect();
     void setBeaconEffect(MobEffect beaconEffect);
 
-    int abilityCooldown(EquipmentSlot slot);
-    void setAbilityCooldown(EquipmentSlot slot,int cooldown);
-    Map<EquipmentSlot,Integer> abilityCooldowns();
+    default void setAbilityCooldown(@Nullable EquipmentSlot slot, int abilityCooldown) {
+
+        CompoundTag tag = abilityCooldowns();
+        tag.putInt(slot == null ? "null": slot.getName(),abilityCooldown);
+        CompoundTag armorTrimData = getArmorTrimsData();
+        armorTrimData.put(AB_COOLDOWN,tag);
+        setArmorTrimsData(armorTrimData);
+    }
+
+    String AB_COOLDOWN = "abilityCooldowns";
+
+    default int abilityCooldown(EquipmentSlot slot) {
+        return abilityCooldowns().getInt(slot == null ? "null": slot.getName());
+    }
+    default CompoundTag abilityCooldowns() {
+        return getArmorTrimsData().getCompound(AB_COOLDOWN);
+    }
 
     int abilityTimer(EquipmentSlot slot);
     void setAbilityTimer(EquipmentSlot slot,int timer);
@@ -39,12 +60,13 @@ public interface PlayerDuck {
 
 
     default void tickServer() {
-
-        for (Map.Entry<EquipmentSlot,Integer> entry : abilityCooldowns().entrySet()) {
-            EquipmentSlot slot = entry.getKey();
-            int v = entry.getValue();
+        CompoundTag armorTrimsData = getArmorTrimsData();
+        CompoundTag abilityCooldowns = abilityCooldowns();
+        for (String entry : abilityCooldowns.getAllKeys()) {
+            int v = abilityCooldowns.getInt(entry);
             if (v > 0) {
-                setAbilityCooldown(slot, v - 1);
+                abilityCooldowns.putInt(entry, v - 1);
+                armorTrimsData.put(AB_COOLDOWN,abilityCooldowns);
             }
         }
 
@@ -53,9 +75,10 @@ public interface PlayerDuck {
             int v = entry.getValue();
             if (v > 0) {
                 setAbilityTimer(slot, v - 1);
-                $elf().sendSystemMessage(Component.literal("slot: " + slot + " " + v));
             }
         }
+
+        setArmorTrimsData(armorTrimsData);
 
         if (dragonEgg()) {
             for (Item item : trimMaterials()) {
