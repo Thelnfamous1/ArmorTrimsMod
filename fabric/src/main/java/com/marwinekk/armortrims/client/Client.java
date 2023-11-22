@@ -1,7 +1,7 @@
 package com.marwinekk.armortrims.client;
 
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
-import com.marwinekk.armortrims.client.renderer.TNTArrowRenderer;
+import com.marwinekk.armortrims.client.renderer.BasicArrowRenderer;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -18,7 +18,8 @@ public class Client implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModKeybinds.allKeybinds().forEach(KeyBindingHelper::registerKeyBinding);
-        EntityRendererRegistry.register(ArmorTrimsModEntities.TNT_ARROW,TNTArrowRenderer::new);
+        EntityRendererRegistry.register(ArmorTrimsModEntities.TNT_ARROW, BasicArrowRenderer::new);
+        EntityRendererRegistry.register(ArmorTrimsModEntities.DAMAGELESS_ARROW, BasicArrowRenderer::new);
         ClientTickEvents.START_CLIENT_TICK.register(ArmorTrimsModClient::clientTick);
         HudRenderCallback.EVENT.register(this::renderHUDElement);
     }
@@ -42,7 +43,7 @@ public class Client implements ClientModInitializer {
                 int posY = h / 2;
 
                 guiGraphics.drawString(Minecraft.getInstance().font, "Ability Unavailable Cooldown: "
-                        + playerDuck.abilityCooldown(null),  posX + 10, h - 50, 0xffffff);
+                        + (playerDuck.abilityCooldown(null) / 20)+" seconds",  posX + 10, h - 50, 0xffffff);
             }
         }
     }

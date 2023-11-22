@@ -10,10 +10,10 @@
     "BruteMixin",
     "InventoryMixin",
     "LivingEntityMixin",
-    "WitchMixin"
+    "WitchMixin",
+    "PlayerMixin"
   ],
   "client": [
-    "PlayerMixin"
   ],
   "server": [
   ],

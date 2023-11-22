@@ -413,4 +413,85 @@ public class ArmorTrimsMod {
     // Red: Get Blast Resistance 4 on all armor.
     //  todo When activating combat mode, you have 3 homing arrows that explode and deal a lot of damage to players
 
+
+    //bugs
+
+    // CORE ISSUE
+    //Cannot join a server with the mod, we recieve an error that says “Invalid Player Data”
+    //
+    //
+    //Change cooldown to seconds instead of ticks
+    //
+    //
+    //
+    //Quartz
+    //todo Quartz passive does not insta-smelt items in the player’s inventory. All ores and food should automatically be smelted when they are in the player’s inventory. (Should also work when unsmelted items are taken out of a chest)
+    //
+    //
+    //todo Combat does not give you true invisibility. The player looks completely invisible on their screen, but not to other players. Please use the true-invis mod, and give the player the custom potion effect instead of whatever you’re doing currently.
+    //trueinvis:true_invis
+    //
+    //Quartz Combat gives glowing with infinite duration, and should only last the same amount of time as invisibility.
+    //
+    //Emerald
+    //Effects Balancing:
+    //Haste 2
+    //Strength 2
+    //Hero of the Village 10
+    //Jump Boost 2
+    //Keep the rest the same
+    //
+    //When you take off the armor, you keep the effects. The effects should be removed when the set bonus is no longer active.
+    //
+    //Lapis
+    //Passive is not functional. When putting on the armor, the player does not gain a level, nor do they seem to gain a level after 10 minutes.
+    //
+    //todo During combat activation, the player should not be able to remove their armor from themselves.
+    //If they leave the game, it should automatically revert back to previous enchants.
+    //This fixes situations where the player can get +1 enchant permanently, even if they remove the trim and start using another one.
+    //
+    //Redstone & Diamond
+    //Redstone and Diamond Combat just give you the arrow. Instead, it should shoot out the arrow from the player. Refer back to the original mod and replicate the feature, please. One arrow shoots out every time you press the keybind, and the cooldown starts when the last arrow is released.
+    //
+    //Redstone TNT Arrows should not grief the world, only deal explosive damage to entities.
+    //
+    //
+    //Also when you take off redstone or diamond and change the color of the armor, the enchantment that comes with the redstone trim and diamond trim still stays on the armor instead of taking it off. The player should not be able to keep the enchantments if they retrim their armor.
+    //
+    //
+    //Diamond
+    //
+    //Iron
+    //Combat ability lasts 2 seconds, and you can do it however many times you want. It also does a hit like a knockback hit instead of sending them in the air like it was supposed to be.
+    //
+    //To change it make it so they fly in the air and so the ability lasts a certain amount of time like 15 seconds instead of 2 seconds and doing it whenever you want
+    //
+    //Also, add the particles as it was in the original mod
+    //
+    //https://cdn.discordapp.com/attachments/1139119056478289971/1174104338675802224/Minecraft_2023.11.14_-_16.50.00.09.DVR_-_Trim.mp4?ex=656660e0&is=6553ebe0&hm=0012ba38aea4c4bfc74f417d6c9e0112307d58dadd8e7164146fe46a7e54133d&
+    //
+    //Gold
+    //When brutes are brought into the overworld, they are turned into pigmen due to a vanilla mechanic. The pigmen do not have custom targeting, they behave like normal mobs.
+    //
+    //https://cdn.discordapp.com/attachments/1139119056478289971/1174106616761679912/Minecraft_2023.11.14_-_16.59.33.11.DVR_-_Trim.mp4?ex=656662ff&is=6553edff&hm=9c489a18585287fcbeb71e5db9cb3ca3d569dde08042f3ed1f5886eccc4d5979&
+    //
+    //Copper
+    //This recipe needs to give a door, not iron bars
+    //
+    //
+    //The thunder in combat does not deal any damage to players
+    //
+    //
+    //Amethyst
+    //Amethyst passive does not work, mobs still attack you instead of ignoring you.
+    //https://cdn.discordapp.com/attachments/1139119056478289971/1174107959064805456/Minecraft_2023.11.14_-_17.04.40.12.DVR_-_Trim.mp4?ex=6566643f&is=6553ef3f&hm=0a94940709ec72e2948f8062ce51effc73d07aec554a0f4b7ec36c327ac0de26&
+    //
+    //For the witches, when you get too far away, they don’t TP to you like dogs.
+    //When witches see other players they don't even try to heal you or anything, they just try attacking other players near you
+    //
+    //Please change witch attack to exactly how it was in the old mod
+    //
+    //Netherite
+    //The withering effect does not work on combat ability
+
 }

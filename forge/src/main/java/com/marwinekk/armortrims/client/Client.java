@@ -2,7 +2,7 @@ package com.marwinekk.armortrims.client;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
-import com.marwinekk.armortrims.client.renderer.TNTArrowRenderer;
+import com.marwinekk.armortrims.client.renderer.BasicArrowRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,7 +26,7 @@ public class Client {
     }
 
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ArmorTrimsModEntities.TNT_ARROW, TNTArrowRenderer::new);
+        event.registerEntityRenderer(ArmorTrimsModEntities.TNT_ARROW, BasicArrowRenderer::new);
     }
 
     public static void clientTick(TickEvent.ClientTickEvent event) {

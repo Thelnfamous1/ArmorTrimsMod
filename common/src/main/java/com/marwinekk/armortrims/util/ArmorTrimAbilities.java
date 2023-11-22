@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -54,7 +55,7 @@ public class ArmorTrimAbilities {
                         ArmorTrimAbilities::ironFist, NULL, 20 * 5, 20));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
-            if (player.level().getGameTime() % (20 * 60 * 10) == 0) {
+            if (player.level().getGameTime() % (20 * 20 * 10) == 0) {
                 player.giveExperienceLevels(1);
                 player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.NEUTRAL, 1, 1);
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
@@ -79,7 +80,7 @@ public class ArmorTrimAbilities {
                 NULL, ArmorTrimAbilities::giveHomingArrows, NULL));
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
-                (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), NULL, 20 * 15, 20 * 30));
+                (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 30));
 
         ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 30));
 
@@ -91,6 +92,12 @@ public class ArmorTrimAbilities {
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
         player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
         player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod", amount, operation));
+    }
+
+    static void removeEmeraldEffect(ServerPlayer player) {
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        MobEffect old = playerDuck.beaconEffect();
+        player.removeEffect(old);
     }
 
     static void lightningStrike(ServerPlayer player, EquipmentSlot slot) {
@@ -153,6 +160,7 @@ public class ArmorTrimAbilities {
                     (ServerLevel) level, Items.PIGLIN_SPAWN_EGG.getDefaultInstance(),
                     player, player.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
 
+            piglinBrute.setImmuneToZombification(true);
             PiglinBruteDuck piglinBruteDuck = (PiglinBruteDuck) piglinBrute;
             piglinBruteDuck.setOwnerUUID(player.getUUID());
         }

@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 public class TNTArrowEntity extends AbstractArrow implements ItemSupplier {
 
 
-	public TNTArrowEntity(EntityType<? extends TNTArrowEntity> type, Level world) {
+	public TNTArrowEntity(EntityType<? extends AbstractArrow> type, Level world) {
 		super(type, world);
 	}
 
