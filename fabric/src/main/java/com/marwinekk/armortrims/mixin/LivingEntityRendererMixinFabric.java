@@ -16,8 +16,8 @@ public class LivingEntityRendererMixinFabric<T extends LivingEntity> {
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",at = @At("HEAD"),
     cancellable = true)
     private void onLivingRender(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-        if (entity.hasEffect(MobEffects.INVISIBILITY)) {
-            ci.cancel();
-        }
+     //   if (entity.hasEffect(MobEffects.INVISIBILITY)) {
+     //       ci.cancel();
+     //   }
     }
 }

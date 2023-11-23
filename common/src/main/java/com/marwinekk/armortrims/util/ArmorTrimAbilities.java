@@ -7,6 +7,7 @@ import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -110,7 +111,6 @@ public class ArmorTrimAbilities {
         if (strikes <= 0) {
             strikes = 10;
         }
-        boolean applyCooldown = false;
         playerDuck.setLightningStrikesLeft(strikes - 1);
         if (strikes == 1) {
             playerDuck.setAbilityCooldown(slot, 20 * 30);
@@ -125,7 +125,7 @@ public class ArmorTrimAbilities {
             player.level().addFreshEntity(lightningbolt);
             lightningbolt.playSound(SoundEvents.TRIDENT_THUNDER, 5, 1);
         }
-        return applyCooldown;
+        return false;
     }
 
     static void removeAttributeModifier(ServerPlayer player, Attribute attribute) {
@@ -135,6 +135,8 @@ public class ArmorTrimAbilities {
             player.setHealth(player.getMaxHealth());
         }
     }
+
+    static MobEffect true_invis = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("trueinvis:true_invis"));
 
     public static boolean smokeCloud(ServerPlayer player, EquipmentSlot slot) {
         Vec3 center = player.getPosition(0);
@@ -153,9 +155,10 @@ public class ArmorTrimAbilities {
         List<Entity> entities = player.level().getEntities(player, player.getBoundingBox().inflate(10), entity -> true);
 
         for (Entity entity : entities) {
-            entity.setGlowingTag(true);
+            if (entity instanceof LivingEntity living)
+                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 12,0,false,false));
         }
-        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20 * 15, 0, false, false));
+        player.addEffect(new MobEffectInstance(true_invis, 12 * 20, 10, false, false));
         return true;
     }
 
@@ -280,7 +283,6 @@ public class ArmorTrimAbilities {
         player.level().addFreshEntity(tntArrowEntity);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
-        boolean applyCooldown = false;
         if (arrows <=0) {
             playerDuck.setRedstoneArrowsLeft(4);
         } else {
@@ -290,7 +292,7 @@ public class ArmorTrimAbilities {
             }
             playerDuck.setRedstoneArrowsLeft(arrows);
         }
-        return applyCooldown;
+        return false;
     }
 
     static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecraft_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};

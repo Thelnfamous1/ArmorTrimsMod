@@ -29,12 +29,12 @@ abstract class LivingEntityMixinFabric extends Entity {
         super(entityType, level);
     }
 
-    @Inject(method = "getVisibilityPercent",at = @At("RETURN"),cancellable = true)
+   /* @Inject(method = "getVisibilityPercent",at = @At("RETURN"),cancellable = true)
     private void modifyVisibility(Entity lookingEntity, CallbackInfoReturnable<Double> cir) {
         if (hasEffect(MobEffects.INVISIBILITY)) {
             cir.setReturnValue(0d);
         }
-    }
+    }*/
 
     @Inject(method = "hurt",at = @At("HEAD"),cancellable = true)
     private void onAttacked(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
