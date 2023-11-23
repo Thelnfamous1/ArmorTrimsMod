@@ -4,6 +4,7 @@ import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
+import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -45,8 +48,7 @@ public class ArmorTrimAbilities {
     public static final Map<Item, ArmorTrimAbility> ARMOR_TRIM_REGISTRY = new HashMap<>();
     static final Consumer<ServerPlayer> NULL = player -> {
     };
-    static final BiConsumer<ServerPlayer, EquipmentSlot> BI_NULL = (player, slot) -> {
-    };
+    static final BiPredicate<ServerPlayer, EquipmentSlot> BI_NULL = (player, slot) -> true;
 
     public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL, NULL, BI_NULL, NULL);
 
@@ -79,7 +81,7 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, player ->
                 removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND)));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
-                NULL, ArmorTrimAbilities::giveHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE)));
+                NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0));
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 30));
@@ -102,12 +104,13 @@ public class ArmorTrimAbilities {
         player.removeEffect(old);
     }
 
-    static void lightningStrike(ServerPlayer player, EquipmentSlot slot) {
+    static boolean lightningStrike(ServerPlayer player, EquipmentSlot slot) {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int strikes = playerDuck.lightningStrikesLeft();
         if (strikes <= 0) {
             strikes = 10;
         }
+        boolean applyCooldown = false;
         playerDuck.setLightningStrikesLeft(strikes - 1);
         if (strikes == 1) {
             playerDuck.setAbilityCooldown(slot, 20 * 30);
@@ -122,6 +125,7 @@ public class ArmorTrimAbilities {
             player.level().addFreshEntity(lightningbolt);
             lightningbolt.playSound(SoundEvents.TRIDENT_THUNDER, 5, 1);
         }
+        return applyCooldown;
     }
 
     static void removeAttributeModifier(ServerPlayer player, Attribute attribute) {
@@ -132,7 +136,7 @@ public class ArmorTrimAbilities {
         }
     }
 
-    public static void smokeCloud(ServerPlayer player, EquipmentSlot slot) {
+    public static boolean smokeCloud(ServerPlayer player, EquipmentSlot slot) {
         Vec3 center = player.getPosition(0);
         int segments = 24;
         double r = 2;
@@ -152,9 +156,10 @@ public class ArmorTrimAbilities {
             entity.setGlowingTag(true);
         }
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20 * 15, 0, false, false));
+        return true;
     }
 
-    static void summonFriendlyPiglinBrutes(ServerPlayer player, EquipmentSlot slot) {
+    static boolean summonFriendlyPiglinBrutes(ServerPlayer player, EquipmentSlot slot) {
         Level level = player.level();
         for (int i = 0; i < 5; i++) {
 
@@ -166,17 +171,20 @@ public class ArmorTrimAbilities {
             PiglinBruteDuck piglinBruteDuck = (PiglinBruteDuck) piglinBrute;
             piglinBruteDuck.setOwnerUUID(player.getUUID());
         }
+        return true;
     }
 
-    public static void ironFist(ServerPlayer player, EquipmentSlot slot) {
+    public static boolean ironFist(ServerPlayer player, EquipmentSlot slot) {
         messagePlayer(player, Component.translatable("Iron Fists Active"));
+        return true;
     }
 
-    public static void messagePlayer(ServerPlayer player, Component message) {
+    public static boolean messagePlayer(ServerPlayer player, Component message) {
         player.sendSystemMessage(message, true);
+        return true;
     }
 
-    static void summonFriendlyWitch(ServerPlayer player, EquipmentSlot slot) {
+    static boolean summonFriendlyWitch(ServerPlayer player, EquipmentSlot slot) {
         Level level = player.level();
         for (int i = 0; i < 2; i++) {
             Witch witch = EntityType.WITCH.create(level);
@@ -185,6 +193,7 @@ public class ArmorTrimAbilities {
             witchDuck.setOwnerUUID(player.getUUID());
             level.addFreshEntity(witch);
         }
+        return true;
     }
 
     static void applyEnchantToArmor(ServerPlayer player, Enchantment enchantment, int level) {
@@ -231,7 +240,7 @@ public class ArmorTrimAbilities {
         applyEnchantToArmor(player, Enchantments.UNBREAKING, 4);
     }
 
-    static void plus1ToAllEnchants(ServerPlayer player, EquipmentSlot slot1) {
+    static boolean plus1ToAllEnchants(ServerPlayer player, EquipmentSlot slot1) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack stack = player.getItemBySlot(slot);
             if (!stack.getEnchantmentTags().isEmpty()) {
@@ -242,20 +251,46 @@ public class ArmorTrimAbilities {
                 }
             }
         }
+        return true;
     }
 
-    static void givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
-        ItemStack stack = new ItemStack(Items.ARROW, 3);
-        stack.getOrCreateTag().putInt(ArmorTrimsMod.POWER_TAG, 8);
-        stack.setHoverName(Component.literal("Arrow +8 Power"));
-        player.getInventory().add(stack);
+    static boolean givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
+        Arrow arrow = new Arrow(player.level(),player);
+        arrow.setBaseDamage(arrow.getBaseDamage() + 8 * .5);
+        arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
+        player.level().addFreshEntity(arrow);
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        int arrows = playerDuck.redstoneArrowsLeft();
+        boolean applyCooldown  = false;
+        if (arrows <=0) {
+            playerDuck.setRedstoneArrowsLeft(4);
+        } else {
+            arrows--;
+            if (arrows <= 0) {
+                playerDuck.setAbilityCooldown(slot,45 * 20);
+            }
+            playerDuck.setRedstoneArrowsLeft(arrows);
+        }
+        return applyCooldown;
     }
 
-    static void giveHomingArrows(ServerPlayer player, EquipmentSlot slot) {
-        ItemStack stack = new ItemStack(Items.ARROW, 3);
-        stack.getOrCreateTag().putBoolean(ArmorTrimsMod.TNT_TAG, true);
-        stack.setHoverName(Component.literal("TNT Arrow"));
-        player.getInventory().add(stack);
+    static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
+        TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
+        tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
+        player.level().addFreshEntity(tntArrowEntity);
+        PlayerDuck playerDuck = (PlayerDuck) player;
+        int arrows = playerDuck.redstoneArrowsLeft();
+        boolean applyCooldown = false;
+        if (arrows <=0) {
+            playerDuck.setRedstoneArrowsLeft(4);
+        } else {
+            arrows--;
+            if (arrows <= 0) {
+                playerDuck.setAbilityCooldown(slot,45 * 20);
+            }
+            playerDuck.setRedstoneArrowsLeft(arrows);
+        }
+        return applyCooldown;
     }
 
     static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecraft_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};

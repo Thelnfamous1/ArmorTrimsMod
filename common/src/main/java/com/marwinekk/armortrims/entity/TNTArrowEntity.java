@@ -53,7 +53,8 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier {
 	@Override
 	public void onHitEntity(EntityHitResult entityHitResult) {
 		super.onHitEntity(entityHitResult);
-
+		Vec3 hitPos = entityHitResult.getLocation();
+		level().explode(null, hitPos.x, hitPos.y, hitPos.z, 3, Level.ExplosionInteraction.NONE);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier {
 
 		if (!level().isClientSide) {
 			Vec3 hitPos = blockHitResult.getLocation();
-			level().explode(null, hitPos.x, hitPos.y, hitPos.z, 3, Level.ExplosionInteraction.TNT);
+			level().explode(null, hitPos.x, hitPos.y, hitPos.z, 3, Level.ExplosionInteraction.NONE);
 		}
 	}
 

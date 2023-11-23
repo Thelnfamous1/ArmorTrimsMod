@@ -29,6 +29,9 @@ public interface PlayerDuck {
     int lightningStrikesLeft();
     void setLightningStrikesLeft(int strikesLeft);
 
+    int redstoneArrowsLeft();
+    void setRedstoneArrowsLeft(int strikesLeft);
+
     Set<Item> trimMaterials();
     void setTrimMaterials(Set<Item> item);
     boolean dragonEgg();

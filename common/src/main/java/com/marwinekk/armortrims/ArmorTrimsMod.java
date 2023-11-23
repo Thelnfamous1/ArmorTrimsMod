@@ -346,8 +346,8 @@ public class ArmorTrimsMod {
 
         if (trimItem != null) {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(trimItem);
-            armorTrimAbility.activateCombatAbility.accept(player,slot);
-            if (trimItem != Items.COPPER_INGOT) playerDuck.setAbilityCooldown(slot, armorTrimAbility.cooldown);
+            boolean shouldApplyCooldown = armorTrimAbility.activateCombatAbility.test(player,slot);
+            if (shouldApplyCooldown) playerDuck.setAbilityCooldown(slot, armorTrimAbility.cooldown);
             playerDuck.setAbilityTimer(slot, armorTrimAbility.activeTicks);
             LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
         }

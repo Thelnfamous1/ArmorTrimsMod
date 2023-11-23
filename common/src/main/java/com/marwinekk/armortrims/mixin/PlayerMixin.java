@@ -67,7 +67,19 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
         setArmorTrimsData(tag.getCompound("mod_data"));
     }
 
-    private int lightningStrikesLeft;
+    private int lightningStrikesLeft = 10;
+
+    private int redstoneArrowsLeft = 4;
+
+    @Override
+    public int redstoneArrowsLeft() {
+        return redstoneArrowsLeft;
+    }
+
+    @Override
+    public void setRedstoneArrowsLeft(int redstoneArrowsLeft) {
+        this.redstoneArrowsLeft = redstoneArrowsLeft;
+    }
 
     @Override
     public int lightningStrikesLeft() {
