@@ -6,9 +6,13 @@ import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import com.marwinekk.armortrims.util.ArmorTrimAbility;
+import com.marwinekk.armortrims.world.deferredevent.DeferredEvent;
+import com.marwinekk.armortrims.world.deferredevent.DeferredEventSystem;
+import com.marwinekk.armortrims.world.deferredevent.IronFist;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -69,6 +73,10 @@ public class ArmorTrimsMod {
         gameRule.set(true,server);
     }
 
+    public static void tickLevel(ServerLevel level) {
+        getDeferredEventSystem(level).tickDeferredEvents(level);
+    }
+
     public static void serverStopped(MinecraftServer server) {
         ArmorTrimsMod.server = null;
     }
@@ -84,18 +92,21 @@ public class ArmorTrimsMod {
         }
     }
 
+    public static DeferredEventSystem getDeferredEventSystem(ServerLevel serverLevel) {
+        return serverLevel.getDataStorage()
+                .computeIfAbsent(DeferredEventSystem::loadStatic,DeferredEventSystem::new,MOD_ID+ ":deferredevents");
+    }
 
+    public static void addDeferredEvent(ServerLevel level, DeferredEvent event) {
+        getDeferredEventSystem(level).addDeferredEvent(event);
+    }
 
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
         if (victim instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
             if (playerDuck.hasSetBonus(Items.AMETHYST_SHARD)) {
                 //allow the witch to "attack" friendly players
-                if (attacker instanceof WitchDuck witchDuck && victim.getUUID().equals(witchDuck.getOwnerUUID())) {
-                    return false;
-                }
-
-                return true;
+                return !(attacker instanceof WitchDuck witchDuck) || !victim.getUUID().equals(witchDuck.getOwnerUUID());
             }
         }
         return false;
@@ -114,9 +125,7 @@ public class ArmorTrimsMod {
     public static boolean onFallDamage(LivingEntity livingEntity) {
         if (livingEntity instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
-            if (playerDuck.hasSetBonus(Items.IRON_INGOT)) {
-                return true;
-            }
+            return playerDuck.hasSetBonus(Items.IRON_INGOT);
         }
         return false;
     }
@@ -134,6 +143,10 @@ public class ArmorTrimsMod {
                     if (timer > 0) {
                         if (trim == Items.NETHERITE_INGOT) {
                             victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 0));
+                        } else if (trim == Items.IRON_INGOT) {
+                            IronFist ironFist = new IronFist(victim);
+                            ironFist.setTimer(2);
+                            addDeferredEvent((ServerLevel) victim.level(),ironFist);
                         }
                     }
                 }

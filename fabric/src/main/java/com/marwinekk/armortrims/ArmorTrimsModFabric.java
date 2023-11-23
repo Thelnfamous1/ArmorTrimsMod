@@ -16,10 +16,12 @@ package com.marwinekk.armortrims;
 import com.marwinekk.armortrims.network.PacketHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 
 public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer {
 
@@ -28,12 +30,17 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 		this.register();
 		ServerLifecycleEvents.SERVER_STARTED.register(this::serverStartedF);
 		ServerLifecycleEvents.SERVER_STOPPED.register(this::serverStoppedF);
+		ServerTickEvents.START_WORLD_TICK.register(this::serverLevelTick);
 		PacketHandler.registerPackets();
 	}
 
 	private void register() {
 		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"tnt_arrow"),ArmorTrimsModEntities.TNT_ARROW);
 		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"damageless_arrow"),ArmorTrimsModEntities.DAMAGELESS_ARROW);
+	}
+
+	private void serverLevelTick(ServerLevel level) {
+		tickLevel(level);
 	}
 
 	private void serverStartedF(MinecraftServer server) {

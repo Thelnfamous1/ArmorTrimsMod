@@ -122,12 +122,6 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 		event.setStrength(newStrength);
 	}
 
-	private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();
-
-	public static void queueServerWork(int tick, Runnable action) {
-		workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
-	}
-
 	public void playerTick(TickEvent.PlayerTickEvent event) {
 		if (event.phase == TickEvent.Phase.START) {
 			tickPlayer(event.player);
@@ -161,14 +155,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 
 	public void serverTick(TickEvent.ServerTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
-			List<AbstractMap.SimpleEntry<Runnable, Integer>> actions = new ArrayList<>();
-			workQueue.forEach(work -> {
-				work.setValue(work.getValue() - 1);
-				if (work.getValue() == 0)
-					actions.add(work);
-			});
-			actions.forEach(e -> e.getKey().run());
-			workQueue.removeAll(actions);
+
 		}
 	}
 }

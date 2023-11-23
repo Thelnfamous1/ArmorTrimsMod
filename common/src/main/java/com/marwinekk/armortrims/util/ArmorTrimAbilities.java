@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,7 +53,7 @@ public class ArmorTrimAbilities {
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
                 new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),
-                        ArmorTrimAbilities::ironFist, NULL, 20 * 5, 20));
+                        ArmorTrimAbilities::ironFist, NULL, 15 * 20, 60 * 20));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
             if (player.level().getGameTime() % (20 * 20 * 10) == 0) {
@@ -74,10 +75,11 @@ public class ArmorTrimAbilities {
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
                 player -> removeAttributeModifier(player, Attributes.MAX_HEALTH)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL,0,20 * 60));
-        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, NULL));
+        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60));
+        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, player ->
+                removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND)));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
-                NULL, ArmorTrimAbilities::giveHomingArrows, NULL));
+                NULL, ArmorTrimAbilities::giveHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE)));
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 30));
@@ -192,6 +194,39 @@ public class ArmorTrimAbilities {
         }
     }
 
+    static void removeEnchantFromArmor(ServerPlayer player, Enchantment enchantment, Item item) {
+        NonNullList<ItemStack> armors = player.getInventory().armor;
+        //remove setbonus from other armors
+        for (ItemStack stack : armors) {
+            if (ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == item) {
+                removeEnchant(stack,enchantment);
+            }
+        }
+        boolean found4thPiece = false;
+        AbstractContainerMenu containerMenu = player.containerMenu;
+        ItemStack carry = containerMenu.getCarried();
+        if (ArmorTrimsMod.getTrimItem(player.serverLevel(),carry) == item) {
+            found4thPiece = true;
+            removeEnchant(carry,enchantment);
+        }
+
+        if (!found4thPiece) {
+            NonNullList<ItemStack> items = player.getInventory().items;
+            for (ItemStack stack : items) {
+                if (ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == item) {
+                    removeEnchant(stack,enchantment);
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void removeEnchant(ItemStack stack,Enchantment enchantment) {
+        Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(stack);
+        map.remove(enchantment);
+        EnchantmentHelper.setEnchantments(map,stack);
+    }
+
     static void applyUnbreakingOnAllArmor(ServerPlayer player) {
         applyEnchantToArmor(player, Enchantments.UNBREAKING, 4);
     }
@@ -216,9 +251,9 @@ public class ArmorTrimAbilities {
         player.getInventory().add(stack);
     }
 
-    static void giveHomingArrows(ServerPlayer player,EquipmentSlot slot) {
+    static void giveHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         ItemStack stack = new ItemStack(Items.ARROW, 3);
-        stack.getOrCreateTag().putBoolean(ArmorTrimsMod.TNT_TAG,true);
+        stack.getOrCreateTag().putBoolean(ArmorTrimsMod.TNT_TAG, true);
         stack.setHoverName(Component.literal("TNT Arrow"));
         player.getInventory().add(stack);
     }

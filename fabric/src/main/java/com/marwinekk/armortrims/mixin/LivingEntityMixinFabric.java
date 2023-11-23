@@ -50,11 +50,11 @@ abstract class LivingEntityMixinFabric extends Entity {
         }
     }
 
-    @ModifyVariable(method = "knockback",at = @At(value = "HEAD"),argsOnly = true,ordinal = 0)
+   /* @ModifyVariable(method = "knockback",at = @At(value = "HEAD"),argsOnly = true,ordinal = 0)
     private double adjustKnockback(double strength, double x, double z) {
         double newStrength = ArmorTrimsMod.onKnockback(strength, selfCast());
         return newStrength;
-    }
+    }*/
 
     @Inject(method = "actuallyHurt",at = @At("RETURN"))
     private void applyWitherPunch(DamageSource damageSource, float damageAmount, CallbackInfo ci) {
