@@ -11,24 +11,28 @@ import java.util.function.Supplier;
 
 public class C2SMobEffectPacket {
 	private final MobEffect mobEffect;
+	private final int amplifier;
 
 	public C2SMobEffectPacket(FriendlyByteBuf buffer) {
 		this.mobEffect = MobEffect.byId(buffer.readInt());
+		this.amplifier = buffer.readInt();
 	}
 
-	public C2SMobEffectPacket(MobEffect mobEffect) {
+	public C2SMobEffectPacket(MobEffect mobEffect, int amplifier) {
 		this.mobEffect = mobEffect;
+		this.amplifier = amplifier;
 	}
 
 	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeInt(MobEffect.getId(mobEffect));
+		buffer.writeInt(this.amplifier);
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
 		NetworkEvent.Context context = contextSupplier.get();
 		context.enqueueWork(() -> {
 			ServerPlayer player = context.getSender();
-			ArmorTrimsMod.addOneEffectRemoveOther(player, mobEffect);
+			ArmorTrimsMod.addOneEffectRemoveOther(player, mobEffect, this.amplifier);
 		});
 		context.setPacketHandled(true);
 	}

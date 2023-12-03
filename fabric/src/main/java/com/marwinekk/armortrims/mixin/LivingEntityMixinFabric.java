@@ -4,7 +4,6 @@ import com.marwinekk.armortrims.ArmorTrimsMod;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,11 +49,11 @@ abstract class LivingEntityMixinFabric extends Entity {
         }
     }
 
-   /* @ModifyVariable(method = "knockback",at = @At(value = "HEAD"),argsOnly = true,ordinal = 0)
+   @ModifyVariable(method = "knockback",at = @At(value = "HEAD"),argsOnly = true,ordinal = 0)
     private double adjustKnockback(double strength, double x, double z) {
         double newStrength = ArmorTrimsMod.onKnockback(strength, selfCast());
         return newStrength;
-    }*/
+    }
 
     @Inject(method = "actuallyHurt",at = @At("RETURN"))
     private void applyWitherPunch(DamageSource damageSource, float damageAmount, CallbackInfo ci) {

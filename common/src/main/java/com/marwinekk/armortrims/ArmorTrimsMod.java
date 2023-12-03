@@ -3,13 +3,11 @@ package com.marwinekk.armortrims;
 import com.marwinekk.armortrims.client.ArmorTrimsModClient;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
-import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import com.marwinekk.armortrims.util.ArmorTrimAbility;
 import com.marwinekk.armortrims.world.deferredevent.DeferredEvent;
 import com.marwinekk.armortrims.world.deferredevent.DeferredEventSystem;
 import com.marwinekk.armortrims.world.deferredevent.IronFist;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +33,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,6 +140,7 @@ public class ArmorTrimsMod {
                     if (timer > 0) {
                         if (trim == Items.NETHERITE_INGOT) {
                             victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 0));
+                            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
                         } else if (trim == Items.IRON_INGOT) {
                             IronFist ironFist = new IronFist(victim);
                             ironFist.setTimer(2);
@@ -163,7 +161,7 @@ public class ArmorTrimsMod {
                     int timer = playerDuck.abilityTimer(slot);
                     if (trim == Items.IRON_INGOT && timer > 0) {
                         //	livingEntity.addDeltaMovement(new Vec3(0,4,0));
-                        return 5;
+                        return 0;
                     }
                 }
             }
@@ -257,10 +255,12 @@ public class ArmorTrimsMod {
                 SimpleContainer simpleContainer = new SimpleContainer(stack);
                 Optional<SmeltingRecipe> optional = recipemanager.getRecipeFor(RecipeType.SMELTING,simpleContainer,player.level());
                 if (optional.isPresent()) {
-                    SmeltingRecipe smeltingRecipe = optional.get();
-                    ItemStack result = smeltingRecipe.assemble(simpleContainer,player.level().registryAccess());
-                    cooked.add(result);
-                    stack.setCount(0);
+                    while(stack.getCount() > 0){
+                        SmeltingRecipe smeltingRecipe = optional.get();
+                        ItemStack result = smeltingRecipe.assemble(simpleContainer,player.level().registryAccess());
+                        cooked.add(result);
+                        stack.shrink(1);
+                    }
                 }
             }
         }
@@ -289,8 +289,13 @@ public class ArmorTrimsMod {
         playerDuck.setAbilityTimer(slot, 0);
     }
 
-    public static final List<MobEffect> BEACON_EFFECTS = List.of(MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED, MobEffects.DAMAGE_RESISTANCE,
-            MobEffects.JUMP, MobEffects.DAMAGE_BOOST, MobEffects.HERO_OF_THE_VILLAGE);
+    public static final List<Pair<MobEffect, Integer>> BEACON_EFFECTS = List.of(
+            Pair.of(MobEffects.MOVEMENT_SPEED, 0),
+            Pair.of(MobEffects.DIG_SPEED, 1),
+            Pair.of(MobEffects.DAMAGE_RESISTANCE, 0),
+            Pair.of(MobEffects.JUMP, 1),
+            Pair.of(MobEffects.DAMAGE_BOOST, 0),
+            Pair.of(MobEffects.HERO_OF_THE_VILLAGE, 9));
 
     private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
@@ -365,10 +370,10 @@ public class ArmorTrimsMod {
         return trimMaterial == null ? null : trimMaterial.ingredient().value();
     }
 
-    public static void addOneEffectRemoveOther(ServerPlayer player, MobEffect mobEffect) {
+    public static void addOneEffectRemoveOther(ServerPlayer player, MobEffect mobEffect, int amplifier) {
         PlayerDuck playerDuck = (PlayerDuck) player;
         if (playerDuck.hasSetBonus(Items.EMERALD)) {
-            player.addEffect(new MobEffectInstance(mobEffect, -1, 0, true, false));
+            player.addEffect(new MobEffectInstance(mobEffect, -1, amplifier, true, false));
             MobEffect old = playerDuck.beaconEffect();
             player.removeEffect(old);
             playerDuck.setBeaconEffect(mobEffect);
@@ -380,6 +385,7 @@ public class ArmorTrimsMod {
     public static void giveTotemToDyingPlayer(LivingEntity living) {
         if (living instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
+            EquipmentSlot usedSlot = null;
             for (EquipmentSlot slot : slots) {
                 Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
                 int timer = playerDuck.abilityTimer(slot);
@@ -388,8 +394,12 @@ public class ArmorTrimsMod {
                         ((Player) living).drop(living.getItemInHand(InteractionHand.OFF_HAND),true);
                     }
                     living.setItemSlot(EquipmentSlot.OFFHAND,Items.TOTEM_OF_UNDYING.getDefaultInstance());
-                    return;
+                    usedSlot = slot;
+                    break;
                 }
+            }
+            if(usedSlot != null){
+                playerDuck.setAbilityCooldown(usedSlot, 20 * 60 * 10);
             }
         }
     }

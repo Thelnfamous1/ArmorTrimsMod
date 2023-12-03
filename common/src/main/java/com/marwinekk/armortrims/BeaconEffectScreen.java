@@ -7,9 +7,11 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.BeaconScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffect;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class BeaconEffectScreen extends Screen {
     public BeaconEffectScreen(Component component) {
@@ -26,7 +28,8 @@ public class BeaconEffectScreen extends Screen {
         int topPos = (this.height - 166) / 2;
 
         for (int i = 0 ; i < 6;i++) {
-            addRenderableWidget(new BeaconButton(leftPos + 35 * i,topPos,ArmorTrimsMod.BEACON_EFFECTS.get(i)));
+            Pair<MobEffect, Integer> beaconEffect = ArmorTrimsMod.BEACON_EFFECTS.get(i);
+            addRenderableWidget(new BeaconButton(leftPos + 35 * i,topPos, beaconEffect.getLeft(), beaconEffect.getRight()));
         }
     }
 
@@ -39,25 +42,31 @@ public class BeaconEffectScreen extends Screen {
     public static class BeaconButton extends BeaconScreen.BeaconScreenButton {
         private MobEffect effect;
         private TextureAtlasSprite sprite;
+        private int amplifier;
 
 
-        public BeaconButton(int pX, int pY, MobEffect pEffect) {
+        public BeaconButton(int pX, int pY, MobEffect pEffect, int amplifier) {
             super(pX, pY);
-            this.setEffect(pEffect);
+            this.setEffect(pEffect, amplifier);
         }
 
-        protected void setEffect(MobEffect pEffect) {
+        protected void setEffect(MobEffect pEffect, int amplifier) {
             this.effect = pEffect;
+            this.amplifier = amplifier;
             this.sprite = Minecraft.getInstance().getMobEffectTextures().get(pEffect);
-            this.setTooltip(Tooltip.create(this.createEffectDescription(pEffect), (Component)null));
+            this.setTooltip(Tooltip.create(this.createEffectDescription(pEffect, amplifier), (Component)null));
         }
 
-        protected MutableComponent createEffectDescription(MobEffect pEffect) {
-            return Component.translatable(pEffect.getDescriptionId());
+        protected MutableComponent createEffectDescription(MobEffect pEffect, int amplifier) {
+            MutableComponent effectDescription = Component.translatable(pEffect.getDescriptionId());
+            if (amplifier >= 1 && amplifier <= 9) {
+                effectDescription.append(CommonComponents.SPACE).append(Component.translatable("enchantment.level." + (amplifier + 1)));
+            }
+            return effectDescription;
         }
 
         public void onPress() {
-            Services.PLATFORM.sendMobEffectPacket(effect);
+            Services.PLATFORM.sendMobEffectPacket(effect, this.amplifier);
         }
 
         protected void renderIcon(GuiGraphics pGuiGraphics) {
@@ -68,7 +77,7 @@ public class BeaconEffectScreen extends Screen {
         }
 
         protected MutableComponent createNarrationMessage() {
-            return this.createEffectDescription(this.effect);
+            return this.createEffectDescription(this.effect, this.amplifier);
         }
     }
 

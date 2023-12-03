@@ -36,7 +36,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public void sendMobEffectPacket(MobEffect effect) {
-        PacketHandler.CHANNEL.sendToServer(new C2SMobEffectPacket(effect));
+    public void sendMobEffectPacket(MobEffect effect, int amplifier) {
+        PacketHandler.CHANNEL.sendToServer(new C2SMobEffectPacket(effect, amplifier));
     }
 }

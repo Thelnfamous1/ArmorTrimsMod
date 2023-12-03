@@ -31,6 +31,7 @@ public class PacketHandler {
     public static void receiveMobEffect(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
         int id = buf.readInt();
         MobEffect mobEffect = MobEffect.byId(id);
-        server.execute(() -> ArmorTrimsMod.addOneEffectRemoveOther(player,mobEffect));
+        int amplifier = buf.readInt();
+        server.execute(() -> ArmorTrimsMod.addOneEffectRemoveOther(player,mobEffect, amplifier));
     }
 }

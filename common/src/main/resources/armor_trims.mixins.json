@@ -10,8 +10,8 @@
     "BruteMixin",
     "InventoryMixin",
     "LivingEntityMixin",
-    "WitchMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "WitchMixin"
   ],
   "client": [
   ],

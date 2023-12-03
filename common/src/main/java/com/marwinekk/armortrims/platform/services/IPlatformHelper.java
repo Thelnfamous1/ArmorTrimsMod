@@ -38,6 +38,6 @@ public interface IPlatformHelper {
     }
 
     void sendAbilityPacket(EquipmentSlot slot);
-    void sendMobEffectPacket(MobEffect effect);
+    void sendMobEffectPacket(MobEffect effect, int amplifier);
 
 }

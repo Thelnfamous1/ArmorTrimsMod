@@ -39,7 +39,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -52,6 +51,7 @@ public class ArmorTrimAbilities {
     static final BiPredicate<ServerPlayer, EquipmentSlot> BI_NULL = (player, slot) -> true;
 
     public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL, NULL, BI_NULL, NULL);
+    public static final String ARMOR_TRIMS_TAG = "armor_trims";
 
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
@@ -64,19 +64,19 @@ public class ArmorTrimAbilities {
                 player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.NEUTRAL, 1, 1);
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
-        }, ArmorTrimAbilities::plus1ToAllEnchants, NULL));
+        }, ArmorTrimAbilities::plus1ToAllEnchants, NULL, 20 * 20, 20 * 50));
 
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 9, true, false));
             if (player.isInLava()) {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
-        }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 100, 20 * 30));
+        }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 20 * 10, 20 * 45));
 
         ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT, new ArmorTrimAbility(player -> addAttributeModifier(
                 player, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADDITION),
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
-                player -> removeAttributeModifier(player, Attributes.MAX_HEALTH)));
+                player -> removeAttributeModifier(player, Attributes.MAX_HEALTH), 0, 20 * 50));
 
         ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60));
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, player ->
@@ -85,9 +85,9 @@ public class ArmorTrimAbilities {
                 NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0));
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
-                (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 30));
+                (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 30));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 45));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
@@ -122,6 +122,7 @@ public class ArmorTrimAbilities {
             Vec3 pos = pick.getLocation();
             lightningbolt.moveTo(pos);
             lightningbolt.setCause(player);
+            lightningbolt.addTag(ARMOR_TRIMS_TAG);
             player.level().addFreshEntity(lightningbolt);
             lightningbolt.playSound(SoundEvents.TRIDENT_THUNDER, 5, 1);
         }
@@ -136,7 +137,7 @@ public class ArmorTrimAbilities {
         }
     }
 
-    static MobEffect true_invis = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("trueinvis:true_invis"));
+    public static MobEffect true_invis = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("trueinvis:true_invis"));
 
     public static boolean smokeCloud(ServerPlayer player, EquipmentSlot slot) {
         Vec3 center = player.getPosition(0);
@@ -295,7 +296,7 @@ public class ArmorTrimAbilities {
         return false;
     }
 
-    static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecraft_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};
+    static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecart_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};
 
 
     static void awardCopperRecipes(ServerPlayer player) {
