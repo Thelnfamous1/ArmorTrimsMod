@@ -2,6 +2,7 @@ package com.marwinekk.armortrims.mixin;
 
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -40,7 +41,7 @@ public abstract class LightningBoltMixin extends Entity {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V", shift = At.Shift.AFTER))
     private void postThunderHit(CallbackInfo ci){
         if(this.currentHitEntity instanceof LivingEntity living && this.getTags().contains(ArmorTrimAbilities.ARMOR_TRIMS_TAG)){
-            if(living.getLastDamageSource() != null && living.getLastDamageSource().type().equals(this.level().damageSources().lightningBolt().type())){
+            if(living.getLastDamageSource() != null && living.getLastDamageSource().is(DamageTypes.LIGHTNING_BOLT)){
                 living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 2), this.getCause());
             }
         }
