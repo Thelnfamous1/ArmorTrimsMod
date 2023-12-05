@@ -37,10 +37,10 @@ public abstract class LightningBoltMixin extends Entity {
         return entity;
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V"))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V", shift = At.Shift.AFTER))
     private void postThunderHit(CallbackInfo ci){
         if(this.currentHitEntity instanceof LivingEntity living && this.getTags().contains(ArmorTrimAbilities.ARMOR_TRIMS_TAG)){
-            if(living.getLastDamageSource() != null && living.getLastDamageSource().getDirectEntity() == this){
+            if(living.getLastDamageSource() != null && living.getLastDamageSource().type().equals(this.level().damageSources().lightningBolt().type())){
                 living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 2), this.getCause());
             }
         }

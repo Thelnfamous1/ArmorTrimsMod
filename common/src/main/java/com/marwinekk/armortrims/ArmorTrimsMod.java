@@ -152,16 +152,27 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static float onKnockback(double original,LivingEntity livingEntity) {
-            LivingEntity lastAttacker = livingEntity.getLastAttacker();
-            if (lastAttacker instanceof Player player) {
-                PlayerDuck playerDuck = (PlayerDuck) player;
+    public static float onKnockback(double original,LivingEntity victim) {
+            LivingEntity lastAttacker = victim.getLastAttacker();
+            if (lastAttacker instanceof Player playerAttacker) {
+                PlayerDuck playerDuck = (PlayerDuck) playerAttacker;
                 for (EquipmentSlot slot : slots) {
-                    Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
+                    Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(playerAttacker.level(), playerAttacker.getItemBySlot(slot));
                     int timer = playerDuck.abilityTimer(slot);
                     if (trim == Items.IRON_INGOT && timer > 0) {
-                        //	livingEntity.addDeltaMovement(new Vec3(0,4,0));
-                        return 0;
+                        //	victim.addDeltaMovement(new Vec3(0,4,0));
+                        return 0; // neutralize vanilla knockback if attacker has iron fists ability active, so Iron Fists can work
+                    }
+                }
+            }
+            if(victim instanceof Player playerVictim){
+                PlayerDuck playerDuck = (PlayerDuck) playerVictim;
+                for (EquipmentSlot slot : slots) {
+                    Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(playerVictim.level(), playerVictim.getItemBySlot(slot));
+                    int timer = playerDuck.abilityTimer(slot);
+                    if (trim == Items.IRON_INGOT && timer > 0) {
+                        //	victim.addDeltaMovement(new Vec3(0,4,0));
+                        return 0; // neutralize vanilla knockback if victim has iron fists ability active
                     }
                 }
             }
