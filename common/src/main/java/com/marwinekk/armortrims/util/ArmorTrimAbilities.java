@@ -81,7 +81,7 @@ public class ArmorTrimAbilities {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
         }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 20 * 10, 20 * 45)
-                .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.AMBIENT_ENTITY_EFFECT, ChatFormatting.DARK_PURPLE.getColor())));
+                .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.AMBIENT_ENTITY_EFFECT, ChatFormatting.BLACK.getColor())));
 
         ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT, new ArmorTrimAbility(player -> addAttributeModifier(
                 player, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADDITION),
