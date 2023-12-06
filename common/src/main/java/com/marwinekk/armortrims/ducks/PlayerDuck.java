@@ -2,7 +2,6 @@ package com.marwinekk.armortrims.ducks;
 
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -89,6 +88,16 @@ public interface PlayerDuck {
             }
         } else {
             ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) $elf());
+        }
+    }
+
+    default void tickClient(){
+        if (dragonEgg()) {
+            for (Item item : trimMaterials()) {
+                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onClientPlayerTick.accept($elf());
+            }
+        } else {
+            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onClientPlayerTick.accept($elf());
         }
     }
 
