@@ -23,17 +23,17 @@ public abstract class StopAttackingIfTargetInvalidMixin<E extends Mob> {
 
     private static LivingEntity currentTarget;
 
-    @ModifyVariable(method = "lambda$create$4", at = @At(value = "LOAD", ordinal = 0), ordinal = 0)
+    @ModifyVariable(method = {"method_47135", "m_257275_", "lambda$create$4"}, at = @At(value = "LOAD", ordinal = 0), ordinal = 0)
     private static LivingEntity captureTarget(LivingEntity target){
         currentTarget = target;
         return target;
     }
 
-    @Inject(method = "lambda$create$4", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
-    private static void forceTargetErasure(BehaviorBuilder.Instance $$0x, MemoryAccessor $$1x, boolean $$2x, MemoryAccessor $$3x, Predicate $$4x, BiConsumer $$5x, ServerLevel $$6, Mob attacker, long $$8, CallbackInfoReturnable<Boolean> cir){
+    @Inject(method = {"method_47135", "m_257275_", "lambda$create$4"}, at = @At(value = "RETURN", ordinal = 1), cancellable = true)
+    private static void forceTargetErasure(BehaviorBuilder.Instance $$0x, MemoryAccessor attackTargetMemory, boolean $$2x, MemoryAccessor $$3x, Predicate $$4x, BiConsumer onTargetErased, ServerLevel $$6, Mob attacker, long $$8, CallbackInfoReturnable<Boolean> cir){
         if(currentTarget != null && (ArmorTrimsMod.isOwnedBy(attacker, currentTarget) || ArmorTrimsMod.isImmuneToTargeting(attacker, currentTarget))){
-            $$5x.accept(attacker, currentTarget);
-            $$1x.erase();
+            onTargetErased.accept(attacker, currentTarget);
+            attackTargetMemory.erase();
             cir.setReturnValue(true);
         }
         if(currentTarget != null) currentTarget = null;
