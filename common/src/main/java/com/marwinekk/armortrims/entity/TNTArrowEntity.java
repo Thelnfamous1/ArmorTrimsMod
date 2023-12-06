@@ -1,6 +1,7 @@
 
 package com.marwinekk.armortrims.entity;
 
+import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.ducks.PhysicsCheck;
 import net.minecraft.core.particles.ParticleTypes;
@@ -32,14 +33,12 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	private static final float EXPLOSION_RADIUS = 1.0F;
 	@Nullable
 	private Entity homingTarget;
-	private ItemStack tntItem;
+	private ItemStack tntItem = new ItemStack(Blocks.TNT);
 
 
 	public TNTArrowEntity(EntityType<? extends AbstractArrow> type, Level world) {
 		super(type, world);
-		this.tntItem = new ItemStack(Blocks.TNT);
 	}
-
 
 
 	public TNTArrowEntity(EntityType<? extends TNTArrowEntity> type, double x, double y, double z, Level world) {
@@ -76,13 +75,13 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	@Override
 	protected void onHit(HitResult $$0) {
 		super.onHit($$0);
-		this.discard();
 	}
 
 	@Override
 	public void onHitEntity(EntityHitResult entityHitResult) {
 		super.onHitEntity(entityHitResult);
 		if(!this.level().isClientSide){
+			this.discard();
 			Vec3 hitPos = entityHitResult.getLocation();
 			level().explode(null, hitPos.x, hitPos.y, hitPos.z, EXPLOSION_RADIUS, Level.ExplosionInteraction.NONE);
 		}
@@ -91,8 +90,8 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	@Override
 	public void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-
 		if (!level().isClientSide) {
+			this.discard();
 			this.setHomingTarget(null);
 			Vec3 hitPos = blockHitResult.getLocation();
 			level().explode(null, hitPos.x, hitPos.y, hitPos.z, EXPLOSION_RADIUS, Level.ExplosionInteraction.NONE);
@@ -175,13 +174,11 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	@Override
 	public void shoot(double pX, double pY, double pZ, float pVelocity, float pInaccuracy) {
 		super.shoot(pX, pY, pZ, pVelocity, pInaccuracy);
-		if(!this.level().isClientSide) this.setShotVelocity(pVelocity);
-	}
+		if(!this.level().isClientSide) {
+			this.setShotVelocity(pVelocity);
 
-	@Override
-	public void shootFromRotation(Entity $$0, float $$1, float $$2, float $$3, float $$4, float $$5) {
-		super.shootFromRotation($$0, $$1, $$2, $$3, $$4, $$5);
-		if(!this.level().isClientSide) this.setShotVelocity($$4);
+			ArmorTrimsMod.LOG.info("Shot velocity: {}", pVelocity);
+		}
 	}
 
 	private float getShotVelocity(){

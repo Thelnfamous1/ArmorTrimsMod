@@ -69,7 +69,9 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
 
     private int lightningStrikesLeft = 10;
 
-    private int redstoneArrowsLeft = 4;
+    private int redstoneArrowsLeft = 3;
+
+    private int diamondArrowsLeft = 3;
 
     @Override
     public int redstoneArrowsLeft() {
@@ -163,5 +165,15 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     @Override
     public void setCheckInventory(boolean checkInventory) {
         this.checkInventory = checkInventory;
+    }
+
+    @Override
+    public int diamondArrowsLeft() {
+        return this.diamondArrowsLeft;
+    }
+
+    @Override
+    public void setDiamondArrowsLeft(int arrowsLeft) {
+        this.diamondArrowsLeft = arrowsLeft;
     }
 }

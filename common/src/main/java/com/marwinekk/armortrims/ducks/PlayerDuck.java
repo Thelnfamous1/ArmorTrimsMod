@@ -111,4 +111,7 @@ public interface PlayerDuck {
     void setRegularSetBonus(Item item);
     void setDragonEgg(boolean dragonegg);
 
+    int diamondArrowsLeft();
+
+    void setDiamondArrowsLeft(int arrowsLeft);
 }

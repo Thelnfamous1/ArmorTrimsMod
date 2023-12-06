@@ -296,16 +296,16 @@ public class ArmorTrimAbilities {
         arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         player.level().addFreshEntity(arrow);
         PlayerDuck playerDuck = (PlayerDuck) player;
-        int arrows = playerDuck.redstoneArrowsLeft();
+        int arrows = playerDuck.diamondArrowsLeft();
         boolean applyCooldown  = false;
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(2); // 3 arrows total
+            playerDuck.setDiamondArrowsLeft(2); // 3 arrows total, we just fired 1
         } else {
             arrows--;
             if (arrows <= 0) {
                 playerDuck.setAbilityCooldown(slot,45 * 20);
             }
-            playerDuck.setRedstoneArrowsLeft(arrows);
+            playerDuck.setDiamondArrowsLeft(arrows);
         }
         return applyCooldown;
     }
@@ -318,7 +318,7 @@ public class ArmorTrimAbilities {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(3); // 4 arrows total
+            playerDuck.setRedstoneArrowsLeft(2); // 3 arrows total, we just fired 1
         } else {
             arrows--;
             if (arrows <= 0) {
