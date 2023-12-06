@@ -20,6 +20,7 @@ public class Client implements ClientModInitializer {
         ModKeybinds.allKeybinds().forEach(KeyBindingHelper::registerKeyBinding);
         EntityRendererRegistry.register(ArmorTrimsModEntities.TNT_ARROW, BasicArrowRenderer::new);
         EntityRendererRegistry.register(ArmorTrimsModEntities.DAMAGELESS_ARROW, BasicArrowRenderer::new);
+        EntityRendererRegistry.register(ArmorTrimsModEntities.BLOCK_BREAKER_ARROW, BasicArrowRenderer::new);
         ClientTickEvents.START_CLIENT_TICK.register(ArmorTrimsModClient::clientTick);
         HudRenderCallback.EVENT.register(this::renderHUDElement);
     }

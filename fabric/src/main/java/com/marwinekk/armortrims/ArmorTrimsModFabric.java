@@ -37,6 +37,7 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 	private void register() {
 		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"tnt_arrow"),ArmorTrimsModEntities.TNT_ARROW);
 		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"damageless_arrow"),ArmorTrimsModEntities.DAMAGELESS_ARROW);
+		Registry.register(BuiltInRegistries.ENTITY_TYPE,new ResourceLocation(MOD_ID,"block_breaker_arrow"),ArmorTrimsModEntities.BLOCK_BREAKER_ARROW);
 	}
 
 	private void serverLevelTick(ServerLevel level) {

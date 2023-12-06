@@ -21,6 +21,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -413,6 +414,18 @@ public class ArmorTrimsMod {
                 playerDuck.setAbilityCooldown(usedSlot, 20 * 60 * 10);
             }
         }
+    }
+
+    public static boolean isOwnedBy(LivingEntity mob, LivingEntity target){
+        return mob instanceof OwnableEntity && ((OwnableEntity)mob).getOwner() == target;
+    }
+
+    public static boolean isImmuneToTargeting(LivingEntity attacker, LivingEntity target){
+        if (target instanceof Player player) {
+            PlayerDuck playerDuck = (PlayerDuck) player;
+            return playerDuck.hasSetBonus(Items.AMETHYST_SHARD);
+        }
+        return false;
     }
 
     //Whats the SMP about?

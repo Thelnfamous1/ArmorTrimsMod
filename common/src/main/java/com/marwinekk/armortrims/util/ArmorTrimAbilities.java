@@ -4,6 +4,7 @@ import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
+import com.marwinekk.armortrims.entity.BlockBreakerArrow;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
@@ -26,7 +27,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -259,15 +262,16 @@ public class ArmorTrimAbilities {
     }
 
     static boolean givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
-        Arrow arrow = new Arrow(player.level(),player);
-        arrow.setBaseDamage(arrow.getBaseDamage() + 8 * .5);
+        BlockBreakerArrow arrow = new BlockBreakerArrow(player.level(),player);
+        int builtInPowerLvl = 7;
+        arrow.setBaseDamage(arrow.getBaseDamage() + builtInPowerLvl * 0.5 + 0.5);
         arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         player.level().addFreshEntity(arrow);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
         boolean applyCooldown  = false;
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(4);
+            playerDuck.setRedstoneArrowsLeft(2); // 3 arrows total
         } else {
             arrows--;
             if (arrows <= 0) {
@@ -281,11 +285,12 @@ public class ArmorTrimAbilities {
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
+        lockOn(player, tntArrowEntity, 1024);
         player.level().addFreshEntity(tntArrowEntity);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(4);
+            playerDuck.setRedstoneArrowsLeft(3); // 4 arrows total
         } else {
             arrows--;
             if (arrows <= 0) {
@@ -294,6 +299,22 @@ public class ArmorTrimAbilities {
             playerDuck.setRedstoneArrowsLeft(arrows);
         }
         return false;
+    }
+
+    private static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow, int maxLockOnDist) {
+        HitResult hitResult = shooter.pick(maxLockOnDist, 0.0F, false);
+        Vec3 startVec = shooter.getEyePosition();
+        double maxLockOnDistSqr = maxLockOnDist * maxLockOnDist;
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            maxLockOnDistSqr = hitResult.getLocation().distanceToSqr(startVec);
+        }
+        Vec3 viewVector = shooter.getViewVector(1.0F).scale(maxLockOnDist);
+        Vec3 endVec = startVec.add(viewVector);
+        AABB searchBox = shooter.getBoundingBox().expandTowards(viewVector).inflate(1.0D);
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(shooter, startVec, endVec, searchBox, (e) -> !e.isSpectator() && e.isPickable(), maxLockOnDistSqr);
+        if(entityHitResult != null){
+            homingArrow.setHomingTarget(entityHitResult.getEntity());
+        }
     }
 
     static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecart_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};

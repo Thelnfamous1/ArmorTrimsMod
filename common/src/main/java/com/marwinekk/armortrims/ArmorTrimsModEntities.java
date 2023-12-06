@@ -4,6 +4,7 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.entity.BlockBreakerArrow;
 import com.marwinekk.armortrims.entity.DamagelessArrowEntity;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import net.minecraft.world.entity.EntityType;
@@ -17,5 +18,9 @@ public class ArmorTrimsModEntities {
 	public static final EntityType<DamagelessArrowEntity> DAMAGELESS_ARROW = EntityType.Builder
 			.<DamagelessArrowEntity>of(DamagelessArrowEntity::new, MobCategory.MISC)
 			.clientTrackingRange(64).sized(0.5f, 0.5f).build("damageless_arrow");
+
+	public static final EntityType<BlockBreakerArrow> BLOCK_BREAKER_ARROW = EntityType.Builder
+			.<BlockBreakerArrow>of(BlockBreakerArrow::new, MobCategory.MISC)
+			.clientTrackingRange(64).sized(0.5f, 0.5f).build("block_breaker_arrow");
 
 }
