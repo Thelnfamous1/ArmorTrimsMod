@@ -87,8 +87,6 @@ public class ArmorTrimsMod {
         }
         if (!player.level().isClientSide) {
             playerDuck.tickServer();
-        } else {
-            playerDuck.tickClient();
         }
     }
 

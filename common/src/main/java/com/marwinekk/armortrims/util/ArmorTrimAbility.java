@@ -2,14 +2,13 @@ package com.marwinekk.armortrims.util;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 public class ArmorTrimAbility {
 
-    public static final Consumer<Player> NULL_CLIENT = player -> {
+    public static final Consumer<ServerPlayer> NULL_ACTIVE = player -> {
     };
     public final Consumer<ServerPlayer> onEquip;
     public final Consumer<ServerPlayer> onServerPlayerTick;
@@ -18,7 +17,7 @@ public class ArmorTrimAbility {
 
     public final int activeTicks;
     public final int cooldown;
-    public Consumer<Player> onClientPlayerTick = NULL_CLIENT;
+    public Consumer<ServerPlayer> onCombatAbilityActive = NULL_ACTIVE;
 
 
     public ArmorTrimAbility(Consumer<ServerPlayer> onEquip, Consumer<ServerPlayer> onServerPlayerTick,
@@ -36,8 +35,8 @@ public class ArmorTrimAbility {
         this.cooldown = cooldown;
     }
 
-    public ArmorTrimAbility setOnClientPlayerTick(Consumer<Player> onClientPlayerTick) {
-        this.onClientPlayerTick = onClientPlayerTick;
+    public ArmorTrimAbility setOnCombatAbilityActive(Consumer<ServerPlayer> onCombatAbilityActive) {
+        this.onCombatAbilityActive = onCombatAbilityActive;
         return this;
     }
 }

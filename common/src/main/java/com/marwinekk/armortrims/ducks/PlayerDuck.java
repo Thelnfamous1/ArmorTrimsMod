@@ -1,6 +1,7 @@
 package com.marwinekk.armortrims.ducks;
 
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import com.marwinekk.armortrims.util.ArmorTrimAbility;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -72,11 +73,13 @@ public interface PlayerDuck {
             }
         }
 
+        boolean active = false;
         for (Map.Entry<EquipmentSlot,Integer> entry : abilityTimers().entrySet()) {
             EquipmentSlot slot = entry.getKey();
             int v = entry.getValue();
             if (v > 0) {
                 setAbilityTimer(slot, v - 1);
+                active = true;
             }
         }
 
@@ -84,20 +87,14 @@ public interface PlayerDuck {
 
         if (dragonEgg()) {
             for (Item item : trimMaterials()) {
-                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) $elf());
+                ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY);
+                armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
+                if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
             }
         } else {
-            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onServerPlayerTick.accept((ServerPlayer) $elf());
-        }
-    }
-
-    default void tickClient(){
-        if (dragonEgg()) {
-            for (Item item : trimMaterials()) {
-                ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).onClientPlayerTick.accept($elf());
-            }
-        } else {
-            ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY).onClientPlayerTick.accept($elf());
+            ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY);
+            armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
+            if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
         }
     }
 

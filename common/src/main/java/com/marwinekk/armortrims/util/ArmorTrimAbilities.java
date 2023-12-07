@@ -29,7 +29,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
@@ -64,7 +63,7 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
                 new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),
                         ArmorTrimAbilities::ironFist, NULL, 15 * 20, 60 * 20)
-                        .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.WAX_OFF)));
+                        .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.WAX_OFF)));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
             if (player.level().getGameTime() % (20 * 20 * 10) == 0) {
@@ -73,7 +72,7 @@ public class ArmorTrimAbilities {
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL, 20 * 20, 20 * 50)
-                .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.ENCHANT)));
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.ENCHANT)));
 
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 9, true, false));
@@ -81,7 +80,7 @@ public class ArmorTrimAbilities {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
         }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 20 * 10, 20 * 45)
-                .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.AMBIENT_ENTITY_EFFECT, ChatFormatting.BLACK.getColor())));
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.AMBIENT_ENTITY_EFFECT, ChatFormatting.BLACK.getColor())));
 
         ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT, new ArmorTrimAbility(player -> addAttributeModifier(
                 player, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADDITION),
@@ -96,18 +95,18 @@ public class ArmorTrimAbilities {
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
-                .setOnClientPlayerTick(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
 
         ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 45));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
 
-    private static void tickParticles(Player player, ParticleOptions particleOptions){
+    private static void tickParticles(ServerPlayer player, ParticleOptions particleOptions){
         tickParticles(player, particleOptions, null);
     }
 
-    private static void tickParticles(Player player, ParticleOptions particleType, @Nullable Integer color) {
+    private static void tickParticles(ServerPlayer player, ParticleOptions particleType, @Nullable Integer color) {
         boolean makeParticle;
         if (player.isInvisible()) {
             makeParticle = player.getRandom().nextInt(15) == 0;
@@ -119,7 +118,7 @@ public class ArmorTrimAbilities {
             double xSpeed = color != null ? (color >> 16 & 255) / 255.0 : player.getDeltaMovement().x;
             double ySpeed = color != null ? (color >> 8 & 255) / 255.0 : player.getDeltaMovement().y;
             double zSpeed = color != null ? (color & 255) / 255.0 : player.getDeltaMovement().z;
-            player.level().addParticle(particleType, player.getRandomX(0.5), player.getRandomY(), player.getRandomZ(0.5), xSpeed, ySpeed, zSpeed);
+            player.serverLevel().sendParticles(particleType, player.getRandomX(0.5), player.getRandomY(), player.getRandomZ(0.5), 0, xSpeed, ySpeed, zSpeed, 1);
         }
     }
 
