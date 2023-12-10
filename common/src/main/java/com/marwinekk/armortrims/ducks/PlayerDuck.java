@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Set;
 
 public interface PlayerDuck {
@@ -40,7 +39,6 @@ public interface PlayerDuck {
     void setBeaconEffect(MobEffect beaconEffect);
 
     default void setAbilityCooldown(@Nullable EquipmentSlot slot, int abilityCooldown) {
-
         CompoundTag tag = abilityCooldowns();
         tag.putInt(slot == null ? "null": slot.getName(),abilityCooldown);
         CompoundTag armorTrimData = getArmorTrimsData();
@@ -50,17 +48,30 @@ public interface PlayerDuck {
 
     String AB_COOLDOWN = "abilityCooldowns";
 
-    default int abilityCooldown(EquipmentSlot slot) {
+    String AB_TIMER = "abilityTimers";
+
+    default int abilityCooldown(@Nullable EquipmentSlot slot) {
         return abilityCooldowns().getInt(slot == null ? "null": slot.getName());
     }
     default CompoundTag abilityCooldowns() {
         return getArmorTrimsData().getCompound(AB_COOLDOWN);
     }
 
-    int abilityTimer(EquipmentSlot slot);
-    void setAbilityTimer(EquipmentSlot slot,int timer);
-    Map<EquipmentSlot,Integer> abilityTimers();
+    default int abilityTimer(@Nullable EquipmentSlot slot){
+        return abilityTimers().getInt(slot == null ? "null": slot.getName());
+    }
 
+    default void setAbilityTimer(@Nullable EquipmentSlot slot,int timer){
+        CompoundTag tag = abilityTimers();
+        tag.putInt(slot == null ? "null": slot.getName(), timer);
+        CompoundTag armorTrimData = getArmorTrimsData();
+        armorTrimData.put(AB_TIMER,tag);
+        setArmorTrimsData(armorTrimData);
+    }
+
+    default CompoundTag abilityTimers(){
+        return getArmorTrimsData().getCompound(AB_TIMER);
+    }
 
     default void tickServer() {
         CompoundTag armorTrimsData = getArmorTrimsData();
@@ -73,12 +84,13 @@ public interface PlayerDuck {
             }
         }
 
+        CompoundTag abilityTimers = abilityTimers();
         boolean active = false;
-        for (Map.Entry<EquipmentSlot,Integer> entry : abilityTimers().entrySet()) {
-            EquipmentSlot slot = entry.getKey();
-            int v = entry.getValue();
+        for (String entry : abilityTimers().getAllKeys()) {
+            int v = abilityTimers.getInt(entry);
             if (v > 0) {
-                setAbilityTimer(slot, v - 1);
+                abilityTimers.putInt(entry, v - 1);
+                armorTrimsData.put(AB_TIMER,abilityTimers);
                 if(v - 1 > 0) active = true;
             }
         }

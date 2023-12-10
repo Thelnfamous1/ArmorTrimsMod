@@ -1,5 +1,6 @@
 package com.marwinekk.armortrims.client;
 
+import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.client.renderer.BasicArrowRenderer;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
@@ -8,10 +9,13 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 
 public class Client implements ClientModInitializer {
 
@@ -31,20 +35,39 @@ public class Client implements ClientModInitializer {
 
             PlayerDuck playerDuck = (PlayerDuck)player;
 
-            CompoundTag armorTrimData = playerDuck.getArmorTrimsData();
+            for(EquipmentSlot slot : ArmorTrimsMod.slots){
+                int cooldown = playerDuck.abilityCooldown(slot);
+                if (cooldown > 0) {
+                    int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+                    int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+                    int posX = w / 2;
+                    int posY = h / 2;
 
-            int cooldown = playerDuck.abilityCooldown(null);
+                    int seconds = cooldown / 20;
+                    guiGraphics.drawString(Minecraft.getInstance().font,
+                            Component.literal("Ability Unavailable").withStyle(ChatFormatting.RED)
+                                    .append(Component.literal(":").withStyle(ChatFormatting.WHITE))
+                                    .append(Component.literal("" + seconds).withStyle(ChatFormatting.DARK_GREEN))
+                                    .append(Component.literal("s").withStyle(ChatFormatting.WHITE)),  posX + 10, h - 50, 0xffffff);
+                    break;
+                }
+            }
+            for(EquipmentSlot slot : ArmorTrimsMod.slots){
+                int timer = playerDuck.abilityTimer(slot);
+                if (timer > 0) {
+                    int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+                    int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+                    int posX = w / 2;
+                    int posY = h / 2;
 
-            if (cooldown > 0) {
-
-
-                int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-                int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-                int posX = w / 2;
-                int posY = h / 2;
-
-                guiGraphics.drawString(Minecraft.getInstance().font, "Ability Unavailable Cooldown: "
-                        + (playerDuck.abilityCooldown(null) / 20)+" seconds",  posX + 10, h - 50, 0xffffff);
+                    int seconds = timer / 20;
+                    guiGraphics.drawString(Minecraft.getInstance().font,
+                            Component.literal("Ability Active").withStyle(ChatFormatting.GREEN)
+                                    .append(Component.literal(":").withStyle(ChatFormatting.WHITE))
+                                    .append(Component.literal("" + seconds).withStyle(ChatFormatting.DARK_GREEN))
+                                    .append(Component.literal("s").withStyle(ChatFormatting.WHITE)),  posX + 10, h - 50, 0xffffff);
+                    break;
+                }
             }
         }
     }

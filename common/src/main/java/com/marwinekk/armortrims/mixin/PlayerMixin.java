@@ -19,9 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Mixin(Player.class)
@@ -32,7 +30,6 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     private transient boolean dragonEgg;
     private transient boolean checkInventory;
     private transient MobEffect beaconEffect;
-    private final Map<EquipmentSlot,Integer> abilityTimers = new HashMap<>();
 
     private static final EntityDataAccessor<CompoundTag> ARMOR_TRIMS_DATA = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
 
@@ -98,13 +95,6 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
         ArmorTrimsMod.onInventoryChange($elf().getInventory(),$$0);
     }
 
-
-
-    @Override
-    public Map<EquipmentSlot, Integer> abilityTimers() {
-        return abilityTimers;
-    }
-
     @Override
     public MobEffect beaconEffect() {
         return beaconEffect;
@@ -148,18 +138,6 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     @Override
     public boolean checkInventory() {
         return checkInventory;
-    }
-
-
-
-    @Override
-    public int abilityTimer(EquipmentSlot slot) {
-        return abilityTimers.getOrDefault(slot,0);
-    }
-
-    @Override
-    public void setAbilityTimer(EquipmentSlot slot, int timer) {
-        abilityTimers.put(slot,timer);
     }
 
     @Override
