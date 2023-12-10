@@ -10,6 +10,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class DeferredEventSystem extends SavedData {
 
@@ -70,4 +71,7 @@ public class DeferredEventSystem extends SavedData {
     }
 
 
+    public void removeDeferredEvent(Predicate<DeferredEvent> predicate) {
+        this.futureEvents.removeIf(predicate);
+    }
 }

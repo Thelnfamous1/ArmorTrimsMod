@@ -6,10 +6,7 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import com.marwinekk.armortrims.util.ArmorTrimAbility;
-import com.marwinekk.armortrims.world.deferredevent.DeferredEvent;
-import com.marwinekk.armortrims.world.deferredevent.DeferredEventSystem;
-import com.marwinekk.armortrims.world.deferredevent.IronFist;
-import com.marwinekk.armortrims.world.deferredevent.SetAbilityCooldown;
+import com.marwinekk.armortrims.world.deferredevent.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -44,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -109,6 +107,10 @@ public class ArmorTrimsMod {
 
     public static void addDeferredEvent(ServerLevel level, DeferredEvent event) {
         getDeferredEventSystem(level).addDeferredEvent(event);
+    }
+
+    public static void removeDeferredEvent(ServerLevel level, Predicate<DeferredEvent> predicate){
+        getDeferredEventSystem(level).removeDeferredEvent(predicate);
     }
 
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
@@ -445,7 +447,7 @@ public class ArmorTrimsMod {
     }
 
     public static void giveTotemToDyingPlayer(LivingEntity living) {
-        if (living instanceof Player player) {
+        if (living instanceof ServerPlayer player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
             EquipmentSlot usedSlot = null;
             boolean gaveTotem = false;
@@ -464,7 +466,8 @@ public class ArmorTrimsMod {
             }
             if(gaveTotem){
                 playerDuck.setAbilityCooldown(usedSlot, 20 * 60 * 10);
-                if(usedSlot != null) playerDuck.setAbilityTimer(usedSlot, 0);
+                playerDuck.setAbilityTimer(usedSlot, 0);
+                removeDeferredEvent(player.serverLevel(), de -> de.type() == DeferredEventTypes.SET_ABILITY_COOLDOWN);
             }
         }
     }

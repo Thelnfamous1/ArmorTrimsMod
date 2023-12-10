@@ -36,7 +36,7 @@ public abstract class DeferredEvent {
     public abstract boolean attemptRun(ServerLevel level);
 
 
-    protected final DeferredEventType<?> type() {
+    public final DeferredEventType<?> type() {
         return deferredEventType;
     }
 
