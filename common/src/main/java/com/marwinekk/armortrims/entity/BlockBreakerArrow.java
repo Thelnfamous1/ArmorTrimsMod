@@ -1,6 +1,8 @@
 package com.marwinekk.armortrims.entity;
 
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
+import com.marwinekk.armortrims.ModTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -30,7 +32,10 @@ public class BlockBreakerArrow extends AbstractArrow {
     protected void onHitBlock(BlockHitResult $$0) {
         super.onHitBlock($$0);
         if(!this.level().isClientSide){
-            this.level().destroyBlock($$0.getBlockPos(), true, this);
+            BlockPos hitPos = $$0.getBlockPos();
+            if(!this.level().getBlockState(hitPos).is(ModTags.DIAMOND_ARROW_IMMUNE)){
+                this.level().destroyBlock(hitPos, true, this);
+            }
             this.discard();
         }
     }

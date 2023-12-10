@@ -62,7 +62,7 @@ public class ArmorTrimAbilities {
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
                 new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),
-                        ArmorTrimAbilities::ironFist, NULL, 15 * 20, 60 * 20)
+                        ArmorTrimAbilities::ironFist, NULL, 15 * 20, 30 * 20)
                         .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.WAX_OFF)));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
@@ -292,13 +292,14 @@ public class ArmorTrimAbilities {
         BlockBreakerArrow arrow = new BlockBreakerArrow(player.level(),player);
         int builtInPowerLvl = 7;
         arrow.setBaseDamage(arrow.getBaseDamage() + builtInPowerLvl * 0.5 + 0.5);
+        arrow.setPierceLevel((byte) (arrow.getPierceLevel() + 1));
         arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         player.level().addFreshEntity(arrow);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.diamondArrowsLeft();
         boolean applyCooldown  = false;
         if (arrows <=0) {
-            playerDuck.setDiamondArrowsLeft(2); // 3 arrows total, we just fired 1
+            playerDuck.setDiamondArrowsLeft(4); // 5 arrows total, we just fired 1
         } else {
             arrows--;
             if (arrows <= 0) {
@@ -317,7 +318,7 @@ public class ArmorTrimAbilities {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(2); // 3 arrows total, we just fired 1
+            playerDuck.setRedstoneArrowsLeft(3); // 4 arrows total, we just fired 1
         } else {
             arrows--;
             if (arrows <= 0) {

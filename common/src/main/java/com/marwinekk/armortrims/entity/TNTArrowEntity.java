@@ -29,6 +29,7 @@ import java.util.OptionalInt;
 public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, PhysicsCheck {
 	private static final EntityDataAccessor<OptionalInt> DATA_HOMING_TARGET_ID = SynchedEntityData.defineId(TNTArrowEntity.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
 	private static final EntityDataAccessor<Float> DATA_SHOT_VELOCITY = SynchedEntityData.defineId(TNTArrowEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Boolean> DATA_ONLY_SEEK_PLAYERS = SynchedEntityData.defineId(TNTArrowEntity.class, EntityDataSerializers.BOOLEAN);
 	private static final TargetingConditions TARGETING_CONDITIONS = TargetingConditions.forCombat().range(1024.0D);
 	private static final float EXPLOSION_RADIUS = 1.0F;
 	@Nullable
@@ -54,6 +55,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 		super.defineSynchedData();
 		this.entityData.define(DATA_HOMING_TARGET_ID, OptionalInt.empty());
 		this.entityData.define(DATA_SHOT_VELOCITY, 0.0F);
+		this.entityData.define(DATA_ONLY_SEEK_PLAYERS, true);
 	}
 
 	@Override
@@ -120,11 +122,20 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 				this.level().addParticle(ParticleTypes.SMOKE, xNew - deltaMovement.x * 0.25D + this.random.nextDouble() * 0.6D - 0.3D, yNew - deltaMovement.y * 0.25D - 0.5D, zNew - deltaMovement.z * 0.25D + this.random.nextDouble() * 0.6D - 0.3D, deltaMovement.x, deltaMovement.y, deltaMovement.z);
 			}
 		} else if(!this.level().isClientSide){
-			LivingEntity target = this.level().getNearestEntity(LivingEntity.class, TARGETING_CONDITIONS, this.getShooter(), this.getX(), this.getY(), this.getZ(), this.getBoundingBox().inflate(16.0D));
+			LivingEntity target = this.findHomingTarget();
 			if(target != null) this.setHomingTarget(target);
 		}
 
 		super.tick();
+	}
+
+	@Nullable
+	private LivingEntity findHomingTarget() {
+		if(this.onlySeekPlayers()){
+			return this.level().getNearestPlayer(TARGETING_CONDITIONS, this.getShooter(), this.getX(), this.getY(), this.getZ());
+		} else{
+			return this.level().getNearestEntity(LivingEntity.class, TARGETING_CONDITIONS, this.getShooter(), this.getX(), this.getY(), this.getZ(), this.getBoundingBox().inflate(16.0D));
+		}
 	}
 
 	@Nullable
@@ -187,6 +198,14 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 
 	private void setShotVelocity(float pVelocity) {
 		this.entityData.set(DATA_SHOT_VELOCITY, pVelocity);
+	}
+
+	public void setOnlySeekPlayers(boolean onlySeekPlayers){
+		this.entityData.set(DATA_ONLY_SEEK_PLAYERS, onlySeekPlayers);
+	}
+
+	public boolean onlySeekPlayers(){
+		return this.entityData.get(DATA_ONLY_SEEK_PLAYERS);
 	}
 
 }

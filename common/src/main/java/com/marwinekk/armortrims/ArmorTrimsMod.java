@@ -140,8 +140,9 @@ public class ArmorTrimsMod {
                     int timer = playerDuck.abilityTimer(slot);
                     if (timer > 0) {
                         if (trim == Items.NETHERITE_INGOT) {
-                            victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 0));
-                            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
+                            victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 8 * 20, 0));
+                            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 8 * 20, 0));
+                            victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 8 * 20, 0));
                         } else if (trim == Items.IRON_INGOT) {
                             IronFist ironFist = new IronFist(victim);
                             ironFist.setTimer(2);
@@ -398,6 +399,7 @@ public class ArmorTrimsMod {
         if (living instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
             EquipmentSlot usedSlot = null;
+            boolean gaveTotem = false;
             for (EquipmentSlot slot : slots) {
                 Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
                 int timer = playerDuck.abilityTimer(slot);
@@ -407,11 +409,13 @@ public class ArmorTrimsMod {
                     }
                     living.setItemSlot(EquipmentSlot.OFFHAND,Items.TOTEM_OF_UNDYING.getDefaultInstance());
                     usedSlot = slot;
+                    gaveTotem = true;
                     break;
                 }
             }
-            if(usedSlot != null){
+            if(gaveTotem){
                 playerDuck.setAbilityCooldown(usedSlot, 20 * 60 * 10);
+                if(usedSlot != null) playerDuck.setAbilityTimer(usedSlot, 0);
             }
         }
     }
