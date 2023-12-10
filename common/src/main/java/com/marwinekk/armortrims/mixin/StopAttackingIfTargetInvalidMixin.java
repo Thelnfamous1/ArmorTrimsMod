@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 @Mixin(StopAttackingIfTargetInvalid.class)
-public abstract class StopAttackingIfTargetInvalidMixin<E extends Mob> {
+public abstract class StopAttackingIfTargetInvalidMixin {
 
     private static LivingEntity currentTarget;
 
@@ -29,7 +29,7 @@ public abstract class StopAttackingIfTargetInvalidMixin<E extends Mob> {
 
     @Inject(method = {"method_47135", "m_257275_", "lambda$create$4"}, at = @At(value = "RETURN", ordinal = 1), cancellable = true)
     private static void forceTargetErasure(BehaviorBuilder.Instance $$0x, MemoryAccessor attackTargetMemory, boolean $$2x, MemoryAccessor $$3x, Predicate $$4x, BiConsumer onTargetErased, ServerLevel $$6, Mob attacker, long $$8, CallbackInfoReturnable<Boolean> cir){
-        if(currentTarget != null && (ArmorTrimsMod.isOwnedBy(attacker, currentTarget) || ArmorTrimsMod.isImmuneToTargeting(attacker, currentTarget))){
+        if(currentTarget != null && ArmorTrimsMod.isUnableToTarget(attacker, currentTarget)){
             onTargetErased.accept(attacker, currentTarget);
             attackTargetMemory.erase();
             cir.setReturnValue(true);

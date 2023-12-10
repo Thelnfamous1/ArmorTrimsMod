@@ -27,7 +27,7 @@ public class TargetGoalMixin {
             target = this.targetMob;
         }
 
-        if(target != null && (ArmorTrimsMod.isOwnedBy(this.mob, target) || ArmorTrimsMod.isImmuneToTargeting(this.mob, target))){
+        if(target != null && ArmorTrimsMod.isUnableToTarget(this.mob, target)){
             cir.setReturnValue(false);
         }
     }

@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Mixin(StartAttacking.class)
-public class StartAttackingMixin<E extends Mob> {
+public class StartAttackingMixin {
     private static LivingEntity currentTarget;
 
     @ModifyVariable(method = {"method_47123", "m_257271_", "lambda$create$1"}, at = @At(value = "LOAD", ordinal = 0), ordinal = 0)
@@ -27,7 +27,7 @@ public class StartAttackingMixin<E extends Mob> {
 
     @Inject(method = {"method_47123", "m_257271_", "lambda$create$1"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/behavior/declarative/MemoryAccessor;set(Ljava/lang/Object;)V"), cancellable = true)
     private static void handleConditions(Predicate $$0x, Function $$1x, MemoryAccessor $$2x, MemoryAccessor $$3x, ServerLevel $$4, Mob attacker, long $$6, CallbackInfoReturnable<Boolean> cir){
-        if(currentTarget != null && (ArmorTrimsMod.isOwnedBy(attacker, currentTarget) || ArmorTrimsMod.isImmuneToTargeting(attacker, currentTarget))) {
+        if(currentTarget != null && ArmorTrimsMod.isUnableToTarget(attacker, currentTarget)) {
             cir.setReturnValue(false);
         }
         if(currentTarget != null) currentTarget = null;

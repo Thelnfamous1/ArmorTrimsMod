@@ -21,7 +21,7 @@ public class TargetingConditionsMixin {
         if(cir.getReturnValue() && pAttacker instanceof Mob mobAttacker){
             if(!this.isCombat) return;
 
-            if(ArmorTrimsMod.isOwnedBy(mobAttacker, pTarget) || ArmorTrimsMod.isImmuneToTargeting(mobAttacker, pTarget)){
+            if(ArmorTrimsMod.isUnableToTarget(mobAttacker, pTarget)){
                 cir.setReturnValue(false);
             }
         }

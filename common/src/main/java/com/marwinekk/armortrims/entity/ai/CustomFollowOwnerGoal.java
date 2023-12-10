@@ -111,7 +111,7 @@ public class CustomFollowOwnerGoal extends Goal{
         this.tamable.getLookControl().setLookAt(this.owner, 10.0F, (float)this.tamable.getMaxHeadXRot());
         if (--this.timeToRecalcPath <= 0) {
             this.timeToRecalcPath = this.adjustedTickDelay(10);
-            if (this.tamable.distanceToSqr(this.owner) >= 144.0D) {
+            if (this.tamable.distanceToSqr(this.owner) >= TELEPORT_WHEN_DISTANCE_IS * TELEPORT_WHEN_DISTANCE_IS) {
                 this.teleportToOwner();
             } else {
                 this.navigation.moveTo(this.owner, this.speedModifier);
@@ -124,9 +124,9 @@ public class CustomFollowOwnerGoal extends Goal{
         BlockPos blockpos = this.owner.blockPosition();
 
         for(int i = 0; i < 10; ++i) {
-            int j = this.randomIntInclusive(-3, 3);
-            int k = this.randomIntInclusive(-1, 1);
-            int l = this.randomIntInclusive(-3, 3);
+            int j = this.randomIntInclusive(-MAX_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING, MAX_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING);
+            int k = this.randomIntInclusive(-MAX_VERTICAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING, MAX_VERTICAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING);
+            int l = this.randomIntInclusive(-MAX_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING, MAX_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING);
             boolean flag = this.maybeTeleportTo(blockpos.getX() + j, blockpos.getY() + k, blockpos.getZ() + l);
             if (flag) {
                 return;
@@ -136,7 +136,7 @@ public class CustomFollowOwnerGoal extends Goal{
     }
 
     private boolean maybeTeleportTo(int pX, int pY, int pZ) {
-        if (Math.abs((double)pX - this.owner.getX()) < 2.0D && Math.abs((double)pZ - this.owner.getZ()) < 2.0D) {
+        if (Math.abs((double)pX - this.owner.getX()) < MIN_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING && Math.abs((double)pZ - this.owner.getZ()) < MIN_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING) {
             return false;
         } else if (!this.canTeleportTo(new BlockPos(pX, pY, pZ))) {
             return false;

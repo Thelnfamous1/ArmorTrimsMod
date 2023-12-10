@@ -1,6 +1,7 @@
 package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.client.ArmorTrimsModClient;
+import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
@@ -468,16 +469,23 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static boolean isOwnedBy(LivingEntity mob, LivingEntity target){
-        return mob instanceof OwnableEntity && ((OwnableEntity)mob).getOwner() == target;
-    }
-
-    public static boolean isImmuneToTargeting(LivingEntity attacker, LivingEntity target){
-        if (target instanceof Player player) {
+    public static boolean isUnableToTarget(LivingEntity attacker, LivingEntity target){
+        if(attacker instanceof PiglinBruteDuck){
+            return target.getUUID().equals(((OwnableEntity)attacker).getOwnerUUID());
+        } else if (target instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
-            return playerDuck.hasSetBonus(Items.AMETHYST_SHARD);
+            boolean amethyst = playerDuck.hasSetBonus(Items.AMETHYST_SHARD);
+            if(amethyst && attacker instanceof WitchDuck witchDuck && isOwnerOrOwnerAlly(witchDuck, target)){
+                return false;
+            }
+            return amethyst;
         }
         return false;
+    }
+
+    public static boolean isOwnerOrOwnerAlly(OwnableEntity mob, LivingEntity pTarget) {
+        LivingEntity owner = mob.getOwner();
+        return owner != null && (owner == pTarget || pTarget.isAlliedTo(owner));
     }
 
     //Whats the SMP about?

@@ -230,6 +230,9 @@ public class ArmorTrimAbilities {
             witch.moveTo(player.getPosition(0));
             WitchDuck witchDuck = (WitchDuck) witch;
             witchDuck.setOwnerUUID(player.getUUID());
+            // survives 5 critical hits from sharp V diamond sword
+            witch.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100.0);
+            witch.setHealth(100.0F);
             level.addFreshEntity(witch);
         }
         return true;
