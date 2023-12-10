@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public class ArmorTrimAbility {
 
-    public static final Consumer<ServerPlayer> NULL_ACTIVE = player -> {
+    public static final Consumer<ServerPlayer> NULL = player -> {
     };
     public final Consumer<ServerPlayer> onEquip;
     public final Consumer<ServerPlayer> onServerPlayerTick;
@@ -17,7 +17,8 @@ public class ArmorTrimAbility {
 
     public final int activeTicks;
     public final int cooldown;
-    public Consumer<ServerPlayer> onCombatAbilityActive = NULL_ACTIVE;
+    public Consumer<ServerPlayer> onCombatAbilityActive = NULL;
+    public Consumer<ServerPlayer> onCombatAbilityActiveInactive = NULL;
 
 
     public ArmorTrimAbility(Consumer<ServerPlayer> onEquip, Consumer<ServerPlayer> onServerPlayerTick,
@@ -37,6 +38,11 @@ public class ArmorTrimAbility {
 
     public ArmorTrimAbility setOnCombatAbilityActive(Consumer<ServerPlayer> onCombatAbilityActive) {
         this.onCombatAbilityActive = onCombatAbilityActive;
+        return this;
+    }
+
+    public ArmorTrimAbility setOnCombatAbilityInactive(Consumer<ServerPlayer> onCombatAbilityActive) {
+        this.onCombatAbilityActiveInactive = onCombatAbilityActive;
         return this;
     }
 }

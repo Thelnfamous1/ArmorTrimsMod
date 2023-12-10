@@ -72,7 +72,8 @@ public class ArmorTrimAbilities {
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL, 20 * 20, 20 * 50)
-                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.ENCHANT)));
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.ENCHANT))
+                .setOnCombatAbilityInactive(ArmorTrimAbilities::minus1ToAllEnchants));
 
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
             player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 9, true, false));
@@ -118,7 +119,7 @@ public class ArmorTrimAbilities {
             double xSpeed = color != null ? (color >> 16 & 255) / 255.0 : player.getDeltaMovement().x;
             double ySpeed = color != null ? (color >> 8 & 255) / 255.0 : player.getDeltaMovement().y;
             double zSpeed = color != null ? (color & 255) / 255.0 : player.getDeltaMovement().z;
-            player.serverLevel().sendParticles(particleType, player.getRandomX(0.5), player.getRandomY(), player.getRandomZ(0.5), 0, xSpeed, ySpeed, zSpeed, 1);
+            player.serverLevel().sendParticles(particleType, player.getRandomX(1), player.getRandomY(), player.getRandomZ(1), 0, xSpeed, ySpeed, zSpeed, 1);
         }
     }
 
@@ -187,9 +188,9 @@ public class ArmorTrimAbilities {
 
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living)
-                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 12,0,false,false));
+                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 15,0,false,false));
         }
-        player.addEffect(new MobEffectInstance(true_invis, 12 * 20, 10, false, false));
+        player.addEffect(new MobEffectInstance(true_invis, 15 * 20, 10, false, false));
         return true;
     }
 
@@ -231,9 +232,19 @@ public class ArmorTrimAbilities {
     }
 
     static void applyEnchantToArmor(ServerPlayer player, Enchantment enchantment, int level) {
+        applyToArmor(player, stack -> stack.enchant(enchantment, level));
+    }
+
+    public static void applyToArmor(ServerPlayer player, Consumer<ItemStack> applyToStack) {
         NonNullList<ItemStack> armors = player.getInventory().armor;
         for (ItemStack stack : armors) {
-            stack.enchant(enchantment, level);
+            applyToStack.accept(stack);
+        }
+    }
+
+    public static void applyToAllSlots(ServerPlayer player, Consumer<ItemStack> applyToStack) {
+        for(EquipmentSlot slot : EquipmentSlot.values()){
+            applyToStack.accept(player.getItemBySlot(slot));
         }
     }
 
@@ -275,17 +286,28 @@ public class ArmorTrimAbilities {
     }
 
     static boolean plus1ToAllEnchants(ServerPlayer player, EquipmentSlot slot1) {
+        toggleEnchantBoosts(player, true);
+        ArmorTrimsMod.lockAllSlots(player);
+        return true;
+    }
+
+    private static void toggleEnchantBoosts(ServerPlayer player, boolean boost) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack stack = player.getItemBySlot(slot);
-            if (!stack.getEnchantmentTags().isEmpty()) {
+            if (!stack.getEnchantmentTags().isEmpty() && ArmorTrimsMod.hasEnchantBoosts(stack) != boost) {
                 ListTag listTag = stack.getEnchantmentTags();
                 for (int i = 0; i < listTag.size(); ++i) {
                     CompoundTag tagCompound = listTag.getCompound(i);
-                    EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + 1);
+                    EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + (boost ? 1 : -1));
                 }
+                ArmorTrimsMod.setEnchantBoosts(stack, boost);
             }
         }
-        return true;
+    }
+
+    private static void minus1ToAllEnchants(ServerPlayer player) {
+        toggleEnchantBoosts(player, false);
+        ArmorTrimsMod.unlockAllSlots(player);
     }
 
     static boolean givePower8Arrows(ServerPlayer player, EquipmentSlot slot) {
@@ -297,7 +319,6 @@ public class ArmorTrimAbilities {
         player.level().addFreshEntity(arrow);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.diamondArrowsLeft();
-        boolean applyCooldown  = false;
         if (arrows <=0) {
             playerDuck.setDiamondArrowsLeft(4); // 5 arrows total, we just fired 1
         } else {
@@ -307,7 +328,7 @@ public class ArmorTrimAbilities {
             }
             playerDuck.setDiamondArrowsLeft(arrows);
         }
-        return applyCooldown;
+        return false;
     }
 
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {

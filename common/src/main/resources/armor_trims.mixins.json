@@ -9,6 +9,7 @@
     "ArrowItemMixin",
     "ArrowMixin",
     "BruteMixin",
+    "EnchantmentHelperMixin",
     "InventoryMixin",
     "LivingEntityMixin",
     "PlayerMixin",

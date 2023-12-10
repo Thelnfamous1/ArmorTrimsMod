@@ -8,6 +8,8 @@ import com.marwinekk.armortrims.util.ArmorTrimAbility;
 import com.marwinekk.armortrims.world.deferredevent.DeferredEvent;
 import com.marwinekk.armortrims.world.deferredevent.DeferredEventSystem;
 import com.marwinekk.armortrims.world.deferredevent.IronFist;
+import com.marwinekk.armortrims.world.deferredevent.SetAbilityCooldown;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -50,6 +53,14 @@ public class ArmorTrimsMod {
     public static final String MOD_ID = "armor_trims";
     public static final String MOD_NAME = "ArmorTrimsMod";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
+    public static final String ARMOR_TRIMS_LOCKED_TAG = "ArmorTrimsLocked";
+    public static final Consumer<ItemStack> LOCK_SLOT = stack -> {
+        if(!stack.isEmpty()) setLocked(stack, true);
+    };
+    public static final Consumer<ItemStack> UNLOCK_SLOT = stack -> {
+        if(!stack.isEmpty() && isLocked(stack)) setLocked(stack, false);
+    };
+    private static final String ENCHANT_BOOSTS = "EnchantBoosts";
 
     public static MinecraftServer server;
 
@@ -354,6 +365,11 @@ public class ArmorTrimsMod {
             player.sendSystemMessage(Component.translatable("Can't use " + (slot != null ? slot : "set") + " trim ability yet"), true);
             return;
         }
+        int timer = playerDuck.abilityTimer(slot);
+        if (timer > 0) {
+            player.sendSystemMessage(Component.translatable((slot != null ? slot : "set") + " trim ability is already active"), true);
+            return;
+        }
 
         if (!playerDuck.dragonEgg() && slot != null) {
             player.sendSystemMessage(Component.translatable("No dragon egg"));
@@ -365,10 +381,42 @@ public class ArmorTrimsMod {
         if (trimItem != null) {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(trimItem);
             boolean shouldApplyCooldown = armorTrimAbility.activateCombatAbility.test(player,slot);
-            if (shouldApplyCooldown) playerDuck.setAbilityCooldown(slot, armorTrimAbility.cooldown);
+            if (shouldApplyCooldown){
+                SetAbilityCooldown setAbilityCooldown = new SetAbilityCooldown(player, slot, armorTrimAbility.cooldown);
+                setAbilityCooldown.setTimer(armorTrimAbility.activeTicks);
+                addDeferredEvent(player.serverLevel(),setAbilityCooldown);
+            }
             playerDuck.setAbilityTimer(slot, armorTrimAbility.activeTicks);
             LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
         }
+    }
+
+    public static void lockAllSlots(ServerPlayer player){
+        ArmorTrimAbilities.applyToAllSlots(player, LOCK_SLOT);
+    }
+
+    public static void unlockAllSlots(ServerPlayer player){
+        ArmorTrimAbilities.applyToAllSlots(player, UNLOCK_SLOT);
+    }
+
+    public static boolean isLocked(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getBoolean(ARMOR_TRIMS_LOCKED_TAG);
+    }
+
+    public static void setLocked(ItemStack stack, boolean locked) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putBoolean(ARMOR_TRIMS_LOCKED_TAG, locked);
+    }
+
+    public static boolean hasEnchantBoosts(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getBoolean(ENCHANT_BOOSTS);
+    }
+
+    public static void setEnchantBoosts(ItemStack stack, boolean enchantBoosts) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putBoolean(ENCHANT_BOOSTS, enchantBoosts);
     }
 
     @Nullable

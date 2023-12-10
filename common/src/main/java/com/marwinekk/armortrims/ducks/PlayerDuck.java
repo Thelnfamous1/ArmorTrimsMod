@@ -79,7 +79,7 @@ public interface PlayerDuck {
             int v = entry.getValue();
             if (v > 0) {
                 setAbilityTimer(slot, v - 1);
-                active = true;
+                if(v - 1 > 0) active = true;
             }
         }
 
@@ -90,11 +90,13 @@ public interface PlayerDuck {
                 ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY);
                 armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
                 if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
+                else armorTrimAbility.onCombatAbilityActiveInactive.accept((ServerPlayer) $elf());
             }
         } else {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY);
             armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
             if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
+            else armorTrimAbility.onCombatAbilityActiveInactive.accept((ServerPlayer) $elf());
         }
     }
 
