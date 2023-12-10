@@ -6,6 +6,7 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.entity.BlockBreakerArrow;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
+import com.marwinekk.armortrims.world.deferredevent.DespawnLater;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleOptions;
@@ -205,6 +206,9 @@ public class ArmorTrimAbilities {
             piglinBrute.setImmuneToZombification(true);
             PiglinBruteDuck piglinBruteDuck = (PiglinBruteDuck) piglinBrute;
             piglinBruteDuck.setOwnerUUID(player.getUUID());
+            DespawnLater despawnLater = new DespawnLater(piglinBrute);
+            despawnLater.setTimer(2 * 60 * 20);
+            ArmorTrimsMod.addDeferredEvent(player.serverLevel(),despawnLater);
         }
         return true;
     }
