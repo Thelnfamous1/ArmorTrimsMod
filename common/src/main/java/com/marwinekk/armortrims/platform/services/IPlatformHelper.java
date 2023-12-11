@@ -2,6 +2,7 @@ package com.marwinekk.armortrims.platform.services;
 
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 
 public interface IPlatformHelper {
 
@@ -39,5 +40,9 @@ public interface IPlatformHelper {
 
     void sendAbilityPacket(EquipmentSlot slot);
     void sendMobEffectPacket(MobEffect effect, int amplifier);
+
+    void addExtraInventorySlots(Player player);
+
+    void removeExtraInventorySlots(Player player);
 
 }

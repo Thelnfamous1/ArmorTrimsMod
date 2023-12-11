@@ -59,6 +59,7 @@ public class ArmorTrimsMod {
     public static final Consumer<ItemStack> UNLOCK_SLOT = stack -> {
         if(!stack.isEmpty() && isLocked(stack)) setLocked(stack, false);
     };
+    public static final int BONUS_SLOTS = 5;
     private static final String ENCHANT_BOOSTS = "EnchantBoosts";
 
     public static MinecraftServer server;
@@ -489,6 +490,10 @@ public class ArmorTrimsMod {
     public static boolean isOwnerOrOwnerAlly(OwnableEntity mob, LivingEntity pTarget) {
         LivingEntity owner = mob.getOwner();
         return owner != null && (owner == pTarget || pTarget.isAlliedTo(owner));
+    }
+
+    public static boolean hasBonusSlots(Player player) {
+        return ((PlayerDuck) player).hasSetBonus(Items.DIAMOND);
     }
 
     //Whats the SMP about?

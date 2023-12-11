@@ -4,5 +4,6 @@
   "key.chestplate_bonus_ability": "Chestplate Trim Ability",
   "key.helmet_bonus_ability": "Helmet Trim Ability",
   "key.leggings_bonus_ability": "Leggings Trim Ability",
-  "key.set_bonus_ability": "Combat Ability"
+  "key.set_bonus_ability": "Combat Ability",
+  "trinkets.slot.armor_trims.diamond_trim_bonus": "Diamond Trim Bonus"
 }

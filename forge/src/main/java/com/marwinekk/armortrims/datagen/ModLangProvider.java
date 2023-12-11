@@ -21,6 +21,8 @@ public class ModLangProvider extends LanguageProvider {
 
         addKey(ModKeybinds.SET_BONUS_ABILITY,"Combat Ability");
 
+        add("trinkets.slot.armor_trims.diamond_trim_bonus","Diamond Trim Bonus");
+
 
     }
 

@@ -1,0 +1,8 @@
+{
+  "entities": [
+    "player"
+  ],
+  "slots": [
+    "armor_trims/diamond_trim_bonus"
+  ]
+}

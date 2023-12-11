@@ -1,0 +1,7 @@
+{
+  "amount": 0,
+  "icon": "trinkets:gui/slots/empty",
+  "validator_predicates": [
+    "trinkets:all"
+  ]
+}

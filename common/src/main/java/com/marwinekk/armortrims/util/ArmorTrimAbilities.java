@@ -6,6 +6,7 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
 import com.marwinekk.armortrims.entity.BlockBreakerArrow;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
+import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.world.deferredevent.DespawnLater;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
@@ -90,8 +91,10 @@ public class ArmorTrimAbilities {
                 player -> removeAttributeModifier(player, Attributes.MAX_HEALTH), 0, 20 * 50));
 
         ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60));
-        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, NULL, ArmorTrimAbilities::givePower8Arrows, player ->
-                removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND)));
+        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, Services.PLATFORM::addExtraInventorySlots, ArmorTrimAbilities::givePower8Arrows, player ->{
+            Services.PLATFORM.removeExtraInventorySlots(player);
+            removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND);
+        }));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
                 NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0));
 
@@ -124,11 +127,11 @@ public class ArmorTrimAbilities {
         }
     }
 
-    static final UUID modifier_uuid = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
+    public static final UUID MODIFIER_UUID = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
 
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
-        player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
-        player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(modifier_uuid, "Armor Trims mod", amount, operation));
+        player.getAttribute(attribute).removePermanentModifier(MODIFIER_UUID);
+        player.getAttribute(attribute).addPermanentModifier(new AttributeModifier(MODIFIER_UUID, "Armor Trims mod", amount, operation));
     }
 
     static void removeEmeraldEffect(ServerPlayer player) {
@@ -162,7 +165,7 @@ public class ArmorTrimAbilities {
     }
 
     static void removeAttributeModifier(ServerPlayer player, Attribute attribute) {
-        player.getAttribute(attribute).removePermanentModifier(modifier_uuid);
+        player.getAttribute(attribute).removePermanentModifier(MODIFIER_UUID);
 
         if (player.getHealth() > player.getMaxHealth()) {
             player.setHealth(player.getMaxHealth());

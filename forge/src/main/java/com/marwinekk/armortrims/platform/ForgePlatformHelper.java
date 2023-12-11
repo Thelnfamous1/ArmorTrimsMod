@@ -6,6 +6,7 @@ import com.marwinekk.armortrims.network.PacketHandler;
 import com.marwinekk.armortrims.platform.services.IPlatformHelper;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 
@@ -38,5 +39,15 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public void sendMobEffectPacket(MobEffect effect, int amplifier) {
         PacketHandler.CHANNEL.sendToServer(new C2SMobEffectPacket(effect, amplifier));
+    }
+
+    @Override
+    public void addExtraInventorySlots(Player player) {
+        // this is where Curios compat would be added
+    }
+
+    @Override
+    public void removeExtraInventorySlots(Player player) {
+        // this is where Curios compat would be added
     }
 }
