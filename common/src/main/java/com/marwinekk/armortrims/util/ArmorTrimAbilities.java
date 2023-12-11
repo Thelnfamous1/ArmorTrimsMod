@@ -60,6 +60,7 @@ public class ArmorTrimAbilities {
 
     public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL, NULL, BI_NULL, NULL);
     public static final String ARMOR_TRIMS_TAG = "armor_trims";
+    public static final UUID MODIFIER_UUID = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
 
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
@@ -91,10 +92,16 @@ public class ArmorTrimAbilities {
                 player -> removeAttributeModifier(player, Attributes.MAX_HEALTH), 0, 20 * 50));
 
         ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60));
-        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(ArmorTrimAbilities::applyUnbreakingOnAllArmor, Services.PLATFORM::addExtraInventorySlots, ArmorTrimAbilities::givePower8Arrows, player ->{
-            Services.PLATFORM.removeExtraInventorySlots(player);
-            removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND);
-        }));
+        ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(
+                player -> {
+                    Services.PLATFORM.addExtraInventorySlots(player);
+                    ArmorTrimAbilities.applyUnbreakingOnAllArmor(player);
+                    },
+                NULL, ArmorTrimAbilities::givePower8Arrows,
+                player -> {
+                    Services.PLATFORM.removeExtraInventorySlots(player);
+                    removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND);
+                }));
         ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
                 NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0));
 
@@ -126,8 +133,6 @@ public class ArmorTrimAbilities {
             player.serverLevel().sendParticles(particleType, player.getRandomX(1), player.getRandomY(), player.getRandomZ(1), 0, xSpeed, ySpeed, zSpeed, 1);
         }
     }
-
-    public static final UUID MODIFIER_UUID = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
 
     static void addAttributeModifier(ServerPlayer player, Attribute attribute, double amount, AttributeModifier.Operation operation) {
         player.getAttribute(attribute).removePermanentModifier(MODIFIER_UUID);

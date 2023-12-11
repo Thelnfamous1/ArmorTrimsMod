@@ -1,7 +1,13 @@
 {
   "amount": 0,
-  "icon": "trinkets:gui/slots/empty",
+  "icon": "armor_trims:gui/slots/diamond_trim_bonus",
   "validator_predicates": [
     "trinkets:all"
+  ],
+  "quick_move_predicates": [
+    "trinkets:none"
+  ],
+  "tooltip_predicates": [
+    "trinkets:none"
   ]
 }
