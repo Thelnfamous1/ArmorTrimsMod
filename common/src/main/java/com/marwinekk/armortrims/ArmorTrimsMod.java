@@ -635,7 +635,7 @@ public class ArmorTrimsMod {
     //bugs
 
     // CORE ISSUE
-    //Cannot join a server with the mod, we recieve an error that says “Invalid Player Data”
+    //Cannot join a server with the mod, we recieve an error that says "Invalid Player Data"
     //
     //
     //Change cooldown to seconds instead of ticks
