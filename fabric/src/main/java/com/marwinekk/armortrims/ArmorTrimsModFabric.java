@@ -13,8 +13,13 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.network.PacketHandler;
+import com.marwinekk.armortrims.platform.Services;
+import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Registry;
@@ -22,6 +27,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Items;
 
 public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer {
 
@@ -31,6 +38,19 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 		ServerLifecycleEvents.SERVER_STARTED.register(this::serverStartedF);
 		ServerLifecycleEvents.SERVER_STOPPED.register(this::serverStoppedF);
 		ServerTickEvents.START_WORLD_TICK.register(this::serverLevelTick);
+		ServerPlayerEvents.AFTER_RESPAWN.register(((oldPlayer, newPlayer, alive) -> {
+			PlayerDuck playerDuck = (PlayerDuck)newPlayer;
+			if(!playerDuck.hasSetBonus(Items.DIAMOND)){
+				Services.PLATFORM.removeExtraInventorySlots(newPlayer);
+			}
+		}));
+		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if(entity instanceof ItemEntity itemEntity){
+				ArmorTrimsMod.removeAllBonusEnchants(itemEntity.getItem());
+				ArmorTrimsMod.UNLOCK_SLOT.accept(itemEntity.getItem());
+				ArmorTrimAbilities.toggleEnchantBoost(itemEntity.getItem(), false);
+			}
+		});
 		PacketHandler.registerPackets();
 	}
 

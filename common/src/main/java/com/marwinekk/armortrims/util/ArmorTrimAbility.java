@@ -17,8 +17,9 @@ public class ArmorTrimAbility {
 
     public final int activeTicks;
     public final int cooldown;
-    public Consumer<ServerPlayer> onCombatAbilityActive = NULL;
-    public Consumer<ServerPlayer> onCombatAbilityActiveInactive = NULL;
+    private Consumer<ServerPlayer> onCombatAbilityActive = NULL;
+    private Consumer<ServerPlayer> onCombatAbilityActiveInactive = NULL;
+    private boolean runEveryEquip;
 
 
     public ArmorTrimAbility(Consumer<ServerPlayer> onEquip, Consumer<ServerPlayer> onServerPlayerTick,
@@ -44,5 +45,22 @@ public class ArmorTrimAbility {
     public ArmorTrimAbility setOnCombatAbilityInactive(Consumer<ServerPlayer> onCombatAbilityActive) {
         this.onCombatAbilityActiveInactive = onCombatAbilityActive;
         return this;
+    }
+
+    public ArmorTrimAbility runEveryEquip(){
+        this.runEveryEquip = true;
+        return this;
+    }
+
+    public Consumer<ServerPlayer> getOnCombatAbilityActive() {
+        return onCombatAbilityActive;
+    }
+
+    public Consumer<ServerPlayer> getOnCombatAbilityActiveInactive() {
+        return onCombatAbilityActiveInactive;
+    }
+
+    public boolean isRunEveryEquip() {
+        return runEveryEquip;
     }
 }

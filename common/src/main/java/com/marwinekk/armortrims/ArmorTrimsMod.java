@@ -8,7 +8,10 @@ import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import com.marwinekk.armortrims.util.ArmorTrimAbility;
 import com.marwinekk.armortrims.world.deferredevent.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,6 +35,8 @@ import net.minecraft.world.item.armortrim.TrimMaterial;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
@@ -61,6 +66,7 @@ public class ArmorTrimsMod {
     };
     public static final int BONUS_SLOTS = 5;
     private static final String ENCHANT_BOOSTS = "EnchantBoosts";
+    private static final String BONUS_ENCHANTS = "BonusEnchants";
 
     public static MinecraftServer server;
 
@@ -220,12 +226,12 @@ public class ArmorTrimsMod {
             if (hasEgg != oldHasEgg) {
                 //now has egg, didn't before
                 if (hasEgg) {
-                    if (!currentSet.contains(oldSetBonus)) {
+                    if (!currentSet.contains(oldSetBonus) || isRunEveryEquip(oldSetBonus)) {
                         if (oldSetBonus != null)
                             ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(oldSetBonus).onRemove.accept(serverPlayer);
                     }
                     Set<Item> runOn = new HashSet<>(currentSet);
-                    runOn.remove(oldSetBonus);
+                    if(!isRunEveryEquip(oldSetBonus)) runOn.remove(oldSetBonus);
                     for (Item item : runOn) {
                         ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(item).onEquip.accept(serverPlayer);
                     }
@@ -247,9 +253,9 @@ public class ArmorTrimsMod {
                 if (hasEgg) {
 
                     Set<Item> newEffects = new HashSet<>(currentSet);
-                    newEffects.removeAll(oldSet);
+                    newEffects.removeIf(item -> oldSet.contains(item) && !isRunEveryEquip(item));
                     Set<Item> oldEffects = new HashSet<>(oldSet);
-                    oldEffects.removeAll(currentSet);
+                    oldEffects.removeIf(item -> currentSet.contains(item) && !isRunEveryEquip(item));
 
                     oldEffects.stream().map(ArmorTrimAbilities.ARMOR_TRIM_REGISTRY::get).forEach(armorTrimModifier -> armorTrimModifier.onRemove.accept(serverPlayer));
                     newEffects.stream().map(ArmorTrimAbilities.ARMOR_TRIM_REGISTRY::get).forEach(armorTrimModifier -> armorTrimModifier.onEquip.accept(serverPlayer));
@@ -297,6 +303,11 @@ public class ArmorTrimsMod {
             player.getInventory().add(stack);
         }
 
+    }
+
+    private static boolean isRunEveryEquip(@Nullable Item item) {
+        if(item == null) return false;
+        return ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY).isRunEveryEquip();
     }
 
     public static final String POWER_TAG = "armor_trims:power";
@@ -421,6 +432,65 @@ public class ArmorTrimsMod {
     public static void setEnchantBoosts(ItemStack stack, boolean enchantBoosts) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putBoolean(ENCHANT_BOOSTS, enchantBoosts);
+    }
+
+    public static int getBonusEnchant(ItemStack stack, Enchantment enchantment) {
+        CompoundTag tag = stack.getTag();
+        if(tag == null) return 0;
+        if(!tag.contains(BONUS_ENCHANTS, Tag.TAG_LIST)) return 0;
+        ListTag bonusEnchants = tag.getList(BONUS_ENCHANTS, Tag.TAG_COMPOUND);
+        ResourceLocation targetId = EnchantmentHelper.getEnchantmentId(enchantment);
+        for(int idx = 0; idx < bonusEnchants.size(); ++idx) {
+            CompoundTag bonusEnchant = bonusEnchants.getCompound(idx);
+            ResourceLocation bonusId = EnchantmentHelper.getEnchantmentId(bonusEnchant);
+            if (bonusId != null && bonusId.equals(targetId)) {
+                return EnchantmentHelper.getEnchantmentLevel(bonusEnchant);
+            }
+        }
+        return 0;
+    }
+
+    public static void setBonusEnchant(ItemStack stack, Enchantment enchantment, int level) {
+        CompoundTag tag = stack.getOrCreateTag();
+        if (!tag.contains(BONUS_ENCHANTS, Tag.TAG_LIST)) {
+            tag.put(BONUS_ENCHANTS, new ListTag());
+        }
+        ListTag bonusEnchants = tag.getList(BONUS_ENCHANTS, Tag.TAG_COMPOUND);
+        ResourceLocation searchId = EnchantmentHelper.getEnchantmentId(enchantment);
+        Iterator<Tag> iterator = bonusEnchants.iterator();
+        while (iterator.hasNext()) { // clear dupes
+            CompoundTag bonusEnchant = (CompoundTag) iterator.next();
+            ResourceLocation id = EnchantmentHelper.getEnchantmentId(bonusEnchant);
+            if (id != null && id.equals(searchId)) {
+                iterator.remove();
+            }
+        }
+        bonusEnchants.add(EnchantmentHelper.storeEnchantment(searchId, level));
+    }
+
+
+
+    public static void removeAllBonusEnchants(ItemStack stack) {
+        if(!stack.hasTag()) return;
+        CompoundTag tag = stack.getOrCreateTag();
+        if (!tag.contains(BONUS_ENCHANTS, Tag.TAG_LIST)) {
+            tag.put(BONUS_ENCHANTS, new ListTag());
+        }
+        ListTag bonusEnchants = tag.getList(BONUS_ENCHANTS, Tag.TAG_COMPOUND);
+        Map<Enchantment, Integer> current = EnchantmentHelper.getEnchantments(stack);
+        Map<Enchantment, Integer> bonus = EnchantmentHelper.deserializeEnchantments(bonusEnchants);
+        bonus.keySet().forEach(ench -> {
+            int bonusLevel = bonus.get(ench);
+            if(bonusLevel <= 0) return;
+            int currentLevel = current.getOrDefault(ench, 0);
+            if(currentLevel - bonusLevel > 0){
+                current.put(ench, currentLevel - bonusLevel);
+            } else{
+                current.remove(ench);
+            }
+        });
+        EnchantmentHelper.setEnchantments(current,stack);
+        tag.remove(BONUS_ENCHANTS);
     }
 
     @Nullable

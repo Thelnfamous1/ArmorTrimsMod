@@ -54,7 +54,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
         ClientPlayNetworking.send(PacketHandler.mob_effect,buf);
     }
 
-    private static final AttributeModifier ADD_DIAMOND_TRIM_BONUS_SLOTS = new AttributeModifier(ArmorTrimAbilities.MODIFIER_UUID, DIAMOND_TRIM_BONUS_SLOT_NAME, 5.0D, AttributeModifier.Operation.ADDITION);
+    private static final AttributeModifier ADD_DIAMOND_TRIM_BONUS_SLOTS = new AttributeModifier(ArmorTrimAbilities.MODIFIER_UUID, DIAMOND_TRIM_BONUS_SLOT_NAME, ArmorTrimsMod.BONUS_SLOTS, AttributeModifier.Operation.ADDITION);
 
     @Override
     public void addExtraInventorySlots(Player player) {

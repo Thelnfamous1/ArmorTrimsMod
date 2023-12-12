@@ -101,14 +101,14 @@ public interface PlayerDuck {
             for (Item item : trimMaterials()) {
                 ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(item, ArmorTrimAbilities.DUMMY);
                 armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
-                if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
-                else armorTrimAbility.onCombatAbilityActiveInactive.accept((ServerPlayer) $elf());
+                if(active) armorTrimAbility.getOnCombatAbilityActive().accept((ServerPlayer) $elf());
+                else armorTrimAbility.getOnCombatAbilityActiveInactive().accept((ServerPlayer) $elf());
             }
         } else {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.getOrDefault(regularSetBonus(), ArmorTrimAbilities.DUMMY);
             armorTrimAbility.onServerPlayerTick.accept((ServerPlayer) $elf());
-            if(active) armorTrimAbility.onCombatAbilityActive.accept((ServerPlayer) $elf());
-            else armorTrimAbility.onCombatAbilityActiveInactive.accept((ServerPlayer) $elf());
+            if(active) armorTrimAbility.getOnCombatAbilityActive().accept((ServerPlayer) $elf());
+            else armorTrimAbility.getOnCombatAbilityActiveInactive().accept((ServerPlayer) $elf());
         }
     }
 

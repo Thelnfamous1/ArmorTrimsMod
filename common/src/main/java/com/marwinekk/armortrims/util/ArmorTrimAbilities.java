@@ -95,15 +95,15 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(
                 player -> {
                     Services.PLATFORM.addExtraInventorySlots(player);
-                    ArmorTrimAbilities.applyUnbreakingOnAllArmor(player);
-                    },
+                    applyBonusEnchantToArmor(player, Enchantments.UNBREAKING, 4, Items.DIAMOND);
+                },
                 NULL, ArmorTrimAbilities::givePower8Arrows,
                 player -> {
                     Services.PLATFORM.removeExtraInventorySlots(player);
-                    removeEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND);
-                }));
-        ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4),
-                NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0));
+                    removeBonusEnchantFromArmor(player,Enchantments.UNBREAKING,Items.DIAMOND);
+                }).runEveryEquip());
+        ARMOR_TRIM_REGISTRY.put(Items.REDSTONE, new ArmorTrimAbility(player -> applyBonusEnchantToArmor(player, Enchantments.BLAST_PROTECTION, 4, Items.REDSTONE),
+                NULL, ArmorTrimAbilities::summonHomingArrows, player -> removeBonusEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE),0,0).runEveryEquip());
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
@@ -246,8 +246,18 @@ public class ArmorTrimAbilities {
         return true;
     }
 
-    static void applyEnchantToArmor(ServerPlayer player, Enchantment enchantment, int level) {
-        applyToArmor(player, stack -> stack.enchant(enchantment, level));
+    static void applyBonusEnchantToArmor(ServerPlayer player, Enchantment enchantment, int level, Item trimItem) {
+        applyToArmor(player, stack -> {
+            if(ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == trimItem){
+                Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+                int currentLevel = enchantments.getOrDefault(enchantment, 0);
+                if(currentLevel < level){
+                    enchantments.put(enchantment, level);
+                    EnchantmentHelper.setEnchantments(enchantments, stack);
+                    ArmorTrimsMod.setBonusEnchant(stack, enchantment, level - currentLevel);
+                }
+            }
+        });
     }
 
     public static void applyToArmor(ServerPlayer player, Consumer<ItemStack> applyToStack) {
@@ -263,41 +273,40 @@ public class ArmorTrimAbilities {
         }
     }
 
-    static void removeEnchantFromArmor(ServerPlayer player, Enchantment enchantment, Item item) {
+    static void removeBonusEnchantFromArmor(ServerPlayer player, Enchantment enchantment, Item item) {
         NonNullList<ItemStack> armors = player.getInventory().armor;
         //remove setbonus from other armors
         for (ItemStack stack : armors) {
             if (ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == item) {
-                removeEnchant(stack,enchantment);
+                removeBonusEnchant(stack,enchantment);
             }
         }
-        boolean found4thPiece = false;
         AbstractContainerMenu containerMenu = player.containerMenu;
         ItemStack carry = containerMenu.getCarried();
         if (ArmorTrimsMod.getTrimItem(player.serverLevel(),carry) == item) {
-            found4thPiece = true;
-            removeEnchant(carry,enchantment);
+            removeBonusEnchant(carry,enchantment);
         }
 
-        if (!found4thPiece) {
-            NonNullList<ItemStack> items = player.getInventory().items;
-            for (ItemStack stack : items) {
-                if (ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == item) {
-                    removeEnchant(stack,enchantment);
-                    break;
-                }
+        NonNullList<ItemStack> items = player.getInventory().items;
+        for (ItemStack stack : items) {
+            if (ArmorTrimsMod.getTrimItem(player.serverLevel(), stack) == item) {
+                removeBonusEnchant(stack,enchantment);
             }
         }
     }
 
-    public static void removeEnchant(ItemStack stack,Enchantment enchantment) {
+    public static void removeBonusEnchant(ItemStack stack, Enchantment enchantment) {
+        int bonusLevel = ArmorTrimsMod.getBonusEnchant(stack, enchantment);
+        if(bonusLevel <= 0) return;
         Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(stack);
-        map.remove(enchantment);
+        int currentLevel = map.getOrDefault(enchantment, 0);
+        if(currentLevel - bonusLevel > 0){
+            map.put(enchantment, currentLevel - bonusLevel);
+        } else{
+            map.remove(enchantment);
+        }
         EnchantmentHelper.setEnchantments(map,stack);
-    }
-
-    static void applyUnbreakingOnAllArmor(ServerPlayer player) {
-        applyEnchantToArmor(player, Enchantments.UNBREAKING, 4);
+        ArmorTrimsMod.setBonusEnchant(stack, enchantment, 0);
     }
 
     static boolean plus1ToAllEnchants(ServerPlayer player, EquipmentSlot slot1) {
@@ -309,14 +318,18 @@ public class ArmorTrimAbilities {
     private static void toggleEnchantBoosts(ServerPlayer player, boolean boost) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack stack = player.getItemBySlot(slot);
-            if (!stack.getEnchantmentTags().isEmpty() && ArmorTrimsMod.hasEnchantBoosts(stack) != boost) {
-                ListTag listTag = stack.getEnchantmentTags();
-                for (int i = 0; i < listTag.size(); ++i) {
-                    CompoundTag tagCompound = listTag.getCompound(i);
-                    EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + (boost ? 1 : -1));
-                }
-                ArmorTrimsMod.setEnchantBoosts(stack, boost);
+            toggleEnchantBoost(stack, boost);
+        }
+    }
+
+    public static void toggleEnchantBoost(ItemStack stack, boolean boost) {
+        if (!stack.getEnchantmentTags().isEmpty() && ArmorTrimsMod.hasEnchantBoosts(stack) != boost) {
+            ListTag enchantmentTags = stack.getEnchantmentTags();
+            for (int idx = 0; idx < enchantmentTags.size(); ++idx) {
+                CompoundTag tagCompound = enchantmentTags.getCompound(idx);
+                EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + (boost ? 1 : -1));
             }
+            ArmorTrimsMod.setEnchantBoosts(stack, boost);
         }
     }
 
