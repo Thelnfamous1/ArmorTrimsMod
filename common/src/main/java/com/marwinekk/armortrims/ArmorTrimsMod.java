@@ -1,6 +1,7 @@
 package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.client.ArmorTrimsModClient;
+import com.marwinekk.armortrims.commands.ATCommands;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
@@ -57,7 +58,7 @@ public class ArmorTrimsMod {
     public static final String MOD_ID = "armor_trims";
     public static final String MOD_NAME = "ArmorTrimsMod";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
-    public static final String ARMOR_TRIMS_LOCKED_TAG = "ArmorTrimsLocked";
+    public static final String ARMOR_TRIMS_LOCKED_TAG = "armor_trims:locked";
     public static final Consumer<ItemStack> LOCK_SLOT = stack -> {
         if(!stack.isEmpty()) setLocked(stack, true);
     };
@@ -65,8 +66,8 @@ public class ArmorTrimsMod {
         if(!stack.isEmpty() && isLocked(stack)) setLocked(stack, false);
     };
     public static final int BONUS_SLOTS = 5;
-    private static final String ENCHANT_BOOSTS = "EnchantBoosts";
-    private static final String BONUS_ENCHANTS = "BonusEnchants";
+    private static final String ENCHANT_BOOSTS = "armor_trims:enchant_boosts";
+    private static final String BONUS_ENCHANTS = "armor_trims:bonus_enchants";
 
     public static MinecraftServer server;
 
@@ -81,6 +82,8 @@ public class ArmorTrimsMod {
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
     }
+
+    public static boolean manepear;
 
     public static void serverStarted(MinecraftServer server) {
         ArmorTrimsMod.server = server;
@@ -153,6 +156,11 @@ public class ArmorTrimsMod {
 
     public static void onDamaged(LivingEntity victim, DamageSource source) {
         if (source.getEntity() instanceof Player attacker) {
+            boolean manepear = ArmorTrimsMod.manepear && ATCommands.isNamed(ATCommands.MANE_PEAR, attacker);
+            if(manepear){
+                applyWitherPunch(victim);
+            }
+
             PlayerDuck playerDuck = (PlayerDuck) attacker;
             for (EquipmentSlot slot : slots) {
                 Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(attacker.level(), attacker.getItemBySlot(slot));
@@ -161,9 +169,7 @@ public class ArmorTrimsMod {
                     int timer = playerDuck.abilityTimer(slot);
                     if (timer > 0) {
                         if (trim == Items.NETHERITE_INGOT) {
-                            victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 8 * 20, 0));
-                            victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 8 * 20, 0));
-                            victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 8 * 20, 0));
+                            applyWitherPunch(victim);
                         } else if (trim == Items.IRON_INGOT) {
                             IronFist ironFist = new IronFist(victim);
                             ironFist.setTimer(2);
@@ -173,6 +179,12 @@ public class ArmorTrimsMod {
                 }
             }
         }
+    }
+
+    private static void applyWitherPunch(LivingEntity victim) {
+        victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 8 * 20, 0));
+        victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 8 * 20, 0));
+        victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 8 * 20, 0));
     }
 
     public static float onKnockback(double original,LivingEntity victim) {

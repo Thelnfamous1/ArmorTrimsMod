@@ -61,6 +61,7 @@ public class ArmorTrimAbilities {
     public static final ArmorTrimAbility DUMMY = new ArmorTrimAbility(NULL, NULL, BI_NULL, NULL);
     public static final String ARMOR_TRIMS_TAG = "armor_trims";
     public static final UUID MODIFIER_UUID = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
+    public static final int MAX_LOCK_ON_DIST = 1024;
 
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
@@ -362,7 +363,7 @@ public class ArmorTrimAbilities {
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
-        lockOn(player, tntArrowEntity, 1024);
+        lockOn(player, tntArrowEntity);
         player.level().addFreshEntity(tntArrowEntity);
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
@@ -378,14 +379,14 @@ public class ArmorTrimAbilities {
         return false;
     }
 
-    private static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow, int maxLockOnDist) {
-        HitResult hitResult = shooter.pick(maxLockOnDist, 0.0F, false);
+    public static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow) {
+        HitResult hitResult = shooter.pick(MAX_LOCK_ON_DIST, 0.0F, false);
         Vec3 startVec = shooter.getEyePosition();
-        double maxLockOnDistSqr = maxLockOnDist * maxLockOnDist;
+        double maxLockOnDistSqr = MAX_LOCK_ON_DIST * MAX_LOCK_ON_DIST;
         if (hitResult.getType() != HitResult.Type.MISS) {
             maxLockOnDistSqr = hitResult.getLocation().distanceToSqr(startVec);
         }
-        Vec3 viewVector = shooter.getViewVector(1.0F).scale(maxLockOnDist);
+        Vec3 viewVector = shooter.getViewVector(1.0F).scale(MAX_LOCK_ON_DIST);
         Vec3 endVec = startVec.add(viewVector);
         AABB searchBox = shooter.getBoundingBox().expandTowards(viewVector).inflate(1.0D);
         EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(shooter, startVec, endVec, searchBox, (e) -> !e.isSpectator() && e.isPickable(), maxLockOnDistSqr);

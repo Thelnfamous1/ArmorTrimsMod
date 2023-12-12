@@ -105,14 +105,14 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 		if(this.hasHomingTarget()){
 			Entity homingTarget = this.getHomingTarget();
 			if (homingTarget != null && !this.inGround) {
-				float shotVelocity = this.getShotVelocity() * 2; // double by requesst
-				Vec3 positionDelta = homingTarget.getEyePosition().subtract(this.position());
+				float shotVelocity = this.getShotVelocity();
+				Vec3 positionDelta = homingTarget.getEyePosition().subtract(this.getEyePosition());
 				this.setPosRaw(this.getX(), this.getY() + positionDelta.y * 0.015D * (double)shotVelocity, this.getZ());
 				if (this.level().isClientSide) {
 					this.yOld = this.getY();
 				}
 
-				double stepScale = 0.05D * (double)shotVelocity;
+				double stepScale = 0.1D * (double)shotVelocity; // double base speed by 2 by request, from 0.05
 				this.setDeltaMovement(this.getDeltaMovement().scale(0.95D).add(positionDelta.normalize().scale(stepScale)));
 
 				Vec3 deltaMovement = this.getDeltaMovement();

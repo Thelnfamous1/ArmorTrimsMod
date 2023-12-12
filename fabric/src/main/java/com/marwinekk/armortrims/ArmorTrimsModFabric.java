@@ -13,11 +13,13 @@
  */
 package com.marwinekk.armortrims;
 
+import com.marwinekk.armortrims.commands.ATCommands;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.network.PacketHandler;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -50,6 +52,9 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 				ArmorTrimsMod.UNLOCK_SLOT.accept(itemEntity.getItem());
 				ArmorTrimAbilities.toggleEnchantBoost(itemEntity.getItem(), false);
 			}
+		});
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			ATCommands.register(dispatcher);
 		});
 		PacketHandler.registerPackets();
 	}
