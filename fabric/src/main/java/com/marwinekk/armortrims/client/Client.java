@@ -17,6 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
+import org.jetbrains.annotations.Nullable;
 
 public class Client implements ClientModInitializer {
 
@@ -41,40 +42,38 @@ public class Client implements ClientModInitializer {
 
             PlayerDuck playerDuck = (PlayerDuck)player;
 
-            for(EquipmentSlot slot : ArmorTrimsMod.slots){
-                int cooldown = playerDuck.abilityCooldown(slot);
-                if (cooldown > 0) {
-                    int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-                    int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-                    int posX = w / 2;
-                    int posY = h / 2;
-
-                    int seconds = cooldown / 20;
-                    guiGraphics.drawString(Minecraft.getInstance().font,
-                            Component.literal("Ability Unavailable").withStyle(ChatFormatting.RED)
-                                    .append(Component.literal(":").withStyle(ChatFormatting.WHITE))
-                                    .append(Component.literal("" + seconds).withStyle(ChatFormatting.DARK_GREEN))
-                                    .append(Component.literal("s").withStyle(ChatFormatting.WHITE)),  posX + 10, h - 50, 0xffffff);
-                    break;
-                }
-            }
-            for(EquipmentSlot slot : ArmorTrimsMod.slots){
+            int drawn = 0;
+            for(int idx = ArmorTrimsMod.slots.length - 1; idx >= 0; idx--){ // null, feet, legs, chest, head
+                EquipmentSlot slot = ArmorTrimsMod.slots[idx];
                 int timer = playerDuck.abilityTimer(slot);
-                if (timer > 0) {
+                int cooldown = playerDuck.abilityCooldown(slot);
+                if (cooldown > 0 || timer > 0) {
+                    drawn++;
+                    boolean available = cooldown <= 0;
                     int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
                     int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
                     int posX = w / 2;
-                    int posY = h / 2;
 
-                    int seconds = timer / 20;
-                    guiGraphics.drawString(Minecraft.getInstance().font,
-                            Component.literal("Ability Active").withStyle(ChatFormatting.GREEN)
-                                    .append(Component.literal(":").withStyle(ChatFormatting.WHITE))
-                                    .append(Component.literal("" + seconds).withStyle(ChatFormatting.DARK_GREEN))
-                                    .append(Component.literal("s").withStyle(ChatFormatting.WHITE)),  posX + 10, h - 50, 0xffffff);
-                    break;
+                    int seconds = (available ? timer : cooldown) / 20;
+                    drawAvailability(guiGraphics, getAbilityPrefix(slot), available, seconds, posX + 10, h - 50 - getYOffset(drawn));
                 }
             }
         }
+    }
+
+    private static String getAbilityPrefix(@Nullable EquipmentSlot slot) {
+        return slot == null ? "SET " : slot.name() + " ";
+    }
+
+    private static int getYOffset(int drawn){
+        return Minecraft.getInstance().font.lineHeight * (drawn - 1);
+    }
+
+    private static void drawAvailability(GuiGraphics guiGraphics, String slotPrefix, boolean available, int seconds, int x, int y) {
+        guiGraphics.drawString(Minecraft.getInstance().font,
+                Component.literal(slotPrefix + "Ability " + (available ? "Active" : "Unavailable")).withStyle(available ? ChatFormatting.GREEN : ChatFormatting.RED)
+                        .append(Component.literal(":").withStyle(ChatFormatting.WHITE))
+                        .append(Component.literal("" + seconds).withStyle(ChatFormatting.DARK_GREEN))
+                        .append(Component.literal("s").withStyle(ChatFormatting.WHITE)), x, y, 0xffffff);
     }
 }

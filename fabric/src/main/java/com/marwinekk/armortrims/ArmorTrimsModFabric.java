@@ -20,6 +20,7 @@ import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -30,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer {
@@ -56,6 +58,11 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			ATCommands.register(dispatcher);
 		});
+		ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(((world, entity, killedEntity) -> {
+			if(entity instanceof PlayerDuck playerDuck && playerDuck.hasSetBonus(Items.GOLD_INGOT)){
+				killedEntity.spawnAtLocation(new ItemStack(Items.GOLD_NUGGET, entity.level().random.nextIntBetweenInclusive(1, 5)));
+			}
+		}));
 		PacketHandler.registerPackets();
 	}
 

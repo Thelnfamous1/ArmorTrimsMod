@@ -389,12 +389,12 @@ public class ArmorTrimsMod {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int cooldown = playerDuck.abilityCooldown(slot);
         if (cooldown > 0) {
-            player.sendSystemMessage(Component.translatable("Can't use " + (slot != null ? slot : "set") + " trim ability yet"), true);
+            player.sendSystemMessage(Component.translatable("Can't use " + (slot != null ? slot : "SET") + " trim ability yet"), true);
             return;
         }
         int timer = playerDuck.abilityTimer(slot);
         if (timer > 0) {
-            player.sendSystemMessage(Component.translatable((slot != null ? slot : "set") + " trim ability is already active"), true);
+            player.sendSystemMessage(Component.translatable((slot != null ? slot : "SET") + " trim ability is already active"), true);
             return;
         }
 
@@ -403,7 +403,23 @@ public class ArmorTrimsMod {
             return;
         }
 
-        Item trimItem = slot != null ? getTrimItem(player.level(), player.getItemBySlot(slot)) : playerDuck.regularSetBonus();
+        if(playerDuck.dragonEgg() && slot == null){
+            player.sendSystemMessage(Component.translatable("Can't use SET trim ability with a dragon egg"), true);
+            return;
+        }
+
+        Item trimItem = getTrimItemOrSetBonus(player, slot, playerDuck);
+        if(trimItem != null){
+            for(EquipmentSlot otherSlot : slots){
+                if(otherSlot == slot) continue;
+                int otherCooldown = playerDuck.abilityCooldown(otherSlot);
+                int otherTimer = playerDuck.abilityTimer(otherSlot);
+                if((otherCooldown > 0 || otherTimer > 0) && getTrimItemOrSetBonus(player, otherSlot, playerDuck) == trimItem){
+                    player.sendSystemMessage(Component.translatable("Can't use " + (slot != null ? slot : "SET") + " trim ability yet"), true);
+                    return;
+                }
+            }
+        }
 
         if (trimItem != null) {
             ArmorTrimAbility armorTrimAbility = ArmorTrimAbilities.ARMOR_TRIM_REGISTRY.get(trimItem);
@@ -414,8 +430,13 @@ public class ArmorTrimsMod {
                 addDeferredEvent(player.serverLevel(),setAbilityCooldown);
             }
             playerDuck.setAbilityTimer(slot, armorTrimAbility.activeTicks);
-            LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
+            //LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
         }
+    }
+
+    @Nullable
+    private static Item getTrimItemOrSetBonus(ServerPlayer player, @Nullable EquipmentSlot slot, PlayerDuck playerDuck) {
+        return slot != null ? getTrimItem(player.level(), player.getItemBySlot(slot)) : playerDuck.regularSetBonus();
     }
 
     public static void lockAllSlots(ServerPlayer player){
