@@ -102,18 +102,14 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 
 	@Override
 	public void tick() {
+		super.tick();
 		if(this.hasHomingTarget()){
 			Entity homingTarget = this.getHomingTarget();
 			if (homingTarget != null && !this.inGround) {
-				float shotVelocity = this.getShotVelocity();
-				Vec3 positionDelta = homingTarget.getEyePosition().subtract(this.getEyePosition());
-				this.setPosRaw(this.getX(), this.getY() + positionDelta.y * 0.015D * (double)shotVelocity, this.getZ());
-				if (this.level().isClientSide) {
-					this.yOld = this.getY();
-				}
-
-				double stepScale = 0.1D * (double)shotVelocity; // double base speed by 2 by request, from 0.05
-				this.setDeltaMovement(this.getDeltaMovement().scale(0.95D).add(positionDelta.normalize().scale(stepScale)));
+				this.setDeltaMovement(new Vec3(
+						(homingTarget.getX() - this.getX()) * 0.7D,
+						(homingTarget.getEyeY() - this.getY()) * 0.9D,
+						(homingTarget.getZ() - this.getZ()) * 0.7D));
 
 				Vec3 deltaMovement = this.getDeltaMovement();
 				double xNew = this.getX() + deltaMovement.x;
@@ -125,8 +121,6 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 			LivingEntity target = this.findHomingTarget();
 			if(target != null) this.setHomingTarget(target);
 		}
-
-		super.tick();
 	}
 
 	@Nullable
