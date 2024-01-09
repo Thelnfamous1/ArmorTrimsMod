@@ -3,6 +3,7 @@ package com.marwinekk.armortrims.mixin;
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -57,11 +58,18 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     @Inject(method = "addAdditionalSaveData",at = @At("RETURN"))
     private void addExtra(CompoundTag tag, CallbackInfo ci) {
         tag.put("mod_data",getArmorTrimsData());
+        MobEffect beaconEffect = beaconEffect();
+        if(beaconEffect != null){
+            tag.putInt("beacon_effect", MobEffect.getId(beaconEffect));
+        }
     }
 
     @Inject(method = "readAdditionalSaveData",at = @At("RETURN"))
     private void readExtra(CompoundTag tag, CallbackInfo ci) {
         setArmorTrimsData(tag.getCompound("mod_data"));
+        if(tag.contains("beacon_effect", Tag.TAG_INT)){
+            setBeaconEffect(MobEffect.byId(tag.getInt("beacon_effect")));
+        }
     }
 
     private int lightningStrikesLeft = 10;

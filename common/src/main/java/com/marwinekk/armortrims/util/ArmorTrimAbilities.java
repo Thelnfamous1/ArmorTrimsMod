@@ -110,7 +110,7 @@ public class ArmorTrimAbilities {
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
                 .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 45));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 20, 20 * 45));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
@@ -165,7 +165,7 @@ public class ArmorTrimAbilities {
             lightningbolt.setCause(player);
             lightningbolt.addTag(ARMOR_TRIMS_TAG);
             player.level().addFreshEntity(lightningbolt);
-            lightningbolt.playSound(SoundEvents.TRIDENT_THUNDER, 5, 1);
+            lightningbolt.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 5, 1);
         }
         return false;
     }
@@ -198,9 +198,11 @@ public class ArmorTrimAbilities {
 
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living)
-                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 15,0,false,false));
+                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 20,0,false,false));
         }
-        player.addEffect(new MobEffectInstance(true_invis, 15 * 20, 10, false, false));
+        player.addEffect(new MobEffectInstance(true_invis, 20 * 20, 10, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 2, false, false));
+
         return true;
     }
 
@@ -362,6 +364,7 @@ public class ArmorTrimAbilities {
 
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
+        tntArrowEntity.setExplosionRadius(2);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         lockOn(player, tntArrowEntity);
         player.level().addFreshEntity(tntArrowEntity);

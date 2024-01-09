@@ -5,6 +5,8 @@ import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.ducks.PhysicsCheck;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -31,10 +33,10 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	private static final EntityDataAccessor<Float> DATA_SHOT_VELOCITY = SynchedEntityData.defineId(TNTArrowEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Boolean> DATA_ONLY_SEEK_PLAYERS = SynchedEntityData.defineId(TNTArrowEntity.class, EntityDataSerializers.BOOLEAN);
 	private static final TargetingConditions TARGETING_CONDITIONS = TargetingConditions.forCombat().range(1024.0D);
-	private static final float EXPLOSION_RADIUS = 1.0F;
 	@Nullable
 	private Entity homingTarget;
 	private ItemStack tntItem = new ItemStack(Blocks.TNT);
+	private float explosionRadius = 1.0F;
 
 
 	public TNTArrowEntity(EntityType<? extends AbstractArrow> type, Level world) {
@@ -56,6 +58,28 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 		this.entityData.define(DATA_HOMING_TARGET_ID, OptionalInt.empty());
 		this.entityData.define(DATA_SHOT_VELOCITY, 0.0F);
 		this.entityData.define(DATA_ONLY_SEEK_PLAYERS, true);
+	}
+
+	public void setExplosionRadius(float explosionRadius) {
+		this.explosionRadius = explosionRadius;
+	}
+
+	public float getExplosionRadius() {
+		return this.explosionRadius;
+	}
+
+	@Override
+	public void addAdditionalSaveData(CompoundTag tag) {
+		super.addAdditionalSaveData(tag);
+		tag.putFloat("ExplosionRadius", this.getExplosionRadius());
+	}
+
+	@Override
+	public void readAdditionalSaveData(CompoundTag tag) {
+		super.readAdditionalSaveData(tag);
+		if(tag.contains("ExplosionRadius", Tag.TAG_FLOAT)){
+			this.setExplosionRadius(tag.getFloat("ExplosionRadius"));
+		}
 	}
 
 	@Override
@@ -85,7 +109,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 		if(!this.level().isClientSide){
 			this.discard();
 			Vec3 hitPos = entityHitResult.getLocation();
-			level().explode(null, hitPos.x, hitPos.y, hitPos.z, EXPLOSION_RADIUS, Level.ExplosionInteraction.NONE);
+			level().explode(null, hitPos.x, hitPos.y, hitPos.z, this.explosionRadius, Level.ExplosionInteraction.NONE);
 		}
 	}
 
@@ -96,7 +120,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 			this.discard();
 			this.setHomingTarget(null);
 			Vec3 hitPos = blockHitResult.getLocation();
-			level().explode(null, hitPos.x, hitPos.y, hitPos.z, EXPLOSION_RADIUS, Level.ExplosionInteraction.NONE);
+			level().explode(null, hitPos.x, hitPos.y, hitPos.z, this.explosionRadius, Level.ExplosionInteraction.NONE);
 		}
 	}
 
