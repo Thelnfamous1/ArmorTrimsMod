@@ -16,7 +16,7 @@ public class EntityRenderDispatcherMixin {
 
     @Inject(method = "renderFlame(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"), cancellable = true)
     private void renderFlame(PoseStack poseStack, MultiBufferSource multiBufferSource, Entity entity, CallbackInfo ci) {
-        if (entity instanceof LivingEntity living && living.hasEffect(ArmorTrimAbilities.true_invis))
+        if (entity instanceof LivingEntity living && ArmorTrimAbilities.hasTrueInvis(living))
             ci.cancel();
     }
 }

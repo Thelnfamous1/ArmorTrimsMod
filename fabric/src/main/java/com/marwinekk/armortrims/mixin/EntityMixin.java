@@ -14,7 +14,7 @@ public class EntityMixin {
     @ModifyConstant(method = "thunderHit", constant = @Constant(floatValue = 5.0F, ordinal = 0), require = 0)
     private float modifyLightningDamage(float constant, ServerLevel level, LightningBolt bolt){
         if(bolt.getTags().contains(ArmorTrimAbilities.ARMOR_TRIMS_TAG)){
-            return 20.0F;
+            return 16.0F;
         }
         return constant;
     }

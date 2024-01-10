@@ -8,6 +8,7 @@ import com.marwinekk.armortrims.entity.BlockBreakerArrow;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.world.deferredevent.DespawnLater;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleOptions;
@@ -40,10 +41,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -159,8 +157,11 @@ public class ArmorTrimAbilities {
 
         LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(player.level());
         if (lightningbolt != null) {
-            HitResult pick = player.pick(20, 0, false);
-            Vec3 pos = pick.getLocation();
+            Either<BlockHitResult, EntityHitResult> hitResult = getHitResult(player);
+            Vec3 pos = hitResult.left()
+                    .filter(bhr -> bhr.getType() != HitResult.Type.MISS)
+                    .map(HitResult::getLocation)
+                    .orElseGet(() -> hitResult.right().map(HitResult::getLocation).get());
             lightningbolt.moveTo(pos);
             lightningbolt.setCause(player);
             lightningbolt.addTag(ARMOR_TRIMS_TAG);
@@ -178,7 +179,15 @@ public class ArmorTrimAbilities {
         }
     }
 
-    public static MobEffect true_invis = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("trueinvis:true_invis"));
+    private static MobEffect true_invis = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation("trueinvis:true_invis"));
+
+    public static Optional<MobEffect> getTrueInvis(){
+        return Optional.ofNullable(true_invis);
+    }
+
+    public static boolean hasTrueInvis(LivingEntity entity){
+        return true_invis != null && entity.hasEffect(true_invis);
+    }
 
     public static boolean smokeCloud(ServerPlayer player, EquipmentSlot slot) {
         Vec3 center = player.getPosition(0);
@@ -200,8 +209,9 @@ public class ArmorTrimAbilities {
             if (entity instanceof LivingEntity living)
                 living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 20,0,false,false));
         }
-        player.addEffect(new MobEffectInstance(true_invis, 20 * 20, 10, false, false));
+        getTrueInvis().ifPresent(trueInvis -> player.addEffect(new MobEffectInstance(trueInvis, 20 * 20, 10, false, false)));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 2, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 20 * 20, 2, false, false));
 
         return true;
     }
@@ -364,7 +374,7 @@ public class ArmorTrimAbilities {
 
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
-        tntArrowEntity.setExplosionRadius(2);
+        tntArrowEntity.setExplosionRadius(1.5F);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         lockOn(player, tntArrowEntity);
         player.level().addFreshEntity(tntArrowEntity);
@@ -383,7 +393,11 @@ public class ArmorTrimAbilities {
     }
 
     public static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow) {
-        HitResult hitResult = shooter.pick(MAX_LOCK_ON_DIST, 0.0F, false);
+        getHitResult(shooter).ifRight(ehr -> homingArrow.setHomingTarget(ehr.getEntity()));
+    }
+
+    private static Either<BlockHitResult, EntityHitResult> getHitResult(LivingEntity shooter) {
+        BlockHitResult hitResult = (BlockHitResult) shooter.pick(MAX_LOCK_ON_DIST, 0.0F, false);
         Vec3 startVec = shooter.getEyePosition();
         double maxLockOnDistSqr = MAX_LOCK_ON_DIST * MAX_LOCK_ON_DIST;
         if (hitResult.getType() != HitResult.Type.MISS) {
@@ -393,9 +407,8 @@ public class ArmorTrimAbilities {
         Vec3 endVec = startVec.add(viewVector);
         AABB searchBox = shooter.getBoundingBox().expandTowards(viewVector).inflate(1.0D);
         EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(shooter, startVec, endVec, searchBox, (e) -> !e.isSpectator() && e.isPickable(), maxLockOnDistSqr);
-        if(entityHitResult != null){
-            homingArrow.setHomingTarget(entityHitResult.getEntity());
-        }
+        if(entityHitResult != null) return Either.right(entityHitResult);
+        return Either.left(hitResult);
     }
 
     static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecart_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};
