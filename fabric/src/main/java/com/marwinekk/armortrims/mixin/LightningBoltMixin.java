@@ -42,7 +42,7 @@ public abstract class LightningBoltMixin extends Entity {
     private void postThunderHit(CallbackInfo ci){
         if(this.currentHitEntity instanceof LivingEntity living && this.getTags().contains(ArmorTrimAbilities.ARMOR_TRIMS_TAG)){
             if(living.getLastDamageSource() != null && living.getLastDamageSource().is(DamageTypes.LIGHTNING_BOLT)){
-                living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 2), this.getCause());
+                living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 2, 9), this.getCause());
             }
         }
         if(this.currentHitEntity != null) this.currentHitEntity = null;

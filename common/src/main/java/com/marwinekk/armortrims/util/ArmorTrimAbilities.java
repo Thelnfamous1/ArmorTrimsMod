@@ -108,7 +108,7 @@ public class ArmorTrimAbilities {
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
                 .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 20, 20 * 45));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 45));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
@@ -145,28 +145,28 @@ public class ArmorTrimAbilities {
     }
 
     static boolean lightningStrike(ServerPlayer player, EquipmentSlot slot) {
-        PlayerDuck playerDuck = (PlayerDuck) player;
-        int strikes = playerDuck.lightningStrikesLeft();
-        if (strikes <= 0) {
-            strikes = 10;
-        }
-        playerDuck.setLightningStrikesLeft(strikes - 1);
-        if (strikes == 1) {
-            playerDuck.setAbilityCooldown(slot, 20 * 30);
-        }
-
         LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(player.level());
         if (lightningbolt != null) {
             Either<BlockHitResult, EntityHitResult> hitResult = getHitResult(player);
-            Vec3 pos = hitResult.left()
-                    .filter(bhr -> bhr.getType() != HitResult.Type.MISS)
-                    .map(HitResult::getLocation)
-                    .orElseGet(() -> hitResult.right().map(HitResult::getLocation).get());
+            if(hitResult.left().isPresent() && hitResult.left().get().getType() == HitResult.Type.MISS){
+                return false;
+            }
+            Vec3 pos = hitResult.map(HitResult::getLocation, HitResult::getLocation);
             lightningbolt.moveTo(pos);
             lightningbolt.setCause(player);
             lightningbolt.addTag(ARMOR_TRIMS_TAG);
             player.level().addFreshEntity(lightningbolt);
             lightningbolt.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 5, 1);
+
+            PlayerDuck playerDuck = (PlayerDuck) player;
+            int strikes = playerDuck.lightningStrikesLeft();
+            if (strikes <= 0) {
+                strikes = 10;
+            }
+            playerDuck.setLightningStrikesLeft(strikes - 1);
+            if (strikes == 1) {
+                playerDuck.setAbilityCooldown(slot, 20 * 30);
+            }
         }
         return false;
     }
@@ -207,11 +207,11 @@ public class ArmorTrimAbilities {
 
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living)
-                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 20,0,false,false));
+                living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20 * 15,0,false,false));
         }
-        getTrueInvis().ifPresent(trueInvis -> player.addEffect(new MobEffectInstance(trueInvis, 20 * 20, 10, false, false)));
-        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 20, 2, false, false));
-        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 20 * 20, 2, false, false));
+        getTrueInvis().ifPresent(trueInvis -> player.addEffect(new MobEffectInstance(trueInvis, 20 * 15, 10, false, false)));
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 15, 2, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 20 * 15, 2, false, false));
 
         return true;
     }
@@ -381,7 +381,7 @@ public class ArmorTrimAbilities {
         PlayerDuck playerDuck = (PlayerDuck) player;
         int arrows = playerDuck.redstoneArrowsLeft();
         if (arrows <=0) {
-            playerDuck.setRedstoneArrowsLeft(3); // 4 arrows total, we just fired 1
+            playerDuck.setRedstoneArrowsLeft(2); // 3 arrows total, we just fired 1
         } else {
             arrows--;
             if (arrows <= 0) {
