@@ -108,7 +108,7 @@ public class ArmorTrimAbilities {
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
                 .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 45));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 70));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
     }
@@ -161,7 +161,7 @@ public class ArmorTrimAbilities {
             PlayerDuck playerDuck = (PlayerDuck) player;
             int strikes = playerDuck.lightningStrikesLeft();
             if (strikes <= 0) {
-                strikes = 10;
+                strikes = 7;
             }
             playerDuck.setLightningStrikesLeft(strikes - 1);
             if (strikes == 1) {
@@ -340,7 +340,7 @@ public class ArmorTrimAbilities {
             ListTag enchantmentTags = stack.getEnchantmentTags();
             for (int idx = 0; idx < enchantmentTags.size(); ++idx) {
                 CompoundTag tagCompound = enchantmentTags.getCompound(idx);
-                EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + (boost ? 1 : -1));
+                EnchantmentHelper.setEnchantmentLevel(tagCompound, EnchantmentHelper.getEnchantmentLevel(tagCompound) + (boost ? 2 : -2)); // buffed to +/- 2 by request
             }
             ArmorTrimsMod.setEnchantBoosts(stack, boost);
         }
@@ -374,7 +374,7 @@ public class ArmorTrimAbilities {
 
     static boolean summonHomingArrows(ServerPlayer player, EquipmentSlot slot) {
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
-        tntArrowEntity.setExplosionRadius(1.5F);
+        tntArrowEntity.setExplosionRadius(1.3F);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         lockOn(player, tntArrowEntity);
         player.level().addFreshEntity(tntArrowEntity);

@@ -72,7 +72,7 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
         }
     }
 
-    private int lightningStrikesLeft = 10;
+    private int lightningStrikesLeft = 7;
 
     private int redstoneArrowsLeft = 3;
 

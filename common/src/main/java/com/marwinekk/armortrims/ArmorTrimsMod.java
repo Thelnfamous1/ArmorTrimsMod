@@ -577,11 +577,14 @@ public class ArmorTrimsMod {
     }
 
     public static boolean isUnableToTarget(LivingEntity attacker, LivingEntity target){
-        if(attacker instanceof PiglinBruteDuck){
-            return target.getUUID().equals(((OwnableEntity)attacker).getOwnerUUID());
-        } else if (target instanceof Player player) {
+        // summoned brutes do not attack their owner or allies of their owner
+        if(attacker instanceof PiglinBruteDuck bruteDuck && isOwnerOrOwnerAlly(bruteDuck, target)){
+            return true;
+        }
+        if (target instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
             boolean amethyst = playerDuck.hasSetBonus(Items.AMETHYST_SHARD);
+            // witches are allowed to "target" friendlies for throwing beneficial potions
             if(amethyst && attacker instanceof WitchDuck witchDuck && isOwnerOrOwnerAlly(witchDuck, target)){
                 return false;
             }
