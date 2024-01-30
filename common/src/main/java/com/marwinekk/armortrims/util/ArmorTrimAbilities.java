@@ -74,7 +74,7 @@ public class ArmorTrimAbilities {
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL, 20 * 20, 20 * 50)
-                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.ENCHANT))
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.WITCH))
                 .setOnCombatAbilityInactive(ArmorTrimAbilities::minus1ToAllEnchants));
 
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
