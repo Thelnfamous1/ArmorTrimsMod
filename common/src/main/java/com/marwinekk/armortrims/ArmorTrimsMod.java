@@ -429,6 +429,7 @@ public class ArmorTrimsMod {
                 setAbilityCooldown.setTimer(armorTrimAbility.activeTicks);
                 addDeferredEvent(player.serverLevel(),setAbilityCooldown);
             }
+            armorTrimAbility.onCombatAbilityActivated().accept(player);
             playerDuck.setAbilityTimer(slot, armorTrimAbility.activeTicks);
             //LOG.info("Activated " + trimItem + " combat ability for slot " + (slot == null ? "set" : slot));
         }

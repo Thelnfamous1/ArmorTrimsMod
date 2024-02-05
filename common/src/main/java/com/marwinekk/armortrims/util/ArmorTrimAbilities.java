@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
@@ -65,6 +66,7 @@ public class ArmorTrimAbilities {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT,
                 new ArmorTrimAbility(NULL, player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 40, 9, false, false)),
                         ArmorTrimAbilities::ironFist, NULL, 15 * 20, 30 * 20)
+                        .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.IRON_GOLEM_REPAIR))
                         .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.WAX_OFF)));
         //give 1 xp level every 10 minutes
         ARMOR_TRIM_REGISTRY.put(Items.LAPIS_LAZULI, new ArmorTrimAbility(NULL, player -> {
@@ -74,7 +76,8 @@ public class ArmorTrimAbilities {
                 player.displayClientMessage(Component.literal("[§c!§f] Level §agained§f!"), true);
             }
         }, ArmorTrimAbilities::plus1ToAllEnchants, NULL, 20 * 20, 20 * 50)
-                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.WITCH))
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.ENCHANTMENT_TABLE_USE))
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.REVERSE_PORTAL))
                 .setOnCombatAbilityInactive(ArmorTrimAbilities::minus1ToAllEnchants));
 
         ARMOR_TRIM_REGISTRY.put(Items.NETHERITE_INGOT, new ArmorTrimAbility(NULL, player -> {
@@ -83,14 +86,17 @@ public class ArmorTrimAbilities {
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1, true, false));
             }
         }, (player, slot) -> messagePlayer(player, Component.translatable("Wither Touch Active")), NULL, 20 * 10, 20 * 45)
-                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.AMBIENT_ENTITY_EFFECT, ChatFormatting.BLACK.getColor())));
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.WITHER_HURT))
+                .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.SCULK_SOUL)));
 
         ARMOR_TRIM_REGISTRY.put(Items.GOLD_INGOT, new ArmorTrimAbility(player -> addAttributeModifier(
                 player, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADDITION),
                 NULL, ArmorTrimAbilities::summonFriendlyPiglinBrutes,
-                player -> removeAttributeModifier(player, Attributes.MAX_HEALTH), 0, 20 * 50));
+                player -> removeAttributeModifier(player, Attributes.MAX_HEALTH), 0, 20 * 50)
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60));
+        ARMOR_TRIM_REGISTRY.put(Items.AMETHYST_SHARD, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::summonFriendlyWitch, NULL, 0, 20 * 60)
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.ILLUSIONER_PREPARE_BLINDNESS)));
         ARMOR_TRIM_REGISTRY.put(Items.DIAMOND, new ArmorTrimAbility(
                 player -> {
                     Services.PLATFORM.addExtraInventorySlots(player);
@@ -106,11 +112,17 @@ public class ArmorTrimAbilities {
 
         ARMOR_TRIM_REGISTRY.put(Items.EMERALD, new ArmorTrimAbility(NULL, NULL,
                 (player, slot) -> messagePlayer(player, Component.translatable("Totem Save Activated")), ArmorTrimAbilities::removeEmeraldEffect, 20 * 15, 20 * 60 * 2)
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.EVOKER_CAST_SPELL))
                 .setOnCombatAbilityActive(player -> tickParticles(player, ParticleTypes.EGG_CRACK)));
 
-        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 70));
+        ARMOR_TRIM_REGISTRY.put(Items.QUARTZ, new ArmorTrimAbility(NULL, NULL, ArmorTrimAbilities::smokeCloud, NULL, 20 * 15, 20 * 70)
+                .setOnCombatAbilityActivated(player -> playActivationSound(player, SoundEvents.ELDER_GUARDIAN_DEATH)));
 
         ARMOR_TRIM_REGISTRY.put(Items.COPPER_INGOT, new ArmorTrimAbility(ArmorTrimAbilities::awardCopperRecipes, NULL, ArmorTrimAbilities::lightningStrike, ArmorTrimAbilities::revokeCopperRecipes, 0, 0));
+    }
+
+    private static void playActivationSound(ServerPlayer player, SoundEvent soundEvent){
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, player.getSoundSource(), 1.0F, 1.0F);
     }
 
     private static void tickParticles(ServerPlayer player, ParticleOptions particleOptions){
