@@ -609,6 +609,10 @@ public class ArmorTrimsMod {
         return (player.isCreative() || !isLocked(instanceItem)) && instance.mayPickup(player);
     }
 
+    public static boolean mayPlaceCheckLocked(Slot instance, ItemStack stack, Player player) {
+        return (player.isCreative() || !isLocked(stack)) && instance.mayPlace(stack);
+    }
+
     //Whats the SMP about?
     //
     //The SMP is based on different armor trims colors and their powers

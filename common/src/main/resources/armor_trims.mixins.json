@@ -14,6 +14,8 @@
     "InventoryMixin",
     "LivingEntityMixin",
     "PlayerMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ServerPlayerMixin",
     "SlotMixin",
     "StartAttackingMixin",
     "StopAttackingIfTargetInvalidMixin",
@@ -23,7 +25,8 @@
   ],
   "client": [
     "AbstractContainerScreenMixin",
-    "EntityRenderDispatcherMixin"
+    "EntityRenderDispatcherMixin",
+    "LocalPlayerMixin"
   ],
   "server": [
   ],
