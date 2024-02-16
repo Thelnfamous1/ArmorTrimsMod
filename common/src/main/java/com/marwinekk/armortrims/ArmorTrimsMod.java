@@ -334,11 +334,13 @@ public class ArmorTrimsMod {
         return false;
     }
 
-    public static void onInventoryChange(Inventory inventory, EquipmentSlot slot) {
+    public static void onInventoryChange(Inventory inventory, @Nullable EquipmentSlot slot) {
         Player player = inventory.player;
         PlayerDuck playerDuck = (PlayerDuck) player;
         playerDuck.setCheckInventory(true);
-        playerDuck.setAbilityTimer(slot, 0);
+        if(slot != null){
+            playerDuck.setAbilityTimer(slot, 0);
+        }
     }
 
     public static final List<Pair<MobEffect, Integer>> BEACON_EFFECTS = List.of(

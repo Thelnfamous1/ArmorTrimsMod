@@ -1,12 +1,15 @@
 package com.marwinekk.armortrims.commands;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
+import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,6 +42,23 @@ public class ATCommands {
                             giveTNTArrow(player, remaining);
                             return 1;
                         })));
+        dispatcher.register(Commands.literal("armortrims")
+                .requires(stack -> stack.hasPermission(2))
+                .then(Commands.literal("cooldown")
+                        .then(Commands.literal("reset")
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(context -> {
+                                            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                                            PlayerDuck playerDuck = (PlayerDuck) player;
+                                            for(int idx = ArmorTrimsMod.slots.length - 1; idx >= 0; idx--) { // null, feet, legs, chest, head
+                                                EquipmentSlot slot = ArmorTrimsMod.slots[idx];
+                                                int cooldown = playerDuck.abilityCooldown(slot);
+                                                if(cooldown > 0){
+                                                playerDuck.setAbilityCooldown(slot, 0);
+                                                }
+                                            }
+                                            return 1;
+                                        })))));
     }
 
     private static void giveTNTArrow(ServerPlayer player, int maxStackSize) {
