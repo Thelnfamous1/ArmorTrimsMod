@@ -6,6 +6,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AbstractArrowMixin",
+    "AbstractContainerMenuMixin",
     "ArrowItemMixin",
     "ArrowMixin",
     "BruteMixin",
@@ -13,6 +14,7 @@
     "InventoryMixin",
     "LivingEntityMixin",
     "PlayerMixin",
+    "SlotMixin",
     "StartAttackingMixin",
     "StopAttackingIfTargetInvalidMixin",
     "TargetGoalMixin",
@@ -20,6 +22,7 @@
     "WitchMixin"
   ],
   "client": [
+    "AbstractContainerScreenMixin",
     "EntityRenderDispatcherMixin"
   ],
   "server": [
