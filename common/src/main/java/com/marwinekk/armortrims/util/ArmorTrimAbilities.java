@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +44,7 @@ public class ArmorTrimAbilities {
     public static final String ARMOR_TRIMS_TAG = "armor_trims";
     public static final UUID MODIFIER_UUID = UUID.fromString("097157ba-a99b-47c7-ac42-a360cbd74a73");
     public static final int MAX_LOCK_ON_DIST = 1024;
+
 
     static {
         ARMOR_TRIM_REGISTRY.put(Items.IRON_INGOT, IronTrimAbilities.IRON_TRIM_ABILITY);
@@ -204,8 +207,19 @@ public class ArmorTrimAbilities {
         if(entityHitResult != null) return Either.right(entityHitResult);
         return Either.left(hitResult);
     }
-
-    static final ResourceLocation[] copper_recipes = new ResourceLocation[]{new ResourceLocation("armor_trims:activator_rail_cop"), new ResourceLocation("armor_trims:anvil_cop"), new ResourceLocation("armor_trims:blast_furnace_cop"), new ResourceLocation("armor_trims:bucket_cop"), new ResourceLocation("armor_trims:cauldron_cop"), new ResourceLocation("armor_trims:chain_cop"), new ResourceLocation("armor_trims:copper_cop"), new ResourceLocation("armor_trims:crossbow_cop"), new ResourceLocation("armor_trims:detector_rail"), new ResourceLocation("armor_trims:flint_and_steel_cop"), new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"), new ResourceLocation("armor_trims:hopper"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_trapdoor_cop"), new ResourceLocation("armor_trims:iron_axe_cop"), new ResourceLocation("armor_trims:iron_axe_cop_2"), new ResourceLocation("armor_trims:iron_bars"), new ResourceLocation("armor_trims:iron_boots_cop"), new ResourceLocation("armor_trims:iron_chestplate_cop"), new ResourceLocation("armor_trims:iron_door_cop"), new ResourceLocation("armor_trims:iron_door_cop_2"), new ResourceLocation("armor_trims:iron_helmet_cop"), new ResourceLocation("armor_trims:iron_hoe_cop"), new ResourceLocation("armor_trims:iron_hoe_cop_2"), new ResourceLocation("armor_trims:iron_leggings_cop"), new ResourceLocation("armor_trims:iron_nugget"), new ResourceLocation("armor_trims:iron_sword_cop"), new ResourceLocation("armor_trims:minecart_cop"), new ResourceLocation("armor_trims:piston_cop"), new ResourceLocation("armor_trims:rail_cop"), new ResourceLocation("armor_trims:shears_cop"), new ResourceLocation("armor_trims:shield_cop"), new ResourceLocation("armor_trims:smithing_table_cop"), new ResourceLocation("armor_trims:stonecutter_cop"), new ResourceLocation("armor_trims:tripwire_hook")};
-
+    public static void spawnParticlesInCircle(LevelAccessor world, ParticleOptions particleType, double x, double y, double z, double xzRadius, int amount) {
+        int counter = 0;
+        while (counter < amount) {
+            double targetX = x + Math.cos((Mth.TWO_PI / amount) * counter) * xzRadius;
+            double targetZ = z + Math.sin((Mth.TWO_PI / amount) * counter) * xzRadius;
+            Vec3 step = new Vec3(targetX - x, 0, targetZ - z).normalize().scale(0.1);
+            world.addParticle(particleType,
+                    x,
+                    y,
+                    z,
+                    step.x, 0.01, step.z);
+            counter = counter + 1;
+        }
+    }
 
 }

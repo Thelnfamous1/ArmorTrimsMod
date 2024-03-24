@@ -3,6 +3,7 @@ package com.marwinekk.armortrims.util;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -28,6 +29,42 @@ import java.util.stream.Collectors;
 public class CopperTrimAbilities {
     public static final int COPPER_ABILITY_USES = 7;
     public static final int JUMP_COOLDOWN_TICKS = 5 * 20;
+    private static final ResourceLocation[] COPPER_RECIPES = new ResourceLocation[]{
+            new ResourceLocation("armor_trims:activator_rail_cop"),
+            new ResourceLocation("armor_trims:anvil_cop"),
+            new ResourceLocation("armor_trims:blast_furnace_cop"),
+            new ResourceLocation("armor_trims:bucket_cop"),
+            new ResourceLocation("armor_trims:cauldron_cop"),
+            new ResourceLocation("armor_trims:chain_cop"),
+            new ResourceLocation("armor_trims:copper_cop"),
+            new ResourceLocation("armor_trims:crossbow_cop"),
+            new ResourceLocation("armor_trims:detector_rail"),
+            new ResourceLocation("armor_trims:flint_and_steel_cop"),
+            new ResourceLocation("armor_trims:heavt_weighted_pressure_plate_cop"),
+            new ResourceLocation("armor_trims:hopper"),
+            new ResourceLocation("armor_trims:iron_axe_cop"),
+            new ResourceLocation("armor_trims:iron_trapdoor_cop"),
+            new ResourceLocation("armor_trims:iron_axe_cop"),
+            new ResourceLocation("armor_trims:iron_axe_cop_2"),
+            new ResourceLocation("armor_trims:iron_bars"),
+            new ResourceLocation("armor_trims:iron_boots_cop"),
+            new ResourceLocation("armor_trims:iron_chestplate_cop"),
+            new ResourceLocation("armor_trims:iron_door_cop"),
+            new ResourceLocation("armor_trims:iron_door_cop_2"),
+            new ResourceLocation("armor_trims:iron_helmet_cop"),
+            new ResourceLocation("armor_trims:iron_hoe_cop"),
+            new ResourceLocation("armor_trims:iron_hoe_cop_2"),
+            new ResourceLocation("armor_trims:iron_leggings_cop"),
+            new ResourceLocation("armor_trims:iron_nugget"),
+            new ResourceLocation("armor_trims:iron_sword_cop"),
+            new ResourceLocation("armor_trims:minecart_cop"),
+            new ResourceLocation("armor_trims:piston_cop"),
+            new ResourceLocation("armor_trims:rail_cop"),
+            new ResourceLocation("armor_trims:shears_cop"),
+            new ResourceLocation("armor_trims:shield_cop"),
+            new ResourceLocation("armor_trims:smithing_table_cop"),
+            new ResourceLocation("armor_trims:stonecutter_cop"),
+            new ResourceLocation("armor_trims:tripwire_hook")};
     private static final int COPPER_ACTIVE_TICKS = 0;
     private static final int COPPER_COOLDOWN_TICKS = 20 * 30;
     public static final ArmorTrimAbility COPPER_TRIM_ABILITY = new ArmorTrimAbility(
@@ -39,7 +76,7 @@ public class CopperTrimAbilities {
             0);
 
     private static void onEquip(ServerPlayer player) {
-        player.awardRecipesByKey(ArmorTrimAbilities.copper_recipes);
+        player.awardRecipesByKey(COPPER_RECIPES);
     }
 
     private static boolean activateCombatAbility(ServerPlayer player, EquipmentSlot slot) {
@@ -71,7 +108,7 @@ public class CopperTrimAbilities {
 
     private static void onRemove(ServerPlayer player) {
         MinecraftServer server = player.server;
-        player.resetRecipes(Arrays.stream(ArmorTrimAbilities.copper_recipes).map(resourceLocation -> server.getRecipeManager().byKey(resourceLocation))
+        player.resetRecipes(Arrays.stream(COPPER_RECIPES).map(resourceLocation -> server.getRecipeManager().byKey(resourceLocation))
                 .filter(Optional::isPresent)
                 .map(Optional::get).collect(Collectors.toList()));
     }
@@ -104,12 +141,7 @@ public class CopperTrimAbilities {
         Level world = localPlayer.getCommandSenderWorld();
         world.playSound(localPlayer, effectPlayer.blockPosition(), SoundEvents.TURTLE_SHAMBLE, SoundSource.PLAYERS, 0.4f, 1);
 
-        for(int i = 0; i < 5; ++i) {
-            double xSpeed = world.random.nextGaussian() * 0.02D;
-            double ySpeed = world.random.nextGaussian() * 0.02D;
-            double zSpeed = world.random.nextGaussian() * 0.02D;
-            world.addParticle(ParticleTypes.CLOUD, effectPlayer.getRandomX(1.0D), effectPlayer.getY(), effectPlayer.getRandomZ(1.0D), xSpeed, ySpeed, zSpeed);
-        }
+        ArmorTrimAbilities.spawnParticlesInCircle(world, ParticleTypes.CLOUD, effectPlayer.getX(), effectPlayer.getY(), effectPlayer.getZ(), 3, 10);
     }
 
     public static void setDoubleJumping(PlayerDuck playerDuck, boolean doubleJumping) {
