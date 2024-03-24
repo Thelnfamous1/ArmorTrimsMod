@@ -17,7 +17,7 @@ public class DiamondTrimAbilities {
             DiamondTrimAbilities::onRemove)
             .runEveryEquip();
     public static final int DIAMOND_ABILITY_USES = 5;
-    private static final int BUILT_IN_POWER_LVL = 7;
+    private static final int EXTRA_BASE_DAMAGE = 7; // arrow base damage is 2, so total is 9
     private static final int DIAMOND_COOLDOWN_TICKS = 45 * 20;
 
     private static void onEquip(ServerPlayer player) {
@@ -27,7 +27,7 @@ public class DiamondTrimAbilities {
 
     private static boolean activateCombatAbility(ServerPlayer player, EquipmentSlot slot) {
         BlockBreakerArrow arrow = new BlockBreakerArrow(player.level(),player);
-        arrow.setBaseDamage(arrow.getBaseDamage() + BUILT_IN_POWER_LVL * 0.5 + 0.5);
+        arrow.setBaseDamage(arrow.getBaseDamage() + EXTRA_BASE_DAMAGE);
         arrow.setPierceLevel((byte) (arrow.getPierceLevel() + 1));
         arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         player.level().addFreshEntity(arrow);
