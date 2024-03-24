@@ -39,7 +39,7 @@ abstract class LivingEntityMixinFabric extends Entity {
 
     @Inject(method = "hurt",at = @At("HEAD"),cancellable = true)
     private void onAttacked(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (CopperTrimAbilities.onDamageTaken(selfCast(),source)) {
+        if (CopperTrimAbilities.canPreventDamage(selfCast(),source)) {
             cir.setReturnValue(false);
         }
     }

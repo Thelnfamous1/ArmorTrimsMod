@@ -125,4 +125,8 @@ public interface PlayerDuck {
     int diamondArrowsLeft();
 
     void setDiamondArrowsLeft(int arrowsLeft);
+
+    void armorTrimsMod$setDoubleJumping(boolean doubleJumping);
+
+    boolean armorTrimsMod$isDoubleJumping();
 }

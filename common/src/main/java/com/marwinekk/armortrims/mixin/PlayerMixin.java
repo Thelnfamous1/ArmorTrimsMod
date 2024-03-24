@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,6 +37,8 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     private transient MobEffect beaconEffect;
 
     private static final EntityDataAccessor<CompoundTag> ARMOR_TRIMS_DATA = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
+    @Unique
+    private boolean armorTrimsMod$doubleJumping;
 
     protected PlayerMixin(EntityType<? extends LivingEntity> $$0, Level $$1) {
         super($$0, $$1);
@@ -164,5 +167,25 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
     @Override
     public void setDiamondArrowsLeft(int arrowsLeft) {
         this.diamondArrowsLeft = arrowsLeft;
+    }
+
+    @Override
+    public void armorTrimsMod$setDoubleJumping(boolean doubleJumping) {
+        this.armorTrimsMod$doubleJumping = doubleJumping;
+    }
+
+    @Override
+    public boolean armorTrimsMod$isDoubleJumping() {
+        return this.armorTrimsMod$doubleJumping;
+    }
+
+    @Inject(method = "aiStep", at = @At("HEAD"))
+    private void handleAiStep(CallbackInfo ci){
+        if(this.armorTrimsMod$isDoubleJumping()){
+            this.resetFallDistance();
+        }
+        if(this.onGround() || this.onClimbable()){
+            this.armorTrimsMod$setDoubleJumping(false);
+        }
     }
 }

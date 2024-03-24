@@ -7,8 +7,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
@@ -76,12 +76,20 @@ public class CopperTrimAbilities {
                 .map(Optional::get).collect(Collectors.toList()));
     }
 
-    public static boolean onDamageTaken(LivingEntity livingEntity, DamageSource source) {
+    public static boolean canPreventDamage(LivingEntity livingEntity, DamageSource source) {
         if (livingEntity instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
-            return source.is(DamageTypes.LIGHTNING_BOLT) && playerDuck.hasSetBonus(Items.COPPER_INGOT);
+            if(source.is(DamageTypeTags.IS_LIGHTNING)){
+                return isImmuneToLightningDamage(playerDuck);
+            } else if(source.is(DamageTypeTags.IS_FALL) && playerDuck.armorTrimsMod$isDoubleJumping()){
+                return canDoubleJump(playerDuck);
+            }
         }
         return false;
+    }
+
+    private static boolean isImmuneToLightningDamage(PlayerDuck playerDuck) {
+        return playerDuck.hasSetBonus(Items.COPPER_INGOT);
     }
 
     public static boolean canDoubleJump(PlayerDuck duck){
@@ -102,5 +110,9 @@ public class CopperTrimAbilities {
             double zSpeed = world.random.nextGaussian() * 0.02D;
             world.addParticle(ParticleTypes.CLOUD, effectPlayer.getRandomX(1.0D), effectPlayer.getY(), effectPlayer.getRandomZ(1.0D), xSpeed, ySpeed, zSpeed);
         }
+    }
+
+    public static void setDoubleJumping(PlayerDuck playerDuck, boolean doubleJumping) {
+        playerDuck.armorTrimsMod$setDoubleJumping(doubleJumping);
     }
 }

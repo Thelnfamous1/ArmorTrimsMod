@@ -1,6 +1,8 @@
 package com.marwinekk.armortrims.network;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
+import com.marwinekk.armortrims.ducks.PlayerDuck;
+import com.marwinekk.armortrims.util.CopperTrimAbilities;
 import com.marwinekk.armortrims.util.EmeraldTrimAbilities;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -31,6 +33,7 @@ public class PacketHandler {
                     passedData.writeUUID(buf.readUUID());
 
                     server.execute(() -> {
+                        CopperTrimAbilities.setDoubleJumping((PlayerDuck) player, true);
                         PlayerLookup.tracking(player).forEach(p -> {
                             if (p != player) {
                                 ServerPlayNetworking.send(p, S2C_PLAY_EFFECTS_PACKET_ID, passedData);

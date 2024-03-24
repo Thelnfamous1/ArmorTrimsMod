@@ -90,7 +90,7 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 	public void onEntityAttacked(LivingAttackEvent event) {
 		LivingEntity livingEntity = event.getEntity();
 		DamageSource source = event.getSource();
-		if (CopperTrimAbilities.onDamageTaken(livingEntity,source)) {
+		if (CopperTrimAbilities.canPreventDamage(livingEntity,source)) {
 			event.setCanceled(true);
 		}
 	}

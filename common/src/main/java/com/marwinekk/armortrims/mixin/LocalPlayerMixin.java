@@ -57,7 +57,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
                 if (this.armorTrimsMod$canJump(this)) {
                     --this.armorTrimsMod$jumpCount;
                     this.jumpFromGround();
-
+                    CopperTrimAbilities.setDoubleJumping(((PlayerDuck) this), true);
                     CopperTrimAbilities.createDoubleJumpEffect(this);
 
                     Services.PLATFORM.sendDoubleJump(this);
