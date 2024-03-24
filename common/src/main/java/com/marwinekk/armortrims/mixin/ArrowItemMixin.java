@@ -2,7 +2,7 @@ package com.marwinekk.armortrims.mixin;
 
 import com.marwinekk.armortrims.commands.ATCommands;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
-import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import com.marwinekk.armortrims.util.RedstoneTrimAbilities;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;
@@ -20,7 +20,7 @@ public class ArrowItemMixin {
     private void makeCustomArrow(Level $$0, ItemStack stack, LivingEntity $$2, CallbackInfoReturnable<AbstractArrow> cir) {
         if (ATCommands.isTNTArrow(stack)) {
             TNTArrowEntity tntArrow = new TNTArrowEntity($$0, $$2);
-            ArmorTrimAbilities.lockOn($$2, tntArrow);
+            RedstoneTrimAbilities.lockOn($$2, tntArrow);
             cir.setReturnValue(tntArrow);
         }
     }

@@ -18,6 +18,8 @@ import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.network.PacketHandler;
 import com.marwinekk.armortrims.platform.Services;
 import com.marwinekk.armortrims.util.ArmorTrimAbilities;
+import com.marwinekk.armortrims.util.DiamondTrimAbilities;
+import com.marwinekk.armortrims.util.GoldTrimAbilities;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
@@ -43,8 +45,7 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 		ServerLifecycleEvents.SERVER_STOPPED.register(this::serverStoppedF);
 		ServerTickEvents.START_WORLD_TICK.register(this::serverLevelTick);
 		ServerPlayerEvents.AFTER_RESPAWN.register(((oldPlayer, newPlayer, alive) -> {
-			PlayerDuck playerDuck = (PlayerDuck)newPlayer;
-			if(!playerDuck.hasSetBonus(Items.DIAMOND)){
+			if(!DiamondTrimAbilities.hasBonusSlots(newPlayer)){
 				Services.PLATFORM.removeExtraInventorySlots(newPlayer);
 			}
 		}));
@@ -59,7 +60,7 @@ public class ArmorTrimsModFabric extends ArmorTrimsMod implements ModInitializer
 			ATCommands.register(dispatcher);
 		});
 		ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(((world, entity, killedEntity) -> {
-			if(entity instanceof PlayerDuck playerDuck && playerDuck.hasSetBonus(Items.GOLD_INGOT)){
+			if(entity instanceof PlayerDuck playerDuck && GoldTrimAbilities.victimsDropGold(playerDuck)){
 				killedEntity.spawnAtLocation(new ItemStack(Items.GOLD_NUGGET, entity.level().random.nextIntBetweenInclusive(1, 5)));
 			}
 		}));

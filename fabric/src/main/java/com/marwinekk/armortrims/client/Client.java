@@ -5,10 +5,13 @@ import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.client.renderer.BasicArrowRenderer;
 import com.marwinekk.armortrims.commands.ATCommands;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
+import com.marwinekk.armortrims.network.PacketHandler;
+import com.marwinekk.armortrims.util.CopperTrimAbilities;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
@@ -17,7 +20,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class Client implements ClientModInitializer {
 
@@ -34,6 +40,16 @@ public class Client implements ClientModInitializer {
                 lines.add(Component.literal("TNT").withStyle(ChatFormatting.DARK_GRAY));
             }
         });
+        ClientPlayNetworking.registerGlobalReceiver(PacketHandler.S2C_PLAY_EFFECTS_PACKET_ID,
+                (client, handler, buf, responseSender) -> {
+                    UUID effectPlayerUuid = buf.readUUID();
+                    client.execute(() -> {
+                        Player effectPlayer = client.player.getCommandSenderWorld().getPlayerByUUID(effectPlayerUuid);
+                        if (effectPlayer != null) {
+                            CopperTrimAbilities.createDoubleJumpEffect(client.player, effectPlayer);
+                        }
+                    });
+                });
     }
 
     private void renderHUDElement(GuiGraphics guiGraphics, float v) {

@@ -1,7 +1,7 @@
 
 package com.marwinekk.armortrims.network;
 
-import com.marwinekk.armortrims.ArmorTrimsMod;
+import com.marwinekk.armortrims.util.EmeraldTrimAbilities;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -32,7 +32,7 @@ public class C2SMobEffectPacket {
 		NetworkEvent.Context context = contextSupplier.get();
 		context.enqueueWork(() -> {
 			ServerPlayer player = context.getSender();
-			ArmorTrimsMod.addOneEffectRemoveOther(player, mobEffect, this.amplifier);
+			EmeraldTrimAbilities.updateBeaconEffect(player, mobEffect, this.amplifier);
 		});
 		context.setPacketHandled(true);
 	}

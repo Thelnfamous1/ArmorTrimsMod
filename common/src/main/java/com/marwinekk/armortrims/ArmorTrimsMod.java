@@ -5,8 +5,7 @@ import com.marwinekk.armortrims.commands.ATCommands;
 import com.marwinekk.armortrims.ducks.PiglinBruteDuck;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.ducks.WitchDuck;
-import com.marwinekk.armortrims.util.ArmorTrimAbilities;
-import com.marwinekk.armortrims.util.ArmorTrimAbility;
+import com.marwinekk.armortrims.util.*;
 import com.marwinekk.armortrims.world.deferredevent.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,12 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,9 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.armortrim.TrimMaterial;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
@@ -127,7 +119,7 @@ public class ArmorTrimsMod {
     public static boolean changeTarget(LivingEntity victim, LivingEntity attacker) {
         if (victim instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
-            if (playerDuck.hasSetBonus(Items.AMETHYST_SHARD)) {
+            if (AmethystTrimAbilities.cannotBeTargetedByAI(playerDuck)) {
                 //allow the witch to "attack" friendly players
                 return !(attacker instanceof WitchDuck witchDuck) || !victim.getUUID().equals(witchDuck.getOwnerUUID());
             }
@@ -145,21 +137,13 @@ public class ArmorTrimsMod {
         }
     }
 
-    public static boolean onFallDamage(LivingEntity livingEntity) {
-        if (livingEntity instanceof Player player) {
-            PlayerDuck playerDuck = (PlayerDuck) player;
-            return playerDuck.hasSetBonus(Items.IRON_INGOT);
-        }
-        return false;
-    }
-
     public static final EquipmentSlot[] slots = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, null};
 
     public static void onDamaged(LivingEntity victim, DamageSource source) {
         if (source.getEntity() instanceof Player attacker) {
             boolean manepear = ArmorTrimsMod.manepear && ATCommands.isNamed(ATCommands.MANE_PEAR, attacker);
             if(manepear){
-                applyWitherPunch(victim);
+                NetheriteTrimAbilities.applyWitherPunch(victim);
             }
 
             PlayerDuck playerDuck = (PlayerDuck) attacker;
@@ -170,22 +154,14 @@ public class ArmorTrimsMod {
                     int timer = playerDuck.abilityTimer(slot);
                     if (timer > 0) {
                         if (trim == Items.NETHERITE_INGOT) {
-                            applyWitherPunch(victim);
+                            NetheriteTrimAbilities.applyWitherPunch(victim);
                         } else if (trim == Items.IRON_INGOT) {
-                            IronFist ironFist = new IronFist(victim);
-                            ironFist.setTimer(2);
-                            addDeferredEvent((ServerLevel) victim.level(),ironFist);
+                            IronTrimAbilities.applyIronFist(victim);
                         }
                     }
                 }
             }
         }
-    }
-
-    private static void applyWitherPunch(LivingEntity victim) {
-        victim.addEffect(new MobEffectInstance(MobEffects.WITHER, 8 * 20, 0));
-        victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 8 * 20, 0));
-        victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 8 * 20, 0));
     }
 
     public static float onKnockback(double original,LivingEntity victim) {
@@ -289,32 +265,7 @@ public class ArmorTrimsMod {
         playerDuck.setDragonEgg(hasEgg);
 
 
-        boolean cook = playerDuck.hasSetBonus(Items.QUARTZ);
-
-        if (player.level().isClientSide || !cook) return;
-
-        List<ItemStack> cooked = new ArrayList<>();
-
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            ItemStack stack = player.getInventory().items.get(i);
-            if (stack.is(ModTags.QUARTZ_SMELTABLE)) {
-                RecipeManager recipemanager = player.level().getRecipeManager();
-                SimpleContainer simpleContainer = new SimpleContainer(stack);
-                Optional<SmeltingRecipe> optional = recipemanager.getRecipeFor(RecipeType.SMELTING,simpleContainer,player.level());
-                if (optional.isPresent()) {
-                    while(stack.getCount() > 0){
-                        SmeltingRecipe smeltingRecipe = optional.get();
-                        ItemStack result = smeltingRecipe.assemble(simpleContainer,player.level().registryAccess());
-                        cooked.add(result);
-                        stack.shrink(1);
-                    }
-                }
-            }
-        }
-
-        for (ItemStack stack : cooked) {
-            player.getInventory().add(stack);
-        }
+        QuartzTrimAbilities.onInventoryCheck(player);
 
     }
 
@@ -325,14 +276,6 @@ public class ArmorTrimsMod {
 
     public static final String POWER_TAG = "armor_trims:power";
     public static final String TNT_TAG = "armor_trims:tnt";
-
-    public static boolean attackEvent(LivingEntity livingEntity, DamageSource source) {
-        if (livingEntity instanceof Player player) {
-            PlayerDuck playerDuck = (PlayerDuck) player;
-            return source.is(DamageTypes.LIGHTNING_BOLT) && playerDuck.hasSetBonus(Items.COPPER_INGOT);
-        }
-        return false;
-    }
 
     public static void onInventoryChange(Inventory inventory, @Nullable EquipmentSlot slot) {
         Player player = inventory.player;
@@ -542,44 +485,6 @@ public class ArmorTrimsMod {
         return trimMaterial == null ? null : trimMaterial.ingredient().value();
     }
 
-    public static void addOneEffectRemoveOther(ServerPlayer player, MobEffect mobEffect, int amplifier) {
-        PlayerDuck playerDuck = (PlayerDuck) player;
-        if (playerDuck.hasSetBonus(Items.EMERALD)) {
-            player.addEffect(new MobEffectInstance(mobEffect, -1, amplifier, true, false));
-            MobEffect old = playerDuck.beaconEffect();
-            player.removeEffect(old);
-            playerDuck.setBeaconEffect(mobEffect);
-        } else {
-            player.sendSystemMessage(Component.literal("Cannot apply beacon effects without emerald trim"));
-        }
-    }
-
-    public static void giveTotemToDyingPlayer(LivingEntity living) {
-        if (living instanceof ServerPlayer player) {
-            PlayerDuck playerDuck = (PlayerDuck) player;
-            EquipmentSlot usedSlot = null;
-            boolean gaveTotem = false;
-            for (EquipmentSlot slot : slots) {
-                Item trim = slot == null ? playerDuck.regularSetBonus() : getTrimItem(player.level(), player.getItemBySlot(slot));
-                int timer = playerDuck.abilityTimer(slot);
-                if (trim == Items.EMERALD && timer > 0) {
-                    if (!living.getItemInHand(InteractionHand.OFF_HAND).isEmpty()) {
-                        ((Player) living).drop(living.getItemInHand(InteractionHand.OFF_HAND),true);
-                    }
-                    living.setItemSlot(EquipmentSlot.OFFHAND,Items.TOTEM_OF_UNDYING.getDefaultInstance());
-                    usedSlot = slot;
-                    gaveTotem = true;
-                    break;
-                }
-            }
-            if(gaveTotem){
-                playerDuck.setAbilityCooldown(usedSlot, 20 * 60 * 10);
-                playerDuck.setAbilityTimer(usedSlot, 0);
-                removeDeferredEvent(player.serverLevel(), de -> de.type() == DeferredEventTypes.SET_ABILITY_COOLDOWN);
-            }
-        }
-    }
-
     public static boolean isUnableToTarget(LivingEntity attacker, LivingEntity target){
         // summoned brutes do not attack their owner or allies of their owner
         if(attacker instanceof PiglinBruteDuck bruteDuck && isOwnerOrOwnerAlly(bruteDuck, target)){
@@ -587,12 +492,12 @@ public class ArmorTrimsMod {
         }
         if (target instanceof Player player) {
             PlayerDuck playerDuck = (PlayerDuck) player;
-            boolean amethyst = playerDuck.hasSetBonus(Items.AMETHYST_SHARD);
+            boolean cannotBeTargeted = AmethystTrimAbilities.cannotBeTargetedByAI(playerDuck);
             // witches are allowed to "target" friendlies for throwing beneficial potions
-            if(amethyst && attacker instanceof WitchDuck witchDuck && isOwnerOrOwnerAlly(witchDuck, target)){
+            if(cannotBeTargeted && attacker instanceof WitchDuck witchDuck && isOwnerOrOwnerAlly(witchDuck, target)){
                 return false;
             }
-            return amethyst;
+            return cannotBeTargeted;
         }
         return false;
     }
@@ -600,10 +505,6 @@ public class ArmorTrimsMod {
     public static boolean isOwnerOrOwnerAlly(OwnableEntity mob, LivingEntity pTarget) {
         LivingEntity owner = mob.getOwner();
         return owner != null && (owner == pTarget || pTarget.isAlliedTo(owner));
-    }
-
-    public static boolean hasBonusSlots(Player player) {
-        return ((PlayerDuck) player).hasSetBonus(Items.DIAMOND);
     }
 
     public static boolean mayPickupCheckLocked(Slot instance, Player player) {

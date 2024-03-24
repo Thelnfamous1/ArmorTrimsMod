@@ -1,6 +1,8 @@
 package com.marwinekk.armortrims.mixin;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
+import com.marwinekk.armortrims.util.CopperTrimAbilities;
+import com.marwinekk.armortrims.util.IronTrimAbilities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -37,14 +39,14 @@ abstract class LivingEntityMixinFabric extends Entity {
 
     @Inject(method = "hurt",at = @At("HEAD"),cancellable = true)
     private void onAttacked(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (ArmorTrimsMod.attackEvent(selfCast(),source)) {
+        if (CopperTrimAbilities.onDamageTaken(selfCast(),source)) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "causeFallDamage",at = @At("HEAD"),cancellable = true)
     private void onFallDamage(float fallDistance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        if (ArmorTrimsMod.onFallDamage(selfCast())) {
+        if (IronTrimAbilities.onFallDamage(selfCast())) {
             cir.setReturnValue(false);
         }
     }

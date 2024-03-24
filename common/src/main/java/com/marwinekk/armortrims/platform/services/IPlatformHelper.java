@@ -45,4 +45,5 @@ public interface IPlatformHelper {
 
     void removeExtraInventorySlots(Player player);
 
+    void sendDoubleJump(Player player);
 }

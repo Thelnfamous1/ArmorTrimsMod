@@ -15,17 +15,15 @@ package com.marwinekk.armortrims;
 
 import com.marwinekk.armortrims.client.Client;
 import com.marwinekk.armortrims.datagen.ModDatagen;
-import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.network.PacketHandler;
+import com.marwinekk.armortrims.util.CopperTrimAbilities;
+import com.marwinekk.armortrims.util.IronTrimAbilities;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
@@ -42,12 +40,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.RegisterEvent;
-
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Mod(ArmorTrimsMod.MOD_ID)
 public class ArmorTrimsModForge extends ArmorTrimsMod {
@@ -98,14 +90,14 @@ public class ArmorTrimsModForge extends ArmorTrimsMod {
 	public void onEntityAttacked(LivingAttackEvent event) {
 		LivingEntity livingEntity = event.getEntity();
 		DamageSource source = event.getSource();
-		if (ArmorTrimsMod.attackEvent(livingEntity,source)) {
+		if (CopperTrimAbilities.onDamageTaken(livingEntity,source)) {
 			event.setCanceled(true);
 		}
 	}
 
 	public void onEntityFall(LivingFallEvent event) {
 		LivingEntity livingEntity = event.getEntity();
-		if (ArmorTrimsMod.onFallDamage(livingEntity)) {
+		if (IronTrimAbilities.onFallDamage(livingEntity)) {
 			event.setCanceled(true);
 		}
 	}

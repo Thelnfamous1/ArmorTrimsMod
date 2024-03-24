@@ -2,6 +2,9 @@ package com.marwinekk.armortrims.mixin;
 
 import com.marwinekk.armortrims.ArmorTrimsMod;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
+import com.marwinekk.armortrims.util.CopperTrimAbilities;
+import com.marwinekk.armortrims.util.DiamondTrimAbilities;
+import com.marwinekk.armortrims.util.RedstoneTrimAbilities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -72,11 +75,11 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
         }
     }
 
-    private int lightningStrikesLeft = 7;
+    private int lightningStrikesLeft = CopperTrimAbilities.COPPER_ABILITY_USES;
 
-    private int redstoneArrowsLeft = 3;
+    private int redstoneArrowsLeft = RedstoneTrimAbilities.REDSTONE_ABILITY_USES;
 
-    private int diamondArrowsLeft = 5;
+    private int diamondArrowsLeft = DiamondTrimAbilities.DIAMOND_ABILITY_USES;
 
     @Override
     public int redstoneArrowsLeft() {

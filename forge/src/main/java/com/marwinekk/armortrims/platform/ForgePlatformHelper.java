@@ -50,4 +50,9 @@ public class ForgePlatformHelper implements IPlatformHelper {
     public void removeExtraInventorySlots(Player player) {
         // this is where Curios compat would be added
     }
+
+    @Override
+    public void sendDoubleJump(Player player) {
+
+    }
 }

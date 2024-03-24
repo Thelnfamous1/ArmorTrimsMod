@@ -3,10 +3,10 @@ package com.marwinekk.armortrims.client;
 import com.marwinekk.armortrims.BeaconEffectScreen;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.platform.Services;
+import com.marwinekk.armortrims.util.EmeraldTrimAbilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class ArmorTrimsModClient {
@@ -29,7 +29,7 @@ public class ArmorTrimsModClient {
         }
 
         while (ModKeybinds.BEACON_SCREEN.consumeClick()) {
-            if (((PlayerDuck)client.player).hasSetBonus(Items.EMERALD)) {
+            if (EmeraldTrimAbilities.canUseBeaconEffect(((PlayerDuck) client.player))) {
                 client.setScreen(new BeaconEffectScreen(Component.empty()));
             } else {
                 client.player.sendSystemMessage(Component.translatable("Cannot use beacon effects without emerald trim",true));

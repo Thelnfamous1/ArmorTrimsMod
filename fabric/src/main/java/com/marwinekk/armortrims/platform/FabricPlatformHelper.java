@@ -80,4 +80,12 @@ public class FabricPlatformHelper implements IPlatformHelper {
             }
         });
     }
+
+    @Override
+    public void sendDoubleJump(Player player) {
+        FriendlyByteBuf passedData = new FriendlyByteBuf(Unpooled.buffer());
+        passedData.writeUUID(player.getUUID());
+
+        ClientPlayNetworking.send(PacketHandler.C2S_DO_DOUBLEJUMP, passedData);
+    }
 }
