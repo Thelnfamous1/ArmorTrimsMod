@@ -6,4 +6,8 @@ public interface PhysicsCheck {
         return false;
     }
 
+    default boolean canBypassInGround(){
+        return false;
+    }
+
 }

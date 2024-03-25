@@ -2,6 +2,7 @@ package com.marwinekk.armortrims.entity;
 
 import com.marwinekk.armortrims.ArmorTrimsModEntities;
 import com.marwinekk.armortrims.ModTags;
+import com.marwinekk.armortrims.ducks.PhysicsCheck;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -14,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class BlockBreakerArrow extends AbstractArrow {
+public class BlockBreakerArrow extends AbstractArrow implements PhysicsCheck {
     private static final EntityDataAccessor<Byte> BLOCK_BREAKS_LEFT = SynchedEntityData.defineId(BlockBreakerArrow.class, EntityDataSerializers.BYTE);
     public BlockBreakerArrow(EntityType<? extends AbstractArrow> $$0, Level $$1) {
         super($$0, $$1);
@@ -63,7 +64,7 @@ public class BlockBreakerArrow extends AbstractArrow {
     protected void onHitBlock(BlockHitResult hitResult) {
         BlockPos hitPos = hitResult.getBlockPos();
         byte blockBreaksLeft = this.getBlockBreaksLeft();
-        if(blockBreaksLeft > 0 || !this.level().getBlockState(hitPos).is(ModTags.DIAMOND_ARROW_IMMUNE)){
+        if(blockBreaksLeft > 0 && !this.level().getBlockState(hitPos).is(ModTags.DIAMOND_ARROW_IMMUNE)){
             if(!this.level().isClientSide){
                 this.level().destroyBlock(hitPos, true, this);
                 this.setBlockBreaksLeft((byte) (blockBreaksLeft - 1));
@@ -74,5 +75,10 @@ public class BlockBreakerArrow extends AbstractArrow {
                 this.discard();
             }
         }
+    }
+
+    @Override
+    public boolean canBypassInGround() {
+        return this.getBlockBreaksLeft() > 0;
     }
 }

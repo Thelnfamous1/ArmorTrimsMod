@@ -147,4 +147,8 @@ public class CopperTrimAbilities {
     public static void setDoubleJumping(PlayerDuck playerDuck, boolean doubleJumping) {
         playerDuck.armorTrimsMod$setDoubleJumping(doubleJumping);
     }
+
+    public static float getJumpBoostPower(int amplifier) {
+        return 0.1F * (amplifier + 1.0F);
+    }
 }

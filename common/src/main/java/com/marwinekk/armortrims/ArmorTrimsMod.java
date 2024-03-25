@@ -59,6 +59,7 @@ public class ArmorTrimsMod {
         if(!stack.isEmpty() && isLocked(stack)) setLocked(stack, false);
     };
     public static final int BONUS_SLOTS = 5;
+    public static final int PUTFIELD_OPCODE = 181;
     private static final String ENCHANT_BOOSTS = "armor_trims:enchant_boosts";
     private static final String BONUS_ENCHANTS = "armor_trims:bonus_enchants";
 
