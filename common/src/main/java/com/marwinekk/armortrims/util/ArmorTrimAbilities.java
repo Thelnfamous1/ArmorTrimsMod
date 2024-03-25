@@ -222,4 +222,21 @@ public class ArmorTrimAbilities {
         }
     }
 
+    public static boolean isLookingAt(LivingEntity viewer, LivingEntity target){
+        Vec3 viewVector = viewer.getViewVector(1.0F).normalize();
+        Vec3 distanceVec = new Vec3(target.getX() - viewer.getX(), target.getEyeY() - viewer.getEyeY(), target.getZ() - viewer.getZ());
+        double distance = distanceVec.length();
+        distanceVec = distanceVec.normalize();
+        double dot = viewVector.dot(distanceVec);
+        double threshold = 1.0D - 0.025D / distance;
+        return dot > threshold && viewer.hasLineOfSight(target);
+    }
+
+    public static boolean isInFrontOf(LivingEntity viewer, LivingEntity target){
+        Vec3 viewVector = viewer.getViewVector(1.0F);
+        Vec3 distanceVec = target.position().vectorTo(viewer.position()).normalize();
+        //distanceVec = new Vec3(distanceVec.x, 0.0D, distanceVec.z);
+        return distanceVec.dot(viewVector) < 0.0D;
+    }
+
 }

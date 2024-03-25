@@ -3,10 +3,15 @@ package com.marwinekk.armortrims.util;
 import com.marwinekk.armortrims.ducks.PlayerDuck;
 import com.marwinekk.armortrims.entity.TNTArrowEntity;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+
+import java.util.Comparator;
 
 public class RedstoneTrimAbilities {
     public static final int REDSTONE_ABILITY_USES = 3;
@@ -26,8 +31,8 @@ public class RedstoneTrimAbilities {
     }
 
     private static boolean activateCombatAbility(ServerPlayer player, EquipmentSlot slot) {
+        ArmorTrimAbilities.playActivationSound(player, SoundEvents.TNT_PRIMED);
         TNTArrowEntity tntArrowEntity = new TNTArrowEntity(player.level(),player);
-        tntArrowEntity.setExplosionRadius(1.3F);
         tntArrowEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 3.0F, 0);
         lockOn(player, tntArrowEntity);
         player.level().addFreshEntity(tntArrowEntity);
@@ -45,11 +50,22 @@ public class RedstoneTrimAbilities {
         return false;
     }
 
-    private static void onRemove(ServerPlayer player) {
-        ArmorTrimAbilities.removeBonusEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE);
+    public static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow) {
+        ArmorTrimAbilities.getHitResult(shooter)
+                .ifRight(ehr -> homingArrow.setHomingTarget(ehr.getEntity()))
+                .ifLeft(bhr -> lockOnToNearestFacingPlayer(shooter, homingArrow));
     }
 
-    public static void lockOn(LivingEntity shooter, TNTArrowEntity homingArrow) {
-        ArmorTrimAbilities.getHitResult(shooter).ifRight(ehr -> homingArrow.setHomingTarget(ehr.getEntity()));
+    private static void lockOnToNearestFacingPlayer(LivingEntity shooter, TNTArrowEntity homingArrow) {
+        shooter.level().getNearbyPlayers(TargetingConditions.DEFAULT, shooter, shooter.getBoundingBox().inflate(100, 100, 100))
+                .stream()
+                .sorted(Comparator.<Entity, Double>comparing(p -> p.distanceToSqr(shooter)))
+                .filter(p -> ArmorTrimAbilities.isInFrontOf(shooter, p) && shooter.hasLineOfSight(p))
+                .findFirst()
+                .ifPresent(homingArrow::setHomingTarget);
+    }
+
+    private static void onRemove(ServerPlayer player) {
+        ArmorTrimAbilities.removeBonusEnchantFromArmor(player, Enchantments.BLAST_PROTECTION, Items.REDSTONE);
     }
 }

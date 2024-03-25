@@ -36,7 +36,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 	@Nullable
 	private Entity homingTarget;
 	private ItemStack tntItem = new ItemStack(Blocks.TNT);
-	private float explosionRadius = 1.0F;
+	private float explosionRadius = 1.3F;
 
 
 	public TNTArrowEntity(EntityType<? extends AbstractArrow> type, Level world) {
@@ -105,9 +105,16 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 
 	@Override
 	public void onHitEntity(EntityHitResult entityHitResult) {
+		boolean wasRemoved = this.isRemoved();
 		super.onHitEntity(entityHitResult);
 		if(!this.level().isClientSide){
-			this.discard();
+			if(entityHitResult.getEntity() instanceof LivingEntity living
+					&& living.getLastDamageSource() != null
+					&& living.getLastDamageSource().getDirectEntity() != this){
+				if(this.isRemoved() && !wasRemoved){
+					this.unsetRemoved();
+				}
+			}
 			Vec3 hitPos = entityHitResult.getLocation();
 			level().explode(null, hitPos.x, hitPos.y, hitPos.z, this.explosionRadius, Level.ExplosionInteraction.NONE);
 		}
@@ -175,7 +182,7 @@ public class TNTArrowEntity extends AbstractArrow implements ItemSupplier, Physi
 		return this.homingTarget;
 	}
 
-	private boolean hasHomingTarget() {
+	public boolean hasHomingTarget() {
 		return this.entityData.get(DATA_HOMING_TARGET_ID).isPresent();
 	}
 
