@@ -181,9 +181,6 @@ abstract class PlayerMixin  extends LivingEntity implements PlayerDuck {
 
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void handleAiStep(CallbackInfo ci){
-        if(this.armorTrimsMod$isDoubleJumping()){
-            this.resetFallDistance();
-        }
         if(this.onGround() || this.onClimbable()){
             this.armorTrimsMod$setDoubleJumping(false);
         }

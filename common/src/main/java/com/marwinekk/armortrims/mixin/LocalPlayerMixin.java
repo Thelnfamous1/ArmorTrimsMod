@@ -57,8 +57,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
                 if (this.armorTrimsMod$canJump(this)) {
                     --this.armorTrimsMod$jumpCount;
                     this.jumpFromGround();
-                    // increases jump height to 3 blocks instead of just 1
-                    this.push(0, CopperTrimAbilities.getJumpBoostPower(2), 0);
+                    // increases jump height to 2 blocks instead of just 1
+                    this.push(0, CopperTrimAbilities.getJumpBoostPower(1), 0);
                     CopperTrimAbilities.setDoubleJumping(((PlayerDuck) this), true);
                     CopperTrimAbilities.createDoubleJumpEffect(this);
 

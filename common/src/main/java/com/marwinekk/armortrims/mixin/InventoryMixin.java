@@ -25,7 +25,7 @@ public class InventoryMixin {
     private float modifyArmorDamage(float currentDamage, DamageSource source, float originalDamage, int[] slots){
         Entity directEntity = source.getDirectEntity();
         if(directEntity != null && directEntity.getType() == ArmorTrimsModEntities.BLOCK_BREAKER_ARROW){
-            return currentDamage * 4; // full damage is applied to each piece of armor instead of only 25%
+            return currentDamage * 3; // 75% of damage is applied to each piece of armor instead of only 25%
         } else {
             return currentDamage;
         }

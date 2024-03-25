@@ -80,18 +80,20 @@ public class CopperTrimAbilities {
     }
 
     private static boolean activateCombatAbility(ServerPlayer player, EquipmentSlot slot) {
-        LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(player.level());
-        if (lightningbolt != null) {
+        LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(player.level());
+        if (bolt != null) {
             Either<BlockHitResult, EntityHitResult> hitResult = ArmorTrimAbilities.getHitResult(player);
+            //ArmorTrimsMod.LOG.info("Hitscan result for lightning summmon ability activated by {}: {} at {}", player, hitResult.map(BlockHitResult::getType, EntityHitResult::getType), hitResult.map(HitResult::getLocation, HitResult::getLocation));
             if(hitResult.left().isPresent() && hitResult.left().get().getType() == HitResult.Type.MISS){
                 return false;
             }
             Vec3 pos = hitResult.map(HitResult::getLocation, HitResult::getLocation);
-            lightningbolt.moveTo(pos);
-            lightningbolt.setCause(player);
-            lightningbolt.addTag(ArmorTrimAbilities.ARMOR_TRIMS_TAG);
-            player.level().addFreshEntity(lightningbolt);
-            lightningbolt.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 5, 1);
+            bolt.moveTo(pos);
+            bolt.setCause(player);
+            bolt.addTag(ArmorTrimAbilities.ARMOR_TRIMS_TAG);
+            player.level().addFreshEntity(bolt);
+            //ArmorTrimsMod.LOG.info("Summoning {} for {}", bolt, player);
+            bolt.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 5, 1);
 
             PlayerDuck playerDuck = (PlayerDuck) player;
             int strikes = playerDuck.lightningStrikesLeft();
@@ -99,6 +101,7 @@ public class CopperTrimAbilities {
                 strikes = COPPER_ABILITY_USES;
             }
             playerDuck.setLightningStrikesLeft(strikes - 1);
+            //ArmorTrimsMod.LOG.info("{} has {} lightning strikes remaining", player, strikes - 1);
             if (strikes == 1) {
                 playerDuck.setAbilityCooldown(slot, COPPER_COOLDOWN_TICKS);
             }
