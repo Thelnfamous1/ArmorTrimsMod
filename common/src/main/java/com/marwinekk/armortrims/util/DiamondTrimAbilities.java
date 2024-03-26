@@ -17,7 +17,7 @@ public class DiamondTrimAbilities {
             DiamondTrimAbilities::onRemove)
             .runEveryEquip();
     public static final int DIAMOND_ABILITY_USES = 5;
-    private static final int EXTRA_BASE_DAMAGE = 7; // arrow base damage is 2, so total is 9
+    private static final int EXTRA_BASE_DAMAGE = 5; // arrow base damage is 2, so total is 7
     private static final int DIAMOND_COOLDOWN_TICKS = 45 * 20;
 
     private static void onEquip(ServerPlayer player) {
